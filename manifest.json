@@ -1,0 +1,130 @@
+{
+  "manifest_version": 3,
+  "name": "BasketIndex",
+  "version": "0.1.0",
+  "description": "Local-first receipt export. Uses your existing retailer login. No server, no accounts, your data stays in your browser.",
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "downloads",
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://*.lidl.bg/*",
+    "https://*.lidl.com/*",
+    "https://*.lidl.de/*",
+    "https://*.lidl.co.uk/*",
+    "https://*.lidl.fr/*",
+    "https://*.lidl.it/*",
+    "https://*.lidl.es/*",
+    "https://*.lidl.nl/*",
+    "https://*.lidl.pl/*",
+    "https://*.lidl.cz/*",
+    "https://*.lidl.sk/*",
+    "https://*.lidl.hu/*",
+    "https://*.lidl.ro/*",
+    "https://*.lidl.gr/*",
+    "https://*.lidl.pt/*",
+    "https://*.lidl.ie/*",
+    "https://*.lidl.at/*",
+    "https://*.lidl.lt/*",
+    "https://*.lidl.lv/*",
+    "https://*.lidl.si/*",
+    "https://*.lidl.hr/*",
+    "https://*.lidl.rs/*",
+    "https://*.lidl.ee/*",
+    "https://*.lidl.fi/*",
+    "https://*.lidl.se/*",
+    "https://*.lidl.dk/*",
+    "https://*.lidl.no/*"
+  ],
+  "background": {
+    "service_worker": "service-worker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "BasketIndex",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.lidl.bg/*/purchase-history*",
+        "https://*.lidl.com/*/purchase-history*",
+        "https://*.lidl.de/*/purchase-history*",
+        "https://*.lidl.co.uk/*/purchase-history*",
+        "https://*.lidl.fr/*/purchase-history*",
+        "https://*.lidl.it/*/purchase-history*",
+        "https://*.lidl.es/*/purchase-history*",
+        "https://*.lidl.nl/*/purchase-history*",
+        "https://*.lidl.pl/*/purchase-history*",
+        "https://*.lidl.cz/*/purchase-history*",
+        "https://*.lidl.sk/*/purchase-history*",
+        "https://*.lidl.hu/*/purchase-history*",
+        "https://*.lidl.ro/*/purchase-history*",
+        "https://*.lidl.gr/*/purchase-history*",
+        "https://*.lidl.pt/*/purchase-history*",
+        "https://*.lidl.ie/*/purchase-history*",
+        "https://*.lidl.at/*/purchase-history*",
+        "https://*.lidl.lt/*/purchase-history*",
+        "https://*.lidl.lv/*/purchase-history*",
+        "https://*.lidl.si/*/purchase-history*",
+        "https://*.lidl.hr/*/purchase-history*",
+        "https://*.lidl.rs/*/purchase-history*",
+        "https://*.lidl.ee/*/purchase-history*",
+        "https://*.lidl.fi/*/purchase-history*",
+        "https://*.lidl.se/*/purchase-history*",
+        "https://*.lidl.dk/*/purchase-history*",
+        "https://*.lidl.no/*/purchase-history*"
+      ],
+      "js": ["adapters/lidl/shared.js", "adapters/lidl/listing-extractor.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://*.lidl.bg/*/purchase-detail*",
+        "https://*.lidl.com/*/purchase-detail*",
+        "https://*.lidl.de/*/purchase-detail*",
+        "https://*.lidl.co.uk/*/purchase-detail*",
+        "https://*.lidl.fr/*/purchase-detail*",
+        "https://*.lidl.it/*/purchase-detail*",
+        "https://*.lidl.es/*/purchase-detail*",
+        "https://*.lidl.nl/*/purchase-detail*",
+        "https://*.lidl.pl/*/purchase-detail*",
+        "https://*.lidl.cz/*/purchase-detail*",
+        "https://*.lidl.sk/*/purchase-detail*",
+        "https://*.lidl.hu/*/purchase-detail*",
+        "https://*.lidl.ro/*/purchase-detail*",
+        "https://*.lidl.gr/*/purchase-detail*",
+        "https://*.lidl.pt/*/purchase-detail*",
+        "https://*.lidl.ie/*/purchase-detail*",
+        "https://*.lidl.at/*/purchase-detail*",
+        "https://*.lidl.lt/*/purchase-detail*",
+        "https://*.lidl.lv/*/purchase-detail*",
+        "https://*.lidl.si/*/purchase-detail*",
+        "https://*.lidl.hr/*/purchase-detail*",
+        "https://*.lidl.rs/*/purchase-detail*",
+        "https://*.lidl.ee/*/purchase-detail*",
+        "https://*.lidl.fi/*/purchase-detail*",
+        "https://*.lidl.se/*/purchase-detail*",
+        "https://*.lidl.dk/*/purchase-detail*",
+        "https://*.lidl.no/*/purchase-detail*"
+      ],
+      "js": ["adapters/lidl/shared.js", "adapters/lidl/detail-extractor.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

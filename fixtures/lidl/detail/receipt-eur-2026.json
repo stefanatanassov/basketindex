@@ -1,0 +1,185 @@
+{
+  "_fixture": "Anonymized Lidl receipt detail (EUR, 2026, dual-currency).",
+  "_notes": "Store codes, receipt IDs, fiscal codes, and card data are replaced with generic values. Product names and prices are preserved as they are public retail data. See docs/contributor-guide.md for anonymization guidelines.",
+  "success": true,
+  "receipt_id": "00000000000000000000000",
+  "source_url": "https://www.lidl.bg/mre/purchase-detail?t=00000000000000000000000",
+  "date": "2026-06-06",
+  "time": "19:56:41",
+  "datetime_local": "2026-06-06T19:56:41",
+  "store": {
+    "code": "0000000",
+    "name": "Лидл Магазин 000",
+    "address": "ул. Примерна 1",
+    "bulstat": "000000000",
+    "vat_number": "BG000000000",
+    "usn": "BN000000-0000-0000000",
+    "till": "1"
+  },
+  "receipt_meta": {
+    "sequence_number": "0000000000",
+    "fiscal_code": "00000000*0000000000*2026-06-06*19:56:41*62.86"
+  },
+  "totals": {
+    "currency_primary": "EUR",
+    "sum": 62.86,
+    "sum_eur": 62.86,
+    "sum_bgn": 122.94,
+    "tender_total_eur": 62.86,
+    "tender_total_bgn": 122.94,
+    "tender_label": "КРЕДИТНА/ДЕБИТНА КАРТА"
+  },
+  "items": [
+    {
+      "line_no": 1,
+      "article_id": "0082410",
+      "name": "ЧЕРИ ДОМАТИ 250Г.",
+      "raw_text": "ЧЕРИ ДОМАТИ 250Г.                     3,58 B",
+      "tax_type": "B",
+      "price_bgn": 7,
+      "price_eur": 3.58,
+      "unit_price_bgn": 3.5,
+      "line_total_bgn": 7,
+      "unit_price_eur": 1.79,
+      "line_total_eur": 3.58,
+      "quantity": 2,
+      "quantity_unit": "pcs",
+      "currency_item": "EUR",
+      "parse_method": "dom_paired"
+    },
+    {
+      "line_no": 2,
+      "article_id": "7207915",
+      "name": "PHILADELPHIA КРЕМА С",
+      "raw_text": "PHILADELPHIA КРЕМА С                  4,34 B",
+      "tax_type": "B",
+      "price_bgn": 8.49,
+      "price_eur": 4.34,
+      "unit_price_bgn": 8.49,
+      "line_total_bgn": 8.49,
+      "unit_price_eur": 4.34,
+      "line_total_eur": 4.34,
+      "quantity": 1,
+      "quantity_unit": "pcs",
+      "currency_item": "EUR",
+      "parse_method": "dom_single"
+    },
+    {
+      "line_no": 3,
+      "article_id": "0082700",
+      "name": "ДЖИНДЖИФИЛ НА КГ",
+      "raw_text": "ДЖИНДЖИФИЛ НА КГ                      0,41 B",
+      "tax_type": "B",
+      "price_bgn": 0.8,
+      "price_eur": 0.41,
+      "unit_price_bgn": 8.99,
+      "line_total_bgn": 0.8,
+      "unit_price_eur": 4.6,
+      "line_total_eur": 0.41,
+      "quantity": 0.09,
+      "quantity_unit": "kg",
+      "currency_item": "EUR",
+      "parse_method": "dom_paired"
+    },
+    {
+      "line_no": 4,
+      "article_id": "7201075",
+      "name": "DEVIN ИЗВ.ВОДА 11Л",
+      "raw_text": "DEVIN ИЗВ.ВОДА 11Л                    8,43 B",
+      "tax_type": "B",
+      "price_bgn": 16.49,
+      "price_eur": 8.43,
+      "unit_price_bgn": 5.5,
+      "line_total_bgn": 16.49,
+      "unit_price_eur": 2.81,
+      "line_total_eur": 8.43,
+      "quantity": 3,
+      "quantity_unit": "pcs",
+      "currency_item": "EUR",
+      "parse_method": "dom_paired"
+    },
+    {
+      "line_no": 5,
+      "article_id": "0080000",
+      "name": "БАНАНИ НА КГ",
+      "raw_text": "БАНАНИ НА КГ                          1,66 B",
+      "tax_type": "B",
+      "price_bgn": 3.25,
+      "price_eur": 1.66,
+      "unit_price_bgn": 2.72,
+      "line_total_bgn": 3.25,
+      "unit_price_eur": 1.39,
+      "line_total_eur": 1.66,
+      "quantity": 1.196,
+      "quantity_unit": "kg",
+      "currency_item": "EUR",
+      "parse_method": "dom_paired"
+    },
+    {
+      "line_no": 6,
+      "article_id": "7208523",
+      "name": "ЯЙЦА L КЛЕТЪЧНО ОТГЛ",
+      "raw_text": "ЯЙЦА L КЛЕТЪЧНО ОТГЛ                  5,36 B",
+      "tax_type": "B",
+      "price_bgn": 10.48,
+      "price_eur": 5.36,
+      "unit_price_bgn": 10.48,
+      "line_total_bgn": 10.48,
+      "unit_price_eur": 5.36,
+      "line_total_eur": 5.36,
+      "quantity": 1,
+      "quantity_unit": "pcs",
+      "currency_item": "EUR",
+      "parse_method": "dom_single"
+    }
+  ],
+  "currency_item": "EUR",
+  "currency_total": "EUR",
+  "exchange_rate": 1.95583,
+  "raw_sections": {
+    "header_lines": [
+      "София,ул. Примерна 1",
+      "БУЛСТАТ: 000000000",
+      "Лидл Магазин 000",
+      "ул. Примерна 1",
+      "ЗДДС No BG000000000",
+      "УНП: BN000000-0000-0000000",
+      "#Ном:000000 Бон:000",
+      "#Каса:1 Касиер:1"
+    ],
+    "summary_rows": [
+      "МЕЖДИННА СУМА                        66,01",
+      "ОБЩА СУМА                            62,86",
+      "122,94(лв)",
+      "ОБМЕНЕН КУРС 1 EUR = 1.95583 ЛВ",
+      "КРЕДИТНА/ДЕБИТНА КАРТА                62,86"
+    ],
+    "tender_lines": [
+      "БАНКА ДСК",
+      "ЛИДЛ МАГАЗИН 000",
+      "TID: A0000000 (BG)",
+      "06/06/26                          19:56:24",
+      "VISA",
+      "XXXX-XXXX-XXXX-0000",
+      "ПОКУПКА/SALE",
+      "СУМА/AMT                     62,86 EUR",
+      "АВТ.КОД: 000000            000/000/000"
+    ],
+    "receipt_data_rows": [
+      "0000000000 06.06.2026 19:56:41   6 АРТИКУЛА",
+      "BN000000                            00000000"
+    ]
+  },
+  "discounts": [
+    {
+      "promotion_id": "100001000-BG-TEMPLATE-BGOF000397142-1",
+      "description": "Lidl Plus промоция",
+      "amount": 1.8
+    },
+    {
+      "promotion_id": "100001000-BG-TEMPLATE-BGOF000397173-1",
+      "description": "Lidl Plus промоция",
+      "amount": 1.35
+    }
+  ]
+}

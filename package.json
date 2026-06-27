@@ -1,0 +1,12 @@
+{
+  "name": "basketindex",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-first receipt export hub. Browser extension, no build step.",
+  "type": "module",
+  "scripts": {
+    "validate-fixtures": "node scripts/validate-fixtures.mjs",
+    "sync-manifest": "node scripts/sync-manifest.mjs",
+    "check-syntax": "node -e \"const {execSync}=require('child_process'); const fs=require('fs'); const files=fs.readdirSync('.').flatMap(d=>{try{return fs.readdirSync(d).filter(f=>f.endsWith('.js')||f.endsWith('.mjs')).map(f=>d+'/'+f)}catch{return[]}}); files.forEach(f=>{try{execSync('node --check '+f,{stdio:'pipe'})}catch(e){console.log('FAIL: '+f)}});\""
+  }
+}

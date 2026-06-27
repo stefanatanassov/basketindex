@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BasketIndex — Status</title>
+  <link rel="stylesheet" href="status.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>BasketIndex</h1>
+      <span id="statusBadge" class="badge">Idle</span>
+    </header>
+    <section class="stats">
+      <div class="stat"><label>Job ID</label><span id="jobId">—</span></div>
+      <div class="stat"><label>Phase</label><span id="phase">—</span></div>
+      <div class="stat"><label>Pages</label><span id="pages">—</span></div>
+      <div class="stat"><label>Queue</label><span id="queue">0</span></div>
+      <div class="stat"><label>In Flight</label><span id="inFlight">0</span></div>
+      <div class="stat"><label>Complete</label><span id="complete">0</span></div>
+      <div class="stat"><label>Failed</label><span id="failed">0</span></div>
+      <div class="stat"><label>Final Fail</label><span id="finalFail">0</span></div>
+      <div class="stat"><label>Recovery</label><span id="recovery">—</span></div>
+      <div class="stat"><label>Updated</label><span id="updated">—</span></div>
+    </section>
+    <div class="progress-bar"><div id="progressFill"></div></div>
+  </div>
+  <script src="status.js" type="module"></script>
+</body>
+</html>

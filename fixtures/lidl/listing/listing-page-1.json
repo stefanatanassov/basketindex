@@ -1,0 +1,26 @@
+{
+  "_fixture": "Anonymized Lidl listing page result (page 1).",
+  "_notes": "Receipt IDs and URLs are replaced with generic values. Product count is preserved.",
+  "success": true,
+  "page": 1,
+  "url": "https://www.lidl.bg/mre/purchase-history?page=1",
+  "receiptCount": 3,
+  "totalLinksOnPage": 3,
+  "receipts": [
+    {
+      "receipt_id": "00000000000000000000001",
+      "url": "https://www.lidl.bg/mre/purchase-detail?t=00000000000000000000001",
+      "label": "06.06.2026 - 62,86 лв"
+    },
+    {
+      "receipt_id": "00000000000000000000002",
+      "url": "https://www.lidl.bg/mre/purchase-detail?t=00000000000000000000002",
+      "label": "01.06.2026 - 25,50 лв"
+    },
+    {
+      "receipt_id": "00000000000000000000003",
+      "url": "https://www.lidl.bg/mre/purchase-detail?t=00000000000000000000003",
+      "label": "22.05.2024 - 18,75 лв"
+    }
+  ]
+}

@@ -1,0 +1,251 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 380px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  color: #1a1a2e;
+  background: #f8f9fa;
+}
+
+.container {
+  padding: 16px;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+header h1 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.version {
+  font-size: 11px;
+  color: #999;
+  background: #e8e8e8;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+h2 {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-group {
+  margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-group label {
+  width: 120px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #555;
+}
+
+.form-group .hint {
+  font-weight: 400;
+  color: #999;
+  font-size: 10px;
+}
+
+.form-group input[type="number"] {
+  width: 80px;
+  padding: 5px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.form-group input[type="text"] {
+  flex: 1;
+  min-width: 200px;
+  padding: 5px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.form-group select {
+  padding: 5px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+  background: white;
+}
+
+.config-section, .status-section, .controls-section {
+  margin-bottom: 14px;
+  padding: 10px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+}
+
+.badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-idle { background: #e8e8e8; color: #666; }
+.badge-running { background: #d4edda; color: #155724; }
+.badge-paused { background: #fff3cd; color: #856404; }
+.badge-completed { background: #cce5ff; color: #004085; }
+.badge-error { background: #f8d7da; color: #721c24; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 6px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.stat-label {
+  color: #888;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-weight: 600;
+  color: #333;
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-bar-container {
+  height: 4px;
+  background: #e8e8e8;
+  border-radius: 2px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #4a90d9, #357abd);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.message {
+  font-size: 11px;
+  color: #888;
+  min-height: 16px;
+}
+
+.button-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  background: #f0f0f0;
+  color: #333;
+  transition: all 0.15s ease;
+}
+
+.btn:hover:not(:disabled) {
+  background: #e4e4e4;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #4a90d9;
+  color: white;
+  border-color: #357abd;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #357abd;
+}
+
+.btn-danger {
+  background: #f0f0f0;
+  color: #d33;
+  border-color: #d33;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #d33;
+  color: white;
+}
+
+.btn-export {
+  background: #28a745;
+  color: white;
+  border-color: #218838;
+}
+
+.btn-export:hover:not(:disabled) {
+  background: #218838;
+}
+
+.btn-sm {
+  padding: 3px 8px;
+  font-size: 11px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #f0f0f0;
+  cursor: pointer;
+}
+
+.btn-sm:hover {
+  background: #e0e0e0;
+}
+
+footer {
+  font-size: 10px;
+  color: #aaa;
+  text-align: center;
+  padding-top: 8px;
+  border-top: 1px solid #e8e8e8;
+}
+
+footer p {
+  line-height: 1.4;
+}

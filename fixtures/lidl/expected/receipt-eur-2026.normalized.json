@@ -1,0 +1,232 @@
+{
+  "schema_version": "1.0",
+  "import_metadata": {
+    "imported_at": "FIXTURE_TIMESTAMP",
+    "importer": "basketindex-extension",
+    "importer_version": "0.1.0",
+    "adapter_id": "lidl",
+    "adapter_version": "0.1.0"
+  },
+  "source": {
+    "retailer_id": "lidl",
+    "retailer_name": "Lidl",
+    "country": "BG",
+    "country_name": "Bulgaria",
+    "source_url": "https://www.lidl.bg/mre/purchase-detail?t=00000000000000000000000"
+  },
+  "receipt": {
+    "id": "00000000000000000000000",
+    "date": "2026-06-06",
+    "time": "19:56:41",
+    "datetime_local": "2026-06-06T19:56:41"
+  },
+  "store": {
+    "code": "0000000",
+    "name": "Лидл Магазин 000",
+    "address": "ул. Примерна 1",
+    "tax_id": "BG000000000",
+    "company_id": "000000000"
+  },
+  "currency": {
+    "primary": "EUR",
+    "secondary": "BGN",
+    "exchange_rate": 1.95583,
+    "exchange_rate_source": "receipt"
+  },
+  "totals": {
+    "subtotal_primary": 62.86,
+    "subtotal_secondary": 122.94,
+    "total_primary": 62.86,
+    "total_secondary": 122.94,
+    "discount_total_primary": 3.15,
+    "discount_total_secondary": 6.16
+  },
+  "items": [
+    {
+      "line_no": 1,
+      "product": {
+        "retailer_product_id": "0082410",
+        "name": "ЧЕРИ ДОМАТИ 250Г.",
+        "category": null
+      },
+      "quantity": {
+        "value": 2,
+        "unit": "pcs"
+      },
+      "pricing": {
+        "unit_price_primary": 1.79,
+        "line_total_primary": 3.58,
+        "unit_price_secondary": 3.5,
+        "line_total_secondary": 7
+      },
+      "tax": {
+        "type": "B",
+        "rate": null
+      },
+      "discounts": [],
+      "raw": {
+        "text": "ЧЕРИ ДОМАТИ 250Г.                     3,58 B",
+        "adapter_parse_method": "dom_paired"
+      }
+    },
+    {
+      "line_no": 2,
+      "product": {
+        "retailer_product_id": "7207915",
+        "name": "PHILADELPHIA КРЕМА С",
+        "category": null
+      },
+      "quantity": {
+        "value": 1,
+        "unit": "pcs"
+      },
+      "pricing": {
+        "unit_price_primary": 4.34,
+        "line_total_primary": 4.34,
+        "unit_price_secondary": 8.49,
+        "line_total_secondary": 8.49
+      },
+      "tax": {
+        "type": "B",
+        "rate": null
+      },
+      "discounts": [],
+      "raw": {
+        "text": "PHILADELPHIA КРЕМА С                  4,34 B",
+        "adapter_parse_method": "dom_single"
+      }
+    },
+    {
+      "line_no": 3,
+      "product": {
+        "retailer_product_id": "0082700",
+        "name": "ДЖИНДЖИФИЛ НА КГ",
+        "category": null
+      },
+      "quantity": {
+        "value": 0.09,
+        "unit": "kg"
+      },
+      "pricing": {
+        "unit_price_primary": 4.6,
+        "line_total_primary": 0.41,
+        "unit_price_secondary": 8.99,
+        "line_total_secondary": 0.8
+      },
+      "tax": {
+        "type": "B",
+        "rate": null
+      },
+      "discounts": [],
+      "raw": {
+        "text": "ДЖИНДЖИФИЛ НА КГ                      0,41 B",
+        "adapter_parse_method": "dom_paired"
+      }
+    },
+    {
+      "line_no": 4,
+      "product": {
+        "retailer_product_id": "7201075",
+        "name": "DEVIN ИЗВ.ВОДА 11Л",
+        "category": null
+      },
+      "quantity": {
+        "value": 3,
+        "unit": "pcs"
+      },
+      "pricing": {
+        "unit_price_primary": 2.81,
+        "line_total_primary": 8.43,
+        "unit_price_secondary": 5.5,
+        "line_total_secondary": 16.49
+      },
+      "tax": {
+        "type": "B",
+        "rate": null
+      },
+      "discounts": [],
+      "raw": {
+        "text": "DEVIN ИЗВ.ВОДА 11Л                    8,43 B",
+        "adapter_parse_method": "dom_paired"
+      }
+    },
+    {
+      "line_no": 5,
+      "product": {
+        "retailer_product_id": "0080000",
+        "name": "БАНАНИ НА КГ",
+        "category": null
+      },
+      "quantity": {
+        "value": 1.196,
+        "unit": "kg"
+      },
+      "pricing": {
+        "unit_price_primary": 1.39,
+        "line_total_primary": 1.66,
+        "unit_price_secondary": 2.72,
+        "line_total_secondary": 3.25
+      },
+      "tax": {
+        "type": "B",
+        "rate": null
+      },
+      "discounts": [],
+      "raw": {
+        "text": "БАНАНИ НА КГ                          1,66 B",
+        "adapter_parse_method": "dom_paired"
+      }
+    },
+    {
+      "line_no": 6,
+      "product": {
+        "retailer_product_id": "7208523",
+        "name": "ЯЙЦА L КЛЕТЪЧНО ОТГЛ",
+        "category": null
+      },
+      "quantity": {
+        "value": 1,
+        "unit": "pcs"
+      },
+      "pricing": {
+        "unit_price_primary": 5.36,
+        "line_total_primary": 5.36,
+        "unit_price_secondary": 10.48,
+        "line_total_secondary": 10.48
+      },
+      "tax": {
+        "type": "B",
+        "rate": null
+      },
+      "discounts": [],
+      "raw": {
+        "text": "ЯЙЦА L КЛЕТЪЧНО ОТГЛ                  5,36 B",
+        "adapter_parse_method": "dom_single"
+      }
+    }
+  ],
+  "payments": [
+    {
+      "method": "VISA",
+      "amount_primary": 62.86,
+      "amount_secondary": 122.94,
+      "card_last_four": "0000"
+    }
+  ],
+  "discounts": [
+    {
+      "description": "Lidl Plus промоция",
+      "promotion_id": "100001000-BG-TEMPLATE-BGOF000397142-1",
+      "amount_primary": 1.8,
+      "amount_secondary": 3.52,
+      "applied_to_lines": []
+    },
+    {
+      "description": "Lidl Plus промоция",
+      "promotion_id": "100001000-BG-TEMPLATE-BGOF000397173-1",
+      "amount_primary": 1.35,
+      "amount_secondary": 2.64,
+      "applied_to_lines": []
+    }
+  ]
+}

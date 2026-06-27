@@ -1,0 +1,244 @@
+{
+  "schema_version": "1.0",
+  "import_metadata": {
+    "imported_at": "FIXTURE_TIMESTAMP",
+    "importer": "basketindex-extension",
+    "importer_version": "0.1.0",
+    "adapter_id": "lidl",
+    "adapter_version": "0.1.0"
+  },
+  "source": {
+    "retailer_id": "lidl",
+    "retailer_name": "Lidl",
+    "country": "BG",
+    "country_name": "Bulgaria",
+    "source_url": "https://www.lidl.bg/mre/purchase-detail?t=00000000000000000000001"
+  },
+  "receipt": {
+    "id": "00000000000000000000001",
+    "date": "2024-03-15",
+    "time": "17:22:08",
+    "datetime_local": "2024-03-15T17:22:08"
+  },
+  "store": {
+    "code": "0000000",
+    "name": "Лидл Магазин 000",
+    "address": "бул. Примерен 42",
+    "tax_id": "BG000000000",
+    "company_id": "000000000"
+  },
+  "currency": {
+    "primary": "BGN",
+    "secondary": null,
+    "exchange_rate": null,
+    "exchange_rate_source": null
+  },
+  "totals": {
+    "subtotal_primary": 25.5,
+    "subtotal_secondary": null,
+    "total_primary": 25.5,
+    "total_secondary": null,
+    "discount_total_primary": 0,
+    "discount_total_secondary": null
+  },
+  "items": [
+    {
+      "line_no": 1,
+      "product": {
+        "retailer_product_id": "0001234",
+        "name": "ХЛЯБ БЯЛ 650Г",
+        "category": null
+      },
+      "quantity": {
+        "value": 1,
+        "unit": "pcs"
+      },
+      "pricing": {
+        "unit_price_primary": 1.45,
+        "line_total_primary": 1.45,
+        "unit_price_secondary": null,
+        "line_total_secondary": null
+      },
+      "tax": {
+        "type": "B",
+        "rate": null
+      },
+      "discounts": [],
+      "raw": {
+        "text": "ХЛЯБ БЯЛ 650Г                         1,45 B",
+        "adapter_parse_method": "dom_single"
+      }
+    },
+    {
+      "line_no": 2,
+      "product": {
+        "retailer_product_id": "0002345",
+        "name": "ПРЯСНО МЛЯКО 3.6% 1Л",
+        "category": null
+      },
+      "quantity": {
+        "value": 3,
+        "unit": "pcs"
+      },
+      "pricing": {
+        "unit_price_primary": 2.89,
+        "line_total_primary": 8.67,
+        "unit_price_secondary": null,
+        "line_total_secondary": null
+      },
+      "tax": {
+        "type": "B",
+        "rate": null
+      },
+      "discounts": [],
+      "raw": {
+        "text": "3,000 x 2,89                  ",
+        "adapter_parse_method": "dom_paired"
+      }
+    },
+    {
+      "line_no": 3,
+      "product": {
+        "retailer_product_id": "0003456",
+        "name": "ПРЯСНО МЛЯКО 3.6% 1Л",
+        "category": null
+      },
+      "quantity": {
+        "value": 3,
+        "unit": "pcs"
+      },
+      "pricing": {
+        "unit_price_primary": 2.89,
+        "line_total_primary": 8.67,
+        "unit_price_secondary": null,
+        "line_total_secondary": null
+      },
+      "tax": {
+        "type": "B",
+        "rate": null
+      },
+      "discounts": [],
+      "raw": {
+        "text": "ПРЯСНО МЛЯКО 3.6% 1Л                  8,67 B",
+        "adapter_parse_method": "dom_paired"
+      }
+    },
+    {
+      "line_no": 4,
+      "product": {
+        "retailer_product_id": "0004567",
+        "name": "ЯЙЦА M 10БР",
+        "category": null
+      },
+      "quantity": {
+        "value": 1,
+        "unit": "pcs"
+      },
+      "pricing": {
+        "unit_price_primary": 4.35,
+        "line_total_primary": 4.35,
+        "unit_price_secondary": null,
+        "line_total_secondary": null
+      },
+      "tax": {
+        "type": "B",
+        "rate": null
+      },
+      "discounts": [],
+      "raw": {
+        "text": "ЯЙЦА M 10БР                           4,35 B",
+        "adapter_parse_method": "dom_single"
+      }
+    },
+    {
+      "line_no": 5,
+      "product": {
+        "retailer_product_id": "0005678",
+        "name": "БАНАНИ НА КГ",
+        "category": null
+      },
+      "quantity": {
+        "value": 1.54,
+        "unit": "kg"
+      },
+      "pricing": {
+        "unit_price_primary": 2.29,
+        "line_total_primary": 3.53,
+        "unit_price_secondary": null,
+        "line_total_secondary": null
+      },
+      "tax": {
+        "type": "B",
+        "rate": null
+      },
+      "discounts": [],
+      "raw": {
+        "text": "1,540 x 2,29                  ",
+        "adapter_parse_method": "dom_paired"
+      }
+    },
+    {
+      "line_no": 6,
+      "product": {
+        "retailer_product_id": "0005678",
+        "name": "БАНАНИ НА КГ",
+        "category": null
+      },
+      "quantity": {
+        "value": 1.54,
+        "unit": "kg"
+      },
+      "pricing": {
+        "unit_price_primary": 2.29,
+        "line_total_primary": 3.53,
+        "unit_price_secondary": null,
+        "line_total_secondary": null
+      },
+      "tax": {
+        "type": "B",
+        "rate": null
+      },
+      "discounts": [],
+      "raw": {
+        "text": "БАНАНИ НА КГ                          3,53 B",
+        "adapter_parse_method": "dom_paired"
+      }
+    },
+    {
+      "line_no": 7,
+      "product": {
+        "retailer_product_id": "0006789",
+        "name": "ТОАЛЕТНА ХАРТИЯ 8Р",
+        "category": null
+      },
+      "quantity": {
+        "value": 1,
+        "unit": "pcs"
+      },
+      "pricing": {
+        "unit_price_primary": 3.5,
+        "line_total_primary": 3.5,
+        "unit_price_secondary": null,
+        "line_total_secondary": null
+      },
+      "tax": {
+        "type": "B",
+        "rate": null
+      },
+      "discounts": [],
+      "raw": {
+        "text": "ТОАЛЕТНА ХАРТИЯ 8Р                    3,50 B",
+        "adapter_parse_method": "dom_single"
+      }
+    }
+  ],
+  "payments": [
+    {
+      "method": "VISA",
+      "amount_primary": 25.5,
+      "amount_secondary": null,
+      "card_last_four": "0000"
+    }
+  ],
+  "discounts": []
+}
