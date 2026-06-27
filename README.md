@@ -41,6 +41,20 @@ BasketIndex is ready for **technical early adopters** who:
 
 ---
 
+## What you can do with your export
+
+Once you've exported your receipt data (JSON or CSV), you can use it for:
+
+- **Personal budgeting** — Track monthly grocery spending, category breakdowns, and trends over time.
+- **Price tracking** — Monitor prices of repeat purchases across weeks, months, or years. Spot before-and-after changes around the 2026 euro adoption in Bulgaria.
+- **Personal inflation analysis** — Use your exported data with an AI tool of your choice (ChatGPT, Claude, etc.) to analyze your own shopping inflation. We provide a copy-paste prompt to get started: [`docs/prompts/personal-inflation-analysis.md`](docs/prompts/personal-inflation-analysis.md).
+
+BasketIndex itself does **not** include built-in AI or automatic analysis. It gives you structured, machine-readable exports that you control. The prompt is a starting template — you use it with the tool you choose.
+
+**This is not financial advice.** All analysis is for your own exploratory use. AI tools can make mistakes — verify conclusions against your receipt data.
+
+---
+
 ## Supported retailers
 
 | Retailer | Status | Countries tested | Notes |
@@ -57,7 +71,7 @@ BasketIndex is ready for **technical early adopters** who:
 - **No cloud backup.** All data is stored in your browser's local storage. Uninstalling the extension deletes your data.
 - **Storage quota.** `chrome.storage.local` has limits. Very large exports (hundreds of receipts) may hit the quota. We added `unlimitedStorage` to mitigate this.
 - **Desktop Chrome only.** No Firefox, Edge, or mobile support yet.
-- **Chrome Web Store listing not yet available.** You must install via "Load unpacked" in Developer Mode.
+- **Chrome Web Store listing submitted and pending review.** Until approved, install via "Load unpacked" in Developer Mode.
 - **Security contact is a placeholder.** See [SECURITY.md](SECURITY.md) — replace before production use.
 
 ---
