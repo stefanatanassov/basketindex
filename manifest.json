@@ -3,6 +3,7 @@
   "name": "BasketIndex",
   "version": "0.1.0",
   "description": "Local-first receipt export. Uses your existing retailer login. No server, no accounts, your data stays in your browser.",
+  "homepage_url": "https://basketindex.stefanatanasov.dev/",
   "permissions": [
     "storage",
     "unlimitedStorage",

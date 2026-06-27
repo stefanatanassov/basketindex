@@ -249,3 +249,8 @@ footer {
 footer p {
   line-height: 1.4;
 }
+
+footer a {
+  color: #4a90d9;
+  text-decoration: none;
+}

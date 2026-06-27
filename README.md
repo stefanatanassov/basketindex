@@ -4,6 +4,10 @@
 
 BasketIndex is an open-source Chrome extension that exports your digital shopping receipts as structured JSON and CSV — straight from your existing retailer login. No separate accounts. No uploads. No analytics. Your purchase history stays in your browser.
 
+**Website**: [basketindex.stefanatanasov.dev](https://basketindex.stefanatanasov.dev/)  
+**Chrome Web Store**: Pending review  
+**Source**: [github.com/stefanatanassov/basketindex](https://github.com/stefanatanassov/basketindex)
+
 **Right now**: Working prototype with Lidl Bulgaria.  
 **The goal**: A community-built receipt hub with adapters for any retailer that shows receipts in a browser.
 
