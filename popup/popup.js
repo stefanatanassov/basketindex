@@ -66,7 +66,13 @@ function populateAdapterOptions() {
   for (const adapter of listAdapters()) {
     const option = document.createElement('option');
     option.value = adapter.id;
-    option.textContent = `${adapter.name} (${adapter.status})`;
+    const label = adapter.status === 'planned'
+      ? `${adapter.name} — Planned`
+      : `${adapter.name} — Available`;
+    option.textContent = label;
+    if (adapter.status === 'planned') {
+      option.disabled = true;
+    }
     select.appendChild(option);
   }
 }

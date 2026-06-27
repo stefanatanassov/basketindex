@@ -1,7 +1,35 @@
 import { lidlAdapter } from '../adapters/lidl/adapter.js';
 
+const kauflandAdapter = {
+  id: 'kaufland',
+  name: 'Kaufland',
+  supportedCountries: [],
+  status: 'planned',
+  supportsUrl() { return false; },
+  hostPatterns() { return []; },
+  getPurchaseHistoryUrl() { return ''; },
+  getListingAction() { return ''; },
+  getDetailAction() { return ''; },
+  normalizeReceipt(r) { return r; }
+};
+
+const metroAdapter = {
+  id: 'metro',
+  name: 'METRO',
+  supportedCountries: [],
+  status: 'planned',
+  supportsUrl() { return false; },
+  hostPatterns() { return []; },
+  getPurchaseHistoryUrl() { return ''; },
+  getListingAction() { return ''; },
+  getDetailAction() { return ''; },
+  normalizeReceipt(r) { return r; }
+};
+
 const registry = new Map([
-  [lidlAdapter.id, lidlAdapter]
+  [lidlAdapter.id, lidlAdapter],
+  [kauflandAdapter.id, kauflandAdapter],
+  [metroAdapter.id, metroAdapter]
 ]);
 
 function getAdapter(id) {

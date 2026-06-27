@@ -63,8 +63,10 @@ BasketIndex itself does **not** include built-in AI or automatic analysis. It gi
 
 | Retailer | Status | Countries tested | Notes |
 |----------|--------|-----------------|-------|
-| **Lidl** | Working adapter | BG | EUR/BGN, discount capture, paired-row items |
-| Others | Planned | — | Community adapter contributions welcome |
+| **Lidl** | Available now | BG | EUR/BGN, discount capture, paired-row items |
+| **Kaufland** | Planned | — | Adapter contribution welcome |
+| **METRO** | Planned | — | Adapter contribution welcome |
+| Your retailer? | Community | — | See [adapter contribution guide](docs/adapter-interface.md) |
 
 ---
 
