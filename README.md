@@ -96,16 +96,24 @@ Full privacy model: [`docs/privacy-model.md`](docs/privacy-model.md)
 
 ## Installation
 
-### Load the unpacked extension
+### Quick install from release (recommended)
 
-1. Download or clone this repository
-2. Open Chrome and go to `chrome://extensions`
-3. Enable **Developer mode** (toggle, top right)
-4. Click **Load unpacked**
-5. Select the repository folder
-6. The BasketIndex icon appears in your toolbar
+1. Download `basketindex-extension.zip` from the [latest GitHub release](https://github.com/stefanatanassov/basketindex/releases)
+2. Unzip it anywhere on your computer
+3. Open Chrome and go to `chrome://extensions`
+4. Enable **Developer mode** (toggle, top right)
+5. Click **Load unpacked**
+6. Select the unzipped `basketindex-extension` folder
+7. The BasketIndex icon appears in your toolbar
 
-No build step. No dependencies. No npm install needed for the extension itself.
+The release zip contains only extension runtime files — no docs, fixtures, or build scripts. 41 files, ~41KB.
+
+### Install from source
+
+1. Clone this repository: `git clone https://github.com/stefanatanassov/basketindex.git`
+2. Follow steps 3–6 above, selecting the cloned repository folder
+
+No build step. No dependencies. No npm install needed.
 
 ### Verify it works
 
