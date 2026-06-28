@@ -129,7 +129,7 @@ async function handlePopupMessage(message, sendResponse) {
       case CONTROL_ACTIONS.EXPORT: {
         const job = await loadJob();
         if (!job || job.completed.length === 0) {
-          sendResponse({ success: false, error: 'No completed receipts to export' });
+          sendResponse({ success: false, error: 'No completed receipts to export. If the job shows "completed" but has 0 receipts, try reducing the page range and starting again.' });
           return;
         }
         triggerJsonDownload(job);

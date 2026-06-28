@@ -337,6 +337,7 @@ function friendlyError(response) {
   if (err.includes('paused')) return 'No paused job to resume.';
   if (err.includes('No supported retailer')) return 'Could not match this URL to a supported retailer. Open a Lidl purchase-history page first.';
   if (err.includes('Config')) return 'Please fill in all configuration fields before starting.';
+  if (err.includes('No completed receipts')) return 'No receipts to export. If the job shows completed with 0 receipts, your page range may be too large — try a smaller range.';
   if (err.includes('completed receipts')) return 'No receipts have been exported yet. Wait for the job to finish processing.';
   return err || 'An unexpected error occurred. Check the console for details.';
 }

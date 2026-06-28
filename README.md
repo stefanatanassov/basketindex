@@ -126,6 +126,10 @@ No build step. No dependencies. No npm install needed for the extension itself.
 | Export button stays disabled | Wait for the job to complete. Progress is shown in the status panel |
 | Extension doesn't appear | Confirm Developer Mode is ON in `chrome://extensions` |
 | Empty or partial export | Try reducing workers to 1 and retrying the page range |
+| Job scans past my actual pages | Set the End Page to match your real purchase history page count. The extension now stops automatically when it hits an empty page |
+| Export completes but file is empty | Receipt data is stored in `chrome.storage.local` (not `localStorage`). Check the popup status — if Completed count is 0, reduce the page range |
+| Can't find the exported file | Check your browser's default Downloads folder. The file is named `basketindex-receipts-*.json` |
+| Job shows "Error" status | Reload the extension in `chrome://extensions` and try again. If it persists, open a GitHub issue
 
 ---
 
