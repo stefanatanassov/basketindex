@@ -20,23 +20,24 @@
 
     <div id="controls" class="controls" style="display:none">
       <div class="control-group">
-        <label>Търговец</label>
-        <select id="retailerFilter">
-          <option value="">Всички</option>
-          <option value="lidl">Лидл</option>
-          <option value="metro">МЕТРО</option>
-        </select>
+        <label>Извличания</label>
+        <select id="runFilter"><option value="__ALL__">Всички извличания</option></select>
       </div>
-      <div class="control-group">
+      <div class="control-group item-picker">
         <label>Артикули</label>
-        <select id="itemsFilter" size="1" style="min-width:180px">
-          <option value="__ALL__" selected>Всички артикули</option>
-        </select>
+        <div class="multi-select" id="itemsMulti">
+          <button id="itemsToggle" class="multi-toggle">Всички артикули</button>
+          <div id="itemsDropdown" class="multi-dropdown" style="display:none">
+            <input type="text" id="itemsSearch" class="multi-search" placeholder="Търси артикули...">
+            <div id="itemsList" class="multi-list"></div>
+          </div>
+        </div>
       </div>
       <div class="control-group">
         <label>Стойност</label>
         <select id="valueType">
-          <option value="percentage" selected>Проценти</option>
+          <option value="index" selected>Индекс</option>
+          <option value="percentage">Проценти</option>
           <option value="nominal">Номинална</option>
         </select>
       </div>
@@ -51,12 +52,14 @@
       <button id="exportPngBtn" class="btn btn-primary">Изтегли PNG</button>
     </div>
 
+    <div id="trendSummary" class="trend-summary" style="display:none"></div>
+
     <div id="chartContainer" class="chart-container" style="display:none">
       <canvas id="chartCanvas" width="900" height="500"></canvas>
     </div>
 
     <div id="methodology" class="methodology" style="display:none">
-      <p>Тенденциите са базирани на съхранените ти касови бележки. В режим „Проценти“ стойностите показват промяна спрямо първия наличен период за всеки артикул. Резултатите са ориентировъчни. Това не е официален инфлационен анализ.</p>
+      <p>Тенденциите са базирани на съхранените ти касови бележки. В режим „Индекс“ (по подразбиране) 100 = начален период; 120 = средната цена е с 20% по-висока. Резултатите са ориентировъчни. Това не е официален инфлационен анализ.</p>
     </div>
 
     <div class="footer-links">
