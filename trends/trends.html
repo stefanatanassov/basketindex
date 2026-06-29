@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BasketIndex — Тенденции</title>
+  <link rel="stylesheet" href="trends.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>BasketIndex</h1>
+      <span class="subtitle">Ценови тенденции</span>
+    </header>
+
+    <div id="emptyState" class="empty-state">
+      <p>Няма достатъчно данни за генериране на тенденции.</p>
+      <p>Стартирай поне едно извличане, за да започнеш да виждаш ценови тенденции.</p>
+    </div>
+
+    <div id="controls" class="controls" style="display:none">
+      <div class="control-group">
+        <label>Търговец</label>
+        <select id="retailerFilter">
+          <option value="">Всички</option>
+          <option value="lidl">Лидл</option>
+          <option value="metro">МЕТРО</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label>Период</label>
+        <select id="aggregation">
+          <option value="quarter">Тримесечия</option>
+          <option value="month">Месеци</option>
+          <option value="year">Години</option>
+        </select>
+      </div>
+      <button id="exportPngBtn" class="btn btn-primary">Изтегли като PNG</button>
+    </div>
+
+    <div id="chartContainer" class="chart-container" style="display:none">
+      <canvas id="chartCanvas" width="900" height="500"></canvas>
+    </div>
+
+    <div id="methodology" class="methodology" style="display:none">
+      <p>Тенденциите са базирани на съхранените ти касови бележки и са групирани по повтарящи се имена на продукти. Резултатите са ориентировъчни и могат да бъдат повлияни от промени в имената или разфасовките. Това не е официален инфлационен анализ.</p>
+    </div>
+
+    <div class="footer-links">
+      <a href="https://basketindex.stefanatanasov.dev/" target="_blank">basketindex.stefanatanasov.dev</a>
+    </div>
+  </div>
+
+  <script src="trends.js" type="module"></script>
+</body>
+</html>

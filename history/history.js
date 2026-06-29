@@ -8,6 +8,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   applyI18n();
   await load();
   document.getElementById('clearAllBtn').addEventListener('click', handleClearAll);
+  document.getElementById('trendsLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    chrome.tabs.create({ url: chrome.runtime.getURL('trends/trends.html') });
+  });
 });
 
 async function load() {

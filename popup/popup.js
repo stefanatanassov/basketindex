@@ -77,6 +77,10 @@ function bindEvents() {
     e.preventDefault();
     toggleMode();
   });
+  document.getElementById('trendsLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    chrome.tabs.create({ url: chrome.runtime.getURL('trends/trends.html') });
+  });
   document.getElementById('feedbackCta').addEventListener('click', handleFocusRetailerTab);
 
   document.getElementById('adapterId').addEventListener('change', () => {

@@ -1,0 +1,24 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px; color: #1a1a2e; background: #f0f2f5;
+  padding: 24px; max-width: 960px; margin: 0 auto;
+}
+.container { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+header { margin-bottom: 16px; }
+header h1 { font-size: 20px; }
+.subtitle { color: #888; font-size: 13px; }
+.empty-state { text-align: center; padding: 48px; color: #888; }
+.empty-state p { margin-bottom: 8px; }
+.controls { display: flex; gap: 16px; align-items: end; margin-bottom: 16px; flex-wrap: wrap; }
+.control-group { display: flex; flex-direction: column; gap: 4px; }
+.control-group label { font-size: 11px; color: #888; }
+.control-group select { padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; background: white; }
+.btn { padding: 8px 16px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500; }
+.btn-primary { background: #4a90d9; color: white; border-color: #357abd; }
+.btn-primary:hover { background: #357abd; }
+.chart-container { margin-bottom: 16px; }
+.chart-container canvas { width: 100%; height: auto; border: 1px solid #e8e8e8; border-radius: 8px; }
+.methodology { font-size: 11px; color: #aaa; margin-bottom: 16px; line-height: 1.5; padding: 10px; background: #f8f8f8; border-radius: 6px; }
+.footer-links { text-align: center; padding-top: 12px; border-top: 1px solid #e8e8e8; }
+.footer-links a { color: #4a90d9; font-size: 11px; text-decoration: none; }
