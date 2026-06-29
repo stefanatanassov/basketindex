@@ -77,8 +77,8 @@
   "feedbackTimeoutMessage": { "message": "BasketIndex не можа да завърши заявката в определеното време." },
   "feedbackTimeoutHint": { "message": "Опитай Старт отново. Ако страницата на търговеца изисква вход, влез първо там." },
   "feedbackAuthTitle": { "message": "Изисква се вход" },
-  "feedbackAuthMessage": { "message": "BasketIndex се нуждае от активна сесия в търговеца, за да продължи." },
-  "feedbackAuthHint": { "message": "Отвори страницата на търговеца, влез, след което опитай отново." },
+  "feedbackAuthMessage": { "message": "BasketIndex не откри активна сесия в търговеца." },
+  "feedbackAuthHint": { "message": "Отвори автоматично отворения таб, влез в профила си и опитай отново." },
   "feedbackUnavailableTitle": { "message": "Страницата на търговеца е недостъпна" },
   "feedbackUnavailableMessage": { "message": "BasketIndex не можа да достигне страницата или данните на търговеца в момента." },
   "feedbackUnavailableHint": { "message": "Опитай отново след малко." },
@@ -88,6 +88,9 @@
   "feedbackUnknownTitle": { "message": "Нещо се обърка" },
   "feedbackUnknownMessage": { "message": "BasketIndex срещна неочакван проблем." },
   "feedbackUnknownHint": { "message": "Опитай отново. Ако проблемът продължава, презареди разширението в chrome://extensions." },
+
+  "feedbackOpenRetailerTab": { "message": "Отиди към таба" },
+  "feedbackTabUnavailable": { "message": "Табът на търговеца вече не е наличен. Стартирай извличането отново." },
 
   "outcomeSuccess": { "message": "Успешно завършено" },
   "outcomePartial": { "message": "Завършено с проблеми" },

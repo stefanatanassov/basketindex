@@ -53,7 +53,9 @@ async function handlePopupMessage(message, sendResponse) {
           totalPages: job.stats.totalPages,
           recoveryRound: job.stats.recoveryRound,
           recoveryRounds: job.config.recoveryRounds,
-          updatedAt: job.updatedAt
+          updatedAt: job.updatedAt,
+          listingTabId: job.listingTabId || null,
+          adapterId: job.config?.adapterId || null
         }
       });
       return;

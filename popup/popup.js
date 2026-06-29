@@ -27,6 +27,8 @@ const RETAILER_DEFAULTS = {
 let pollTimer = null;
 let currentStatus = 'idle';
 let isAdvanced = false;
+let listingTabId = null;
+let adapterId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   applyPopupI18n();
@@ -75,6 +77,7 @@ function bindEvents() {
     e.preventDefault();
     toggleMode();
   });
+  document.getElementById('feedbackCta').addEventListener('click', handleFocusRetailerTab);
 
   document.getElementById('adapterId').addEventListener('change', () => {
     updateFieldVisibility();
@@ -210,6 +213,22 @@ async function handleStart() {
   refreshJobState();
 }
 
+async function handleFocusRetailerTab() {
+  if (!listingTabId) {
+    showMessage(t('feedbackTabUnavailable'), 'error');
+    return;
+  }
+  try {
+    const tab = await chrome.tabs.get(listingTabId);
+    await chrome.tabs.update(listingTabId, { active: true });
+    if (tab.windowId) {
+      await chrome.windows.update(tab.windowId, { focused: true });
+    }
+  } catch (_) {
+    showMessage(t('feedbackTabUnavailable'), 'error');
+  }
+}
+
 function resetPopupUI() {
   document.getElementById('progressBar').style.width = '0%';
   document.getElementById('simplePercent').textContent = '—';
@@ -283,6 +302,8 @@ async function refreshJobState() {
 
 function updateUI(summary) {
   currentStatus = summary.status || 'idle';
+  listingTabId = summary.listingTabId || null;
+  const retailerId = summary.adapterId || null;
 
   const complete = summary.completedCount || 0;
   const total = summary.stats?.receiptsDiscovered || 0;
@@ -313,6 +334,15 @@ function updateUI(summary) {
   const isHintMissing = !hint || hint === prefix + 'Hint' || hint.startsWith('feedback');
   document.getElementById('feedbackHint').textContent = isHintMissing ? '' : hint;
   panel.className = 'feedback-panel feedback-' + (fb.level || 'info');
+
+  // Show CTA button for auth_required when we have a retailer tab
+  const cta = document.getElementById('feedbackCta');
+  if (fb.code === 'auth_required' && listingTabId) {
+    cta.style.display = '';
+    cta.textContent = t('feedbackOpenRetailerTab');
+  } else {
+    cta.style.display = 'none';
+  }
 
   // Advanced view: detailed stats
   const badge = document.getElementById('jobStatusBadge');
