@@ -72,6 +72,23 @@ header h1 {
   margin-top: 8px;
 }
 
+.popup-links {
+  text-align: center;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #e8e8e8;
+}
+
+.popup-links .link {
+  color: #888;
+  text-decoration: none;
+  font-size: 11px;
+}
+
+.popup-links .link:hover { color: #4a90d9; }
+
+.link-sep { color: #ccc; margin: 0 6px; }
+
 .version {
   font-size: 11px;
   color: #999;

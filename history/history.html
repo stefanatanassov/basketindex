@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BasketIndex — History</title>
+  <link rel="stylesheet" href="history.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>BasketIndex</h1>
+      <span class="subtitle">Extraction History</span>
+      <button id="clearAllBtn" class="btn btn-danger-sm">Clear All</button>
+    </header>
+
+    <div id="emptyState" class="empty-state">
+      <p>No extraction runs yet.</p>
+      <p>Open the BasketIndex popup and start an export.</p>
+    </div>
+
+    <div id="runList" class="run-list"></div>
+  </div>
+
+  <script src="history.js" type="module"></script>
+</body>
+</html>

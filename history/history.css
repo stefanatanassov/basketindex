@@ -1,0 +1,34 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px; color: #1a1a2e; background: #f0f2f5;
+  padding: 24px; max-width: 720px; margin: 0 auto;
+}
+.container { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+header { display: flex; align-items: center; margin-bottom: 20px; gap: 12px; }
+header h1 { font-size: 20px; }
+.subtitle { color: #888; font-size: 13px; flex: 1; }
+.btn-danger-sm { padding: 6px 14px; font-size: 12px; background: #fff; color: #d33; border: 1px solid #d33; border-radius: 6px; cursor: pointer; }
+.btn-danger-sm:hover { background: #d33; color: #fff; }
+.empty-state { text-align: center; padding: 40px; color: #888; }
+.empty-state p { margin-bottom: 8px; }
+.run-card { border: 1px solid #e8e8e8; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+.run-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.run-retailer { font-weight: 600; font-size: 14px; }
+.run-date { color: #888; font-size: 12px; flex: 1; }
+.badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; }
+.badge-done { background: #d4edda; color: #155724; }
+.badge-error { background: #f8d7da; color: #721c24; }
+.run-stats { display: flex; gap: 24px; margin-bottom: 8px; font-size: 12px; }
+.run-stats span { color: #888; }
+.run-stats strong { color: #333; }
+.warnings { margin: 8px 0; }
+.warning { font-size: 11px; color: #856404; background: #fff3cd; padding: 4px 8px; border-radius: 4px; margin-bottom: 4px; }
+.run-actions { display: flex; gap: 8px; margin-top: 10px; }
+.btn { padding: 6px 14px; font-size: 12px; border: 1px solid #ccc; border-radius: 6px; cursor: pointer; font-weight: 500; }
+.btn-primary { background: #4a90d9; color: #fff; border-color: #357abd; }
+.btn-primary:hover { background: #357abd; }
+.btn-export { background: #28a745; color: #fff; border-color: #218838; }
+.btn-export:hover { background: #218838; }
+.btn-danger { background: #fff; color: #d33; border-color: #d33; }
+.btn-danger:hover { background: #d33; color: #fff; }

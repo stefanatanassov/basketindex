@@ -47,6 +47,14 @@ function bindEvents() {
   document.getElementById('exportCsvBtnAdv').addEventListener('click', handleExportCsv);
   document.getElementById('detectUrlBtn').addEventListener('click', handleDetectUrl);
   document.getElementById('toggleModeBtn').addEventListener('click', toggleMode);
+  document.getElementById('historyLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    chrome.tabs.create({ url: chrome.runtime.getURL('history/history.html') });
+  });
+  document.getElementById('advancedLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    toggleMode();
+  });
 
   document.getElementById('adapterId').addEventListener('change', () => {
     updateFieldVisibility();
@@ -193,9 +201,11 @@ async function handleResume() {
 }
 
 async function handleReset() {
-  if (!confirm('Reset the current job? This cannot be undone.')) return;
-  await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.RESET });
-  refreshJobState();
+  applyRetailerDefaults();
+  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('simplePercent').textContent = '—';
+  document.getElementById('simpleSubline').textContent = 'Ready';
+  showMessage('Form reset to defaults.', 'info');
 }
 
 async function handleExport() {
