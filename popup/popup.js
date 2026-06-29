@@ -37,7 +37,7 @@ function bindEvents() {
   document.getElementById('exportCsvBtn').addEventListener('click', handleExportCsv);
   document.getElementById('detectUrlBtn').addEventListener('click', handleDetectUrl);
 
-  const configInputs = ['adapterId', 'startPage', 'endPage', 'workerCount', 'maxRetries', 'recoveryRounds', 'listingUrl'];
+  const configInputs = ['adapterId', 'startPage', 'endPage', 'workerCount', 'maxRetries', 'recoveryRounds', 'listingUrl', 'fromDate', 'toDate'];
   for (const id of configInputs) {
     const el = document.getElementById(id);
     if (el) {
@@ -45,11 +45,45 @@ function bindEvents() {
       el.addEventListener('input', saveConfig);
     }
   }
+
+  // Set default toDate to today
+  const toDateEl = document.getElementById('toDate');
+  if (toDateEl && !toDateEl.value) {
+    toDateEl.value = new Date().toISOString().slice(0, 10);
+  }
+
+  // Listen for adapter changes to toggle field visibility
+  const adapterSelect = document.getElementById('adapterId');
+  if (adapterSelect) {
+    adapterSelect.addEventListener('change', updateFieldVisibility);
+    updateFieldVisibility();
+  }
+}
+
+function updateFieldVisibility() {
+  const adapterId = document.getElementById('adapterId').value;
+  const isLidl = adapterId === 'lidl';
+  const isMetro = adapterId === 'metro';
+
+  document.querySelectorAll('.lidl-only').forEach(el => {
+    el.style.display = isLidl ? '' : 'none';
+  });
+  document.querySelectorAll('.metro-only').forEach(el => {
+    el.style.display = isMetro ? '' : 'none';
+  });
+
+  if (isMetro) {
+    const toEl = document.getElementById('toDate');
+    if (toEl && !toEl.value) {
+      toEl.value = new Date().toISOString().slice(0, 10);
+    }
+  }
 }
 
 function saveConfig() {
+  const adapterId = document.getElementById('adapterId').value || 'lidl';
   const config = {
-    adapterId: document.getElementById('adapterId').value || 'lidl',
+    adapterId,
     startPage: parseInt(document.getElementById('startPage').value) || 1,
     endPage: parseInt(document.getElementById('endPage').value) || 100,
     workerCount: parseInt(document.getElementById('workerCount').value) || 2,
@@ -57,6 +91,10 @@ function saveConfig() {
     recoveryRounds: parseInt(document.getElementById('recoveryRounds').value) || 2,
     listingUrl: document.getElementById('listingUrl').value
   };
+  if (adapterId === 'metro') {
+    config.fromDate = document.getElementById('fromDate').value || '2019-01-01';
+    config.toDate = document.getElementById('toDate').value || new Date().toISOString().slice(0, 10);
+  }
   chrome.storage.local.set({ popupConfig: config });
 }
 
@@ -82,13 +120,18 @@ function loadSavedConfig() {
   chrome.storage.local.get('popupConfig', (result) => {
     const c = result.popupConfig;
     if (!c) return;
-    if (c.adapterId) document.getElementById('adapterId').value = c.adapterId;
+    if (c.adapterId) {
+      document.getElementById('adapterId').value = c.adapterId;
+      updateFieldVisibility();
+    }
     if (c.startPage) document.getElementById('startPage').value = c.startPage;
     if (c.endPage) document.getElementById('endPage').value = c.endPage;
     if (c.workerCount) document.getElementById('workerCount').value = c.workerCount;
     if (c.maxRetries) document.getElementById('maxRetries').value = c.maxRetries;
     if (c.recoveryRounds !== undefined) document.getElementById('recoveryRounds').value = c.recoveryRounds;
     if (c.listingUrl) document.getElementById('listingUrl').value = c.listingUrl;
+    if (c.fromDate) document.getElementById('fromDate').value = c.fromDate;
+    if (c.toDate) document.getElementById('toDate').value = c.toDate;
   });
 }
 
@@ -102,24 +145,32 @@ async function refreshJobState() {
 }
 
 function getConfig() {
-  return {
-    adapterId: document.getElementById('adapterId').value || 'lidl',
+  const adapterId = document.getElementById('adapterId').value || 'lidl';
+  const config = {
+    adapterId,
     startPage: parseInt(document.getElementById('startPage').value) || 1,
     endPage: parseInt(document.getElementById('endPage').value) || 100,
     workerCount: parseInt(document.getElementById('workerCount').value) || 2,
     maxRetries: parseInt(document.getElementById('maxRetries').value) || 3,
     recoveryRounds: parseInt(document.getElementById('recoveryRounds').value) || 2
   };
+  if (adapterId === 'metro') {
+    config.fromDate = document.getElementById('fromDate').value || '2019-01-01';
+    config.toDate = document.getElementById('toDate').value || new Date().toISOString().slice(0, 10);
+  }
+  return config;
 }
 
 function getListingUrl() {
+  const adapterId = document.getElementById('adapterId').value;
+  if (adapterId === 'metro') return 'https://docs.metro.bg/';
   return document.getElementById('listingUrl').value.trim();
 }
 
 async function handleStart() {
   const config = getConfig();
   const listingUrl = getListingUrl();
-  if (!listingUrl) {
+  if (!listingUrl && config.adapterId !== 'metro') {
     showMessage('Enter a purchase history URL or click Detect', 'error');
     return;
   }

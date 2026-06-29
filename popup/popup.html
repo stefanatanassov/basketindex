@@ -19,15 +19,15 @@
         <label for="adapterId">Retailer</label>
         <select id="adapterId"></select>
       </div>
-      <div class="form-group">
+      <div class="form-group lidl-only">
         <label for="startPage">Start Page</label>
         <input type="number" id="startPage" value="1" min="1" max="9999">
       </div>
-      <div class="form-group">
+      <div class="form-group lidl-only">
         <label for="endPage">End Page</label>
         <input type="number" id="endPage" value="100" min="1" max="9999">
       </div>
-      <div class="form-group">
+      <div class="form-group lidl-only">
         <label for="workerCount">Workers <span class="hint">(speed/reliability)</span></label>
         <select id="workerCount">
           <option value="1">1 — slow, most reliable</option>
@@ -35,6 +35,14 @@
           <option value="3">3 — faster, may throttle</option>
           <option value="4">4 — fastest, less stable</option>
         </select>
+      </div>
+      <div class="form-group metro-only" style="display:none">
+        <label for="fromDate">From Date</label>
+        <input type="date" id="fromDate" value="2019-01-01">
+      </div>
+      <div class="form-group metro-only" style="display:none">
+        <label for="toDate">To Date</label>
+        <input type="date" id="toDate">
       </div>
       <div class="form-group">
         <label for="maxRetries">Max Retries per Receipt</label>
@@ -54,10 +62,10 @@
           <option value="3">3</option>
         </select>
       </div>
-      <div class="form-group">
+      <div class="form-group lidl-only">
         <label for="listingUrl">Listing URL</label>
         <input type="text" id="listingUrl" placeholder="https://.../purchase-history">
-        <button id="detectUrlBtn" class="btn-sm" title="Detect from an open purchase history tab">Detect</button>
+        <button id="detectUrlBtn" class="btn-sm" title="Detect from current Lidl tab">Detect</button>
       </div>
     </section>
 

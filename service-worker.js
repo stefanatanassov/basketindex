@@ -64,14 +64,18 @@ async function handlePopupMessage(message, sendResponse) {
   if (type === MESSAGE_TYPES.JOB_CONTROL) {
     switch (action) {
       case CONTROL_ACTIONS.START: {
-        if (!config || !listingBaseUrl) {
-          sendResponse({ success: false, error: 'Config and listing base URL are required' });
+        if (!config) {
+          sendResponse({ success: false, error: 'Config is required' });
           return;
         }
         const selectedAdapter = config.adapterId ? getAdapter(config.adapterId) : null;
-        const resolvedAdapter = selectedAdapter || resolveAdapter(listingBaseUrl);
+        const resolvedAdapter = selectedAdapter || (listingBaseUrl ? resolveAdapter(listingBaseUrl) : null);
         if (!resolvedAdapter) {
-          sendResponse({ success: false, error: 'No supported retailer adapter matched this purchase history URL' });
+          sendResponse({ success: false, error: 'No supported retailer adapter matched' });
+          return;
+        }
+        if (!listingBaseUrl && resolvedAdapter.id !== 'metro') {
+          sendResponse({ success: false, error: 'Listing URL is required for this retailer' });
           return;
         }
         const existing = await loadJob();
