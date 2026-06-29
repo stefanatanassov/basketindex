@@ -311,7 +311,8 @@ function updateUI(summary) {
   document.getElementById('feedbackTitle').textContent = t(prefix + 'Title');
   document.getElementById('feedbackBody').textContent = t(prefix + 'Message');
   const hint = t(prefix + 'Hint');
-  document.getElementById('feedbackHint').textContent = (hint === (prefix + 'Hint') || hint.startsWith('feedback')) ? '' : hint;
+  const isHintMissing = !hint || hint === prefix + 'Hint' || hint.startsWith('feedback');
+  document.getElementById('feedbackHint').textContent = isHintMissing ? '' : hint;
   panel.className = 'feedback-panel feedback-' + (fb.level || 'info');
 
   // Advanced view: detailed stats
