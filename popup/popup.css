@@ -31,6 +31,47 @@ header h1 {
   color: #1a1a2e;
 }
 
+.btn-icon {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #888;
+}
+
+.btn-icon:hover { background: #e8e8e8; }
+
+.simple-status {
+  text-align: center;
+  padding: 12px 0;
+}
+
+.simple-percent {
+  font-size: 32px;
+  font-weight: 700;
+  color: #4a90d9;
+  display: block;
+  line-height: 1.2;
+}
+
+.simple-subline {
+  font-size: 12px;
+  color: #666;
+  display: block;
+  margin-top: 4px;
+}
+
+.btn-block {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
 .version {
   font-size: 11px;
   color: #999;

@@ -7,17 +7,24 @@ const MESSAGE_TYPES = {
 };
 
 const CONTROL_ACTIONS = {
-  START: 'start',
-  PAUSE: 'pause',
-  RESUME: 'resume',
-  RESET: 'reset',
-  EXPORT: 'export',
-  SNAPSHOT: 'snapshot',
-  EXPORT_CSV: 'export_csv'
+  START: 'start', PAUSE: 'pause', RESUME: 'resume', RESET: 'reset',
+  EXPORT: 'export', SNAPSHOT: 'snapshot', EXPORT_CSV: 'export_csv'
+};
+
+const RETAILER_DEFAULTS = {
+  lidl: {
+    listingUrl: 'https://www.lidl.bg/mre/purchase-history',
+    startPage: 1, endPage: 50, workerCount: 2, maxRetries: 3, recoveryRounds: 3
+  },
+  metro: {
+    listingUrl: 'https://docs.metro.bg/',
+    workerCount: 2, maxRetries: 3, recoveryRounds: 3
+  }
 };
 
 let pollTimer = null;
 let currentStatus = 'idle';
+let isAdvanced = false;
 
 document.addEventListener('DOMContentLoaded', () => {
   populateAdapterOptions();
@@ -29,89 +36,76 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function bindEvents() {
   document.getElementById('startBtn').addEventListener('click', handleStart);
+  document.getElementById('startBtnAdv').addEventListener('click', handleStart);
+  document.getElementById('resetBtn').addEventListener('click', handleReset);
+  document.getElementById('resetBtnAdv').addEventListener('click', handleReset);
   document.getElementById('pauseBtn').addEventListener('click', handlePause);
   document.getElementById('resumeBtn').addEventListener('click', handleResume);
-  document.getElementById('resetBtn').addEventListener('click', handleReset);
   document.getElementById('exportBtn').addEventListener('click', handleExport);
   document.getElementById('snapshotBtn').addEventListener('click', handleSnapshot);
   document.getElementById('exportCsvBtn').addEventListener('click', handleExportCsv);
+  document.getElementById('exportCsvBtnAdv').addEventListener('click', handleExportCsv);
   document.getElementById('detectUrlBtn').addEventListener('click', handleDetectUrl);
+  document.getElementById('toggleModeBtn').addEventListener('click', toggleMode);
+
+  document.getElementById('adapterId').addEventListener('change', () => {
+    updateFieldVisibility();
+    applyRetailerDefaults();
+    saveConfig();
+  });
 
   const configInputs = ['adapterId', 'startPage', 'endPage', 'workerCount', 'maxRetries', 'recoveryRounds', 'listingUrl', 'fromDate', 'toDate'];
   for (const id of configInputs) {
     const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('change', saveConfig);
-      el.addEventListener('input', saveConfig);
+    if (el) { el.addEventListener('change', saveConfig); el.addEventListener('input', saveConfig); }
+  }
+
+  const toDateEl = document.getElementById('toDate');
+  if (toDateEl && !toDateEl.value) toDateEl.value = new Date().toISOString().slice(0, 10);
+  updateFieldVisibility();
+}
+
+function toggleMode() {
+  isAdvanced = !isAdvanced;
+  document.getElementById('simpleView').style.display = isAdvanced ? 'none' : '';
+  document.getElementById('advancedView').style.display = isAdvanced ? '' : 'none';
+  document.getElementById('toggleModeBtn').textContent = isAdvanced ? '←' : '⚙';
+}
+
+function applyRetailerDefaults() {
+  const adapterId = document.getElementById('adapterId').value;
+  const defs = RETAILER_DEFAULTS[adapterId];
+  if (!defs) return;
+  if (defs.listingUrl) document.getElementById('listingUrl').value = defs.listingUrl;
+  if (defs.startPage) document.getElementById('startPage').value = defs.startPage;
+  if (defs.endPage) document.getElementById('endPage').value = defs.endPage;
+  if (defs.workerCount) document.getElementById('workerCount').value = defs.workerCount;
+  if (defs.maxRetries) document.getElementById('maxRetries').value = defs.maxRetries;
+  if (defs.recoveryRounds) document.getElementById('recoveryRounds').value = defs.recoveryRounds;
+  if (adapterId === 'metro') {
+    const fromEl = document.getElementById('fromDate');
+    if (fromEl && !fromEl.value) {
+      const d = new Date(); d.setFullYear(d.getFullYear() - 7);
+      fromEl.value = d.toISOString().slice(0, 10);
     }
   }
-
-  // Set default toDate to today
-  const toDateEl = document.getElementById('toDate');
-  if (toDateEl && !toDateEl.value) {
-    toDateEl.value = new Date().toISOString().slice(0, 10);
-  }
-
-  // Listen for adapter changes to toggle field visibility
-  const adapterSelect = document.getElementById('adapterId');
-  if (adapterSelect) {
-    adapterSelect.addEventListener('change', updateFieldVisibility);
-    updateFieldVisibility();
-  }
+  saveConfig();
 }
 
 function updateFieldVisibility() {
   const adapterId = document.getElementById('adapterId').value;
-  const isLidl = adapterId === 'lidl';
-  const isMetro = adapterId === 'metro';
-
-  document.querySelectorAll('.lidl-only').forEach(el => {
-    el.style.display = isLidl ? '' : 'none';
-  });
-  document.querySelectorAll('.metro-only').forEach(el => {
-    el.style.display = isMetro ? '' : 'none';
-  });
-
-  if (isMetro) {
-    const toEl = document.getElementById('toDate');
-    if (toEl && !toEl.value) {
-      toEl.value = new Date().toISOString().slice(0, 10);
-    }
-  }
-}
-
-function saveConfig() {
-  const adapterId = document.getElementById('adapterId').value || 'lidl';
-  const config = {
-    adapterId,
-    startPage: parseInt(document.getElementById('startPage').value) || 1,
-    endPage: parseInt(document.getElementById('endPage').value) || 100,
-    workerCount: parseInt(document.getElementById('workerCount').value) || 2,
-    maxRetries: parseInt(document.getElementById('maxRetries').value) || 3,
-    recoveryRounds: parseInt(document.getElementById('recoveryRounds').value) || 2,
-    listingUrl: document.getElementById('listingUrl').value
-  };
-  if (adapterId === 'metro') {
-    config.fromDate = document.getElementById('fromDate').value || '2019-01-01';
-    config.toDate = document.getElementById('toDate').value || new Date().toISOString().slice(0, 10);
-  }
-  chrome.storage.local.set({ popupConfig: config });
+  document.querySelectorAll('.lidl-only').forEach(el => { el.style.display = adapterId === 'lidl' ? '' : 'none'; });
+  document.querySelectorAll('.metro-only').forEach(el => { el.style.display = adapterId === 'metro' ? '' : 'none'; });
 }
 
 function populateAdapterOptions() {
   const select = document.getElementById('adapterId');
   select.innerHTML = '';
-
   for (const adapter of listAdapters()) {
     const option = document.createElement('option');
     option.value = adapter.id;
-    const label = adapter.status === 'planned'
-      ? `${adapter.name} — Planned`
-      : `${adapter.name} — Available`;
-    option.textContent = label;
-    if (adapter.status === 'planned') {
-      option.disabled = true;
-    }
+    option.textContent = adapter.status === 'planned' ? `${adapter.name} — Planned` : `${adapter.name} — Available`;
+    if (adapter.status === 'planned') option.disabled = true;
     select.appendChild(option);
   }
 }
@@ -120,10 +114,7 @@ function loadSavedConfig() {
   chrome.storage.local.get('popupConfig', (result) => {
     const c = result.popupConfig;
     if (!c) return;
-    if (c.adapterId) {
-      document.getElementById('adapterId').value = c.adapterId;
-      updateFieldVisibility();
-    }
+    if (c.adapterId) { document.getElementById('adapterId').value = c.adapterId; updateFieldVisibility(); }
     if (c.startPage) document.getElementById('startPage').value = c.startPage;
     if (c.endPage) document.getElementById('endPage').value = c.endPage;
     if (c.workerCount) document.getElementById('workerCount').value = c.workerCount;
@@ -135,24 +126,31 @@ function loadSavedConfig() {
   });
 }
 
-async function refreshJobState() {
-  try {
-    const response = await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_REQUEST });
-    if (response && response.summary) {
-      updateUI(response.summary);
-    }
-  } catch (_) {}
+function saveConfig() {
+  const adapterId = document.getElementById('adapterId').value || 'lidl';
+  const config = {
+    adapterId, startPage: parseInt(document.getElementById('startPage').value) || 1,
+    endPage: parseInt(document.getElementById('endPage').value) || 50,
+    workerCount: parseInt(document.getElementById('workerCount').value) || 2,
+    maxRetries: parseInt(document.getElementById('maxRetries').value) || 3,
+    recoveryRounds: parseInt(document.getElementById('recoveryRounds').value) || 3,
+    listingUrl: document.getElementById('listingUrl').value
+  };
+  if (adapterId === 'metro') {
+    config.fromDate = document.getElementById('fromDate').value || '2019-01-01';
+    config.toDate = document.getElementById('toDate').value || new Date().toISOString().slice(0, 10);
+  }
+  chrome.storage.local.set({ popupConfig: config });
 }
 
 function getConfig() {
   const adapterId = document.getElementById('adapterId').value || 'lidl';
   const config = {
-    adapterId,
-    startPage: parseInt(document.getElementById('startPage').value) || 1,
-    endPage: parseInt(document.getElementById('endPage').value) || 100,
+    adapterId, startPage: parseInt(document.getElementById('startPage').value) || 1,
+    endPage: parseInt(document.getElementById('endPage').value) || 50,
     workerCount: parseInt(document.getElementById('workerCount').value) || 2,
     maxRetries: parseInt(document.getElementById('maxRetries').value) || 3,
-    recoveryRounds: parseInt(document.getElementById('recoveryRounds').value) || 2
+    recoveryRounds: parseInt(document.getElementById('recoveryRounds').value) || 3
   };
   if (adapterId === 'metro') {
     config.fromDate = document.getElementById('fromDate').value || '2019-01-01';
@@ -164,214 +162,137 @@ function getConfig() {
 function getListingUrl() {
   const adapterId = document.getElementById('adapterId').value;
   if (adapterId === 'metro') return 'https://docs.metro.bg/';
-  return document.getElementById('listingUrl').value.trim();
+  const defs = RETAILER_DEFAULTS[adapterId];
+  return document.getElementById('listingUrl').value.trim() || (defs && defs.listingUrl) || 'https://www.lidl.bg/mre/purchase-history';
 }
 
 async function handleStart() {
   const config = getConfig();
+  applyRetailerDefaults();
   const listingUrl = getListingUrl();
   if (!listingUrl && config.adapterId !== 'metro') {
     showMessage('Enter a purchase history URL or click Detect', 'error');
     return;
   }
   saveConfig();
-  const response = await chrome.runtime.sendMessage({
-    type: MESSAGE_TYPES.JOB_CONTROL,
-    action: CONTROL_ACTIONS.START,
-    config,
-    listingBaseUrl: listingUrl
-  });
-  if (!response || !response.success) {
-    showMessage(friendlyError(response), 'error');
-  }
+  const response = await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.START, config, listingBaseUrl: listingUrl });
+  if (!response || !response.success) showMessage(friendlyError(response), 'error');
   refreshJobState();
 }
 
 async function handlePause() {
-  const response = await chrome.runtime.sendMessage({
-    type: MESSAGE_TYPES.JOB_CONTROL,
-    action: CONTROL_ACTIONS.PAUSE
-  });
-  if (!response || !response.success) {
-    showMessage(friendlyError(response), 'error');
-  }
+  const resp = await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.PAUSE });
+  if (!resp || !resp.success) showMessage(friendlyError(resp), 'error');
   refreshJobState();
 }
 
 async function handleResume() {
-  const response = await chrome.runtime.sendMessage({
-    type: MESSAGE_TYPES.JOB_CONTROL,
-    action: CONTROL_ACTIONS.RESUME
-  });
-  if (!response || !response.success) {
-    showMessage(friendlyError(response), 'error');
-  }
+  const resp = await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.RESUME });
+  if (!resp || !resp.success) showMessage(friendlyError(resp), 'error');
   refreshJobState();
 }
 
 async function handleReset() {
   if (!confirm('Reset the current job? This cannot be undone.')) return;
-  const response = await chrome.runtime.sendMessage({
-    type: MESSAGE_TYPES.JOB_CONTROL,
-    action: CONTROL_ACTIONS.RESET
-  });
+  await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.RESET });
   refreshJobState();
 }
 
 async function handleExport() {
-  const response = await chrome.runtime.sendMessage({
-    type: MESSAGE_TYPES.JOB_CONTROL,
-    action: CONTROL_ACTIONS.EXPORT
-  });
-  if (response && response.success) {
-    showMessage('JSON export started', 'success');
-  } else {
-    showMessage(friendlyError(response), 'error');
-  }
+  const resp = await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.EXPORT });
+  if (resp && resp.success) showMessage('JSON export started', 'success');
+  else showMessage(friendlyError(resp), 'error');
 }
 
 async function handleSnapshot() {
-  const response = await chrome.runtime.sendMessage({
-    type: MESSAGE_TYPES.JOB_CONTROL,
-    action: CONTROL_ACTIONS.SNAPSHOT
-  });
-  if (response && response.success) {
-    showMessage('Snapshot export started', 'success');
-  } else {
-    showMessage(friendlyError(response), 'error');
-  }
+  const resp = await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.SNAPSHOT });
+  if (resp && resp.success) showMessage('Snapshot export started', 'success');
+  else showMessage(friendlyError(resp), 'error');
 }
 
 async function handleExportCsv() {
-  const response = await chrome.runtime.sendMessage({
-    type: MESSAGE_TYPES.JOB_CONTROL,
-    action: CONTROL_ACTIONS.EXPORT_CSV
-  });
-  if (response && response.success) {
-    showMessage('CSV export started', 'success');
-  } else {
-    showMessage(friendlyError(response), 'error');
-  }
+  const resp = await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.EXPORT_CSV });
+  if (resp && resp.success) showMessage('CSV export started', 'success');
+  else showMessage(friendlyError(resp), 'error');
 }
 
 async function handleDetectUrl() {
-  showMessage('Detecting purchase history tab...', 'info');
+  showMessage('Detecting Lidl tab...', 'info');
   try {
     const tabs = await chrome.tabs.query({});
-    let matchingTab = null;
-    for (const tab of tabs) {
-      if (tab.url && resolveAdapter(tab.url)) {
-        matchingTab = tab;
-        break;
-      }
-    }
-    if (matchingTab) {
-      const adapter = resolveAdapter(matchingTab.url);
-      let url = matchingTab.url;
-      url = url.replace(/[?&]page=\d+/g, '').replace(/[?&]p=\d+/g, '');
+    let lidlTab = null;
+    for (const tab of tabs) { if (tab.url && tab.url.includes('lidl.') && tab.url.includes('purchase-history')) { lidlTab = tab; break; } }
+    if (lidlTab) {
+      let url = lidlTab.url; url = url.replace(/[?&]page=\d+/g, '').replace(/[?&]p=\d+/g, '');
       if (url.endsWith('?') || url.endsWith('&')) url = url.slice(0, -1);
-      if (adapter) {
-        document.getElementById('adapterId').value = adapter.id;
-      }
-      document.getElementById('listingUrl').value = url;
-      saveConfig();
+      document.getElementById('listingUrl').value = url; saveConfig();
       showMessage(`Detected: ${url}`, 'info');
-    } else {
-      showMessage('No supported purchase-history tab found. Open one first.', 'error');
-    }
-  } catch (err) {
-    showMessage('Detection failed: ' + err.message, 'error');
-  }
+    } else { showMessage('No Lidl purchase-history tab found.', 'error'); }
+  } catch (err) { showMessage('Detection failed: ' + err.message, 'error'); }
+}
+
+async function refreshJobState() {
+  try {
+    const response = await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_REQUEST });
+    if (response && response.summary) updateUI(response.summary);
+  } catch (_) {}
 }
 
 function updateUI(summary) {
   currentStatus = summary.status || 'idle';
 
+  // Simple view: progress bar + percent + subline
+  const complete = summary.completedCount || 0;
+  const total = summary.stats?.receiptsDiscovered || 0;
+  const pct = total > 0 ? Math.round(complete / total * 100) : 0;
+
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressBarAdv').style.width = pct + '%';
+  document.getElementById('simplePercent').textContent = total > 0 ? pct + '%' : '—';
+
+  let subline = 'Ready';
+  if (currentStatus === 'running') {
+    if (total > 0) subline = `Processed ${complete} of ${total} receipts`;
+    else subline = 'Discovering receipts...';
+  } else if (currentStatus === 'completed') {
+    subline = total > 0 ? `Export ready: ${total} receipts` : 'Job completed';
+  } else if (currentStatus === 'error') {
+    subline = 'Error — check Advanced view for details';
+  } else if (currentStatus === 'paused') {
+    subline = 'Paused';
+  }
+  document.getElementById('simpleSubline').textContent = subline;
+
+  // Advanced view: detailed stats
   const badge = document.getElementById('jobStatusBadge');
-  badge.textContent = capitalize(currentStatus);
+  badge.textContent = currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1);
   badge.className = 'badge badge-' + currentStatus;
 
   document.getElementById('statPhase').textContent = summary.phase || '—';
-  const pagesText = summary.pagesScanned !== undefined && summary.totalPages
-    ? `${summary.pagesScanned}/${summary.totalPages}`
-    : '—';
-  document.getElementById('statPages').textContent = pagesText;
+  document.getElementById('statPages').textContent = summary.pagesScanned !== undefined && summary.totalPages ? `${summary.pagesScanned}/${summary.totalPages}` : '—';
   document.getElementById('statQueue').textContent = summary.queueSize ?? 0;
   document.getElementById('statInFlight').textContent = summary.inFlightCount ?? 0;
-  document.getElementById('statComplete').textContent = summary.completedCount ?? 0;
+  document.getElementById('statComplete').textContent = complete;
   document.getElementById('statFailed').textContent = summary.failuresCount ?? 0;
   document.getElementById('statFinalFail').textContent = summary.finalFailures ?? 0;
+  document.getElementById('statRecovery').textContent = summary.recoveryRound && summary.recoveryRounds ? `${summary.recoveryRound}/${summary.recoveryRounds}` : '—';
 
-  const recoveryText = summary.recoveryRound && summary.recoveryRounds
-    ? `${summary.recoveryRound}/${summary.recoveryRounds}`
-    : '—';
-  document.getElementById('statRecovery').textContent = recoveryText;
+  // Buttons
+  const hasData = complete > 0;
+  const isRunning = currentStatus === 'running';
+  const isPaused = currentStatus === 'paused';
+  const isDone = currentStatus === 'completed' || currentStatus === 'error' || currentStatus === 'idle';
 
-  updateProgressBar(summary);
-  updateButtons(summary.status);
+  setBtn('startBtn', isDone); setBtn('startBtnAdv', isDone);
+  setBtn('pauseBtn', isRunning); setBtn('resumeBtn', isPaused);
+  setBtn('resetBtn', !isDone || hasData); setBtn('resetBtnAdv', !isDone || hasData);
+  setBtn('exportBtn', hasData); setBtn('snapshotBtn', hasData);
+  setBtn('exportCsvBtn', hasData); setBtn('exportCsvBtnAdv', hasData);
 }
 
-function updateProgressBar(summary) {
-  const bar = document.getElementById('progressBar');
-  const total = summary.stats?.receiptsDiscovered || (summary.completedCount + (summary.failuresCount || 0));
-  if (total > 0) {
-    const pct = ((summary.completedCount || 0) / total) * 100;
-    bar.style.width = Math.min(pct, 100) + '%';
-  } else {
-    bar.style.width = '0%';
-  }
-}
-
-function updateButtons(status) {
-  const startBtn = document.getElementById('startBtn');
-  const pauseBtn = document.getElementById('pauseBtn');
-  const resumeBtn = document.getElementById('resumeBtn');
-  const resetBtn = document.getElementById('resetBtn');
-  const exportBtn = document.getElementById('exportBtn');
-  const snapshotBtn = document.getElementById('snapshotBtn');
-  const exportCsvBtn = document.getElementById('exportCsvBtn');
-
-  const hasData = currentStatus !== 'idle';
-
-  switch (status) {
-    case 'idle':
-      startBtn.disabled = false;
-      pauseBtn.disabled = true;
-      resumeBtn.disabled = true;
-      resetBtn.disabled = true;
-      exportBtn.disabled = !hasData;
-      snapshotBtn.disabled = !hasData;
-      exportCsvBtn.disabled = !hasData;
-      break;
-    case 'running':
-      startBtn.disabled = true;
-      pauseBtn.disabled = false;
-      resumeBtn.disabled = true;
-      resetBtn.disabled = false;
-      exportBtn.disabled = false;
-      snapshotBtn.disabled = false;
-      exportCsvBtn.disabled = false;
-      break;
-    case 'paused':
-      startBtn.disabled = true;
-      pauseBtn.disabled = true;
-      resumeBtn.disabled = false;
-      resetBtn.disabled = false;
-      exportBtn.disabled = false;
-      snapshotBtn.disabled = false;
-      exportCsvBtn.disabled = false;
-      break;
-    case 'completed':
-    case 'error':
-      startBtn.disabled = false;
-      pauseBtn.disabled = true;
-      resumeBtn.disabled = true;
-      resetBtn.disabled = false;
-      exportBtn.disabled = false;
-      snapshotBtn.disabled = false;
-      exportCsvBtn.disabled = false;
-      break;
-  }
+function setBtn(id, enabled) {
+  const el = document.getElementById(id);
+  if (el) el.disabled = !enabled;
 }
 
 function showMessage(text, type) {
@@ -387,15 +308,9 @@ function friendlyError(response) {
   const err = response.error || '';
   if (err.includes('running')) return 'A job is already running. Pause or reset it first.';
   if (err.includes('paused')) return 'No paused job to resume.';
-  if (err.includes('No supported retailer')) return 'Could not match this URL to a supported retailer. Open a Lidl purchase-history page first.';
+  if (err.includes('No supported retailer')) return 'Could not match this URL to a supported retailer. Open a retailer page first.';
   if (err.includes('Config')) return 'Please fill in all configuration fields before starting.';
-  if (err.includes('No completed receipts')) return 'No receipts to export. If the job shows completed with 0 receipts, your page range may be too large — try a smaller range.';
-  if (err.includes('Normalized receipt data')) return 'Receipt data is in an older format. Re-run the export to regenerate receipts in the current format.';
-  if (err.includes('completed receipts')) return 'No receipts have been exported yet. Wait for the job to finish processing.';
-  return err || 'An unexpected error occurred. Check the console for details.';
-}
-
-function capitalize(str) {
-  if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1);
+  if (err.includes('No completed receipts')) return 'No receipts to export. Try reducing the page range.';
+  if (err.includes('Normalized receipt data')) return 'Receipt data is in an older format. Re-run the export.';
+  return err || 'An unexpected error occurred.';
 }
