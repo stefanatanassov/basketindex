@@ -80,4 +80,4 @@ const metroAdapter = {
   }
 };
 
-export { metroAdapter, readTokenFromPage, isTokenExpired, getAccountIdFromToken };
+export { metroAdapter, readTokenFromPage, isTokenExpired };
