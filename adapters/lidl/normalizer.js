@@ -74,7 +74,11 @@ function normalizeReceipt(raw) {
       unit_price_primary: isEur ? (item.unit_price_eur || item.unit_price_bgn) : item.unit_price_bgn,
       line_total_primary: isEur ? (item.line_total_eur || item.line_total_bgn) : item.line_total_bgn,
       unit_price_secondary: isEur ? item.unit_price_bgn : null,
-      line_total_secondary: isEur ? item.line_total_bgn : null
+      line_total_secondary: isEur ? item.line_total_bgn : null,
+      unit_price_eur: isEur ? (item.unit_price_eur || item.unit_price_bgn) : null,
+      line_total_eur: isEur ? (item.line_total_eur || item.line_total_bgn) : null,
+      unit_price_bgn: isEur ? item.unit_price_bgn : item.unit_price_bgn,
+      line_total_bgn: isEur ? item.line_total_bgn : item.line_total_bgn
     },
     tax: {
       type: item.tax_type || '',

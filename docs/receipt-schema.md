@@ -185,6 +185,18 @@ All monetary fields are in the currency indicated by the field suffix (`_primary
 | `line_total_primary` | number | Line total in primary currency |
 | `unit_price_secondary` | number \| null | Price per unit in secondary currency |
 | `line_total_secondary` | number \| null | Line total in secondary currency |
+| `unit_price_eur` | number \| null | Price per unit in EUR (explicit — null if receipt has no EUR price) |
+| `line_total_eur` | number \| null | Line total in EUR |
+| `unit_price_bgn` | number \| null | Price per unit in BGN (explicit — null if receipt has no BGN price) |
+| `line_total_bgn` | number \| null | Line total in BGN |
+
+The `_primary` / `_secondary` fields are the schema's internal currency-agnostic representation.
+The `unit_price_eur` / `line_total_eur` / `unit_price_bgn` / `line_total_bgn` fields are explicit
+currency-denominated values populated from the receipt's actual currencies.
+
+For Lidl dual-currency (EUR+BGN) receipts, all four explicit fields are populated.
+For Lidl BGN-only receipts, only `_bgn` fields are populated; `_eur` fields are null.
+For Metro EUR-only receipts, only `_eur` fields are populated; `_bgn` fields are null.
 
 ### items[].tax
 

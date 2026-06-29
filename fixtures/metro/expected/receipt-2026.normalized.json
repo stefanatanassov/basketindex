@@ -57,7 +57,11 @@
         "unit_price_primary": 7.15,
         "line_total_primary": 7.15,
         "unit_price_secondary": null,
-        "line_total_secondary": null
+        "line_total_secondary": null,
+        "unit_price_eur": 7.15,
+        "line_total_eur": 7.15,
+        "unit_price_bgn": null,
+        "line_total_bgn": null
       },
       "tax": {
         "type": "СТ",
@@ -84,7 +88,11 @@
         "unit_price_primary": 1.79,
         "line_total_primary": 16.09,
         "unit_price_secondary": null,
-        "line_total_secondary": null
+        "line_total_secondary": null,
+        "unit_price_eur": 1.79,
+        "line_total_eur": 16.09,
+        "unit_price_bgn": null,
+        "line_total_bgn": null
       },
       "tax": {
         "type": "БР",

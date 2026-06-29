@@ -41,7 +41,11 @@ function normalizeReceipt(invoice, articles) {
       unit_price_primary: art.itemColliGrossAmount || (art.quantity > 0 ? Math.round(art.totalAmount / art.quantity * 100) / 100 : art.totalAmount),
       line_total_primary: art.totalAmount,
       unit_price_secondary: null,
-      line_total_secondary: null
+      line_total_secondary: null,
+      unit_price_eur: art.itemColliGrossAmount || (art.quantity > 0 ? Math.round(art.totalAmount / art.quantity * 100) / 100 : art.totalAmount),
+      line_total_eur: art.totalAmount,
+      unit_price_bgn: null,
+      line_total_bgn: null
     },
     tax: {
       type: art.packagePrintCode || '',

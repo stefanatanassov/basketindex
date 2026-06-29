@@ -57,7 +57,11 @@
         "unit_price_primary": 1.45,
         "line_total_primary": 1.45,
         "unit_price_secondary": null,
-        "line_total_secondary": null
+        "line_total_secondary": null,
+        "unit_price_eur": null,
+        "line_total_eur": null,
+        "unit_price_bgn": 1.45,
+        "line_total_bgn": 1.45
       },
       "tax": {
         "type": "B",
@@ -84,7 +88,11 @@
         "unit_price_primary": 2.89,
         "line_total_primary": 8.67,
         "unit_price_secondary": null,
-        "line_total_secondary": null
+        "line_total_secondary": null,
+        "unit_price_eur": null,
+        "line_total_eur": null,
+        "unit_price_bgn": 2.89,
+        "line_total_bgn": 8.67
       },
       "tax": {
         "type": "B",
@@ -111,7 +119,11 @@
         "unit_price_primary": 2.89,
         "line_total_primary": 8.67,
         "unit_price_secondary": null,
-        "line_total_secondary": null
+        "line_total_secondary": null,
+        "unit_price_eur": null,
+        "line_total_eur": null,
+        "unit_price_bgn": 2.89,
+        "line_total_bgn": 8.67
       },
       "tax": {
         "type": "B",
@@ -138,7 +150,11 @@
         "unit_price_primary": 4.35,
         "line_total_primary": 4.35,
         "unit_price_secondary": null,
-        "line_total_secondary": null
+        "line_total_secondary": null,
+        "unit_price_eur": null,
+        "line_total_eur": null,
+        "unit_price_bgn": 4.35,
+        "line_total_bgn": 4.35
       },
       "tax": {
         "type": "B",
@@ -165,7 +181,11 @@
         "unit_price_primary": 2.29,
         "line_total_primary": 3.53,
         "unit_price_secondary": null,
-        "line_total_secondary": null
+        "line_total_secondary": null,
+        "unit_price_eur": null,
+        "line_total_eur": null,
+        "unit_price_bgn": 2.29,
+        "line_total_bgn": 3.53
       },
       "tax": {
         "type": "B",
@@ -192,7 +212,11 @@
         "unit_price_primary": 2.29,
         "line_total_primary": 3.53,
         "unit_price_secondary": null,
-        "line_total_secondary": null
+        "line_total_secondary": null,
+        "unit_price_eur": null,
+        "line_total_eur": null,
+        "unit_price_bgn": 2.29,
+        "line_total_bgn": 3.53
       },
       "tax": {
         "type": "B",
@@ -219,7 +243,11 @@
         "unit_price_primary": 3.5,
         "line_total_primary": 3.5,
         "unit_price_secondary": null,
-        "line_total_secondary": null
+        "line_total_secondary": null,
+        "unit_price_eur": null,
+        "line_total_eur": null,
+        "unit_price_bgn": 3.5,
+        "line_total_bgn": 3.5
       },
       "tax": {
         "type": "B",

@@ -57,7 +57,11 @@
         "unit_price_primary": 1.79,
         "line_total_primary": 3.58,
         "unit_price_secondary": 3.5,
-        "line_total_secondary": 7
+        "line_total_secondary": 7,
+        "unit_price_eur": 1.79,
+        "line_total_eur": 3.58,
+        "unit_price_bgn": 3.5,
+        "line_total_bgn": 7
       },
       "tax": {
         "type": "B",
@@ -84,7 +88,11 @@
         "unit_price_primary": 4.34,
         "line_total_primary": 4.34,
         "unit_price_secondary": 8.49,
-        "line_total_secondary": 8.49
+        "line_total_secondary": 8.49,
+        "unit_price_eur": 4.34,
+        "line_total_eur": 4.34,
+        "unit_price_bgn": 8.49,
+        "line_total_bgn": 8.49
       },
       "tax": {
         "type": "B",
@@ -111,7 +119,11 @@
         "unit_price_primary": 4.6,
         "line_total_primary": 0.41,
         "unit_price_secondary": 8.99,
-        "line_total_secondary": 0.8
+        "line_total_secondary": 0.8,
+        "unit_price_eur": 4.6,
+        "line_total_eur": 0.41,
+        "unit_price_bgn": 8.99,
+        "line_total_bgn": 0.8
       },
       "tax": {
         "type": "B",
@@ -138,7 +150,11 @@
         "unit_price_primary": 2.81,
         "line_total_primary": 8.43,
         "unit_price_secondary": 5.5,
-        "line_total_secondary": 16.49
+        "line_total_secondary": 16.49,
+        "unit_price_eur": 2.81,
+        "line_total_eur": 8.43,
+        "unit_price_bgn": 5.5,
+        "line_total_bgn": 16.49
       },
       "tax": {
         "type": "B",
@@ -165,7 +181,11 @@
         "unit_price_primary": 1.39,
         "line_total_primary": 1.66,
         "unit_price_secondary": 2.72,
-        "line_total_secondary": 3.25
+        "line_total_secondary": 3.25,
+        "unit_price_eur": 1.39,
+        "line_total_eur": 1.66,
+        "unit_price_bgn": 2.72,
+        "line_total_bgn": 3.25
       },
       "tax": {
         "type": "B",
@@ -192,7 +212,11 @@
         "unit_price_primary": 5.36,
         "line_total_primary": 5.36,
         "unit_price_secondary": 10.48,
-        "line_total_secondary": 10.48
+        "line_total_secondary": 10.48,
+        "unit_price_eur": 5.36,
+        "line_total_eur": 5.36,
+        "unit_price_bgn": 10.48,
+        "line_total_bgn": 10.48
       },
       "tax": {
         "type": "B",
