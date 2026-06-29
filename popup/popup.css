@@ -89,6 +89,49 @@ header h1 {
 
 .link-sep { color: #ccc; margin: 0 6px; }
 
+.feedback-section {
+  margin-bottom: 14px;
+}
+
+.feedback-panel {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+}
+
+.feedback-info { background: #e8f0fe; border-color: #b8d4fe; }
+.feedback-success { background: #d4edda; border-color: #a3d7b0; }
+.feedback-warning { background: #fff3cd; border-color: #ffe0a0; }
+.feedback-error { background: #f8d7da; border-color: #f0b0b5; }
+
+.feedback-title {
+  display: block;
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.feedback-info .feedback-title { color: #1a56a0; }
+.feedback-success .feedback-title { color: #155724; }
+.feedback-warning .feedback-title { color: #856404; }
+.feedback-error .feedback-title { color: #721c24; }
+
+.feedback-body {
+  display: block;
+  font-size: 12px;
+  color: #444;
+  margin-bottom: 4px;
+}
+
+.feedback-hint {
+  display: block;
+  font-size: 11px;
+  color: #666;
+  font-style: italic;
+}
+
+.feedback-hint:empty { display: none; }
+
 .version {
   font-size: 11px;
   color: #999;

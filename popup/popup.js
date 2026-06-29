@@ -1,4 +1,5 @@
 import { listAdapters, resolveAdapter } from '../core/adapter-registry.js';
+import { classifyFromJobStatus } from '../lib/user-feedback.js';
 
 const MESSAGE_TYPES = {
   JOB_REQUEST: 'LIDL_JOB_REQUEST',
@@ -251,7 +252,7 @@ async function refreshJobState() {
 function updateUI(summary) {
   currentStatus = summary.status || 'idle';
 
-  // Simple view: progress bar + percent + subline
+  // Simple view: progress
   const complete = summary.completedCount || 0;
   const total = summary.stats?.receiptsDiscovered || 0;
   const pct = total > 0 ? Math.round(complete / total * 100) : 0;
@@ -260,18 +261,26 @@ function updateUI(summary) {
   document.getElementById('progressBarAdv').style.width = pct + '%';
   document.getElementById('simplePercent').textContent = total > 0 ? pct + '%' : '—';
 
+  // Status subline
   let subline = 'Ready';
   if (currentStatus === 'running') {
-    if (total > 0) subline = `Processed ${complete} of ${total} receipts`;
-    else subline = 'Discovering receipts...';
+    subline = total > 0 ? `Processed ${complete} of ${total} receipts` : 'Discovering receipts...';
   } else if (currentStatus === 'completed') {
     subline = total > 0 ? `Export ready: ${total} receipts` : 'Job completed';
   } else if (currentStatus === 'error') {
-    subline = 'Error — check Advanced view for details';
+    subline = 'Error — see details below';
   } else if (currentStatus === 'paused') {
     subline = 'Paused';
   }
   document.getElementById('simpleSubline').textContent = subline;
+
+  // Feedback panel
+  const feedback = classifyFromJobStatus(currentStatus, summary.phase, summary.stats, summary.warnings);
+  const panel = document.getElementById('feedbackPanel');
+  document.getElementById('feedbackTitle').textContent = feedback.title;
+  document.getElementById('feedbackBody').textContent = feedback.message;
+  document.getElementById('feedbackHint').textContent = feedback.hint || '';
+  panel.className = 'feedback-panel feedback-' + (feedback.level || 'info');
 
   // Advanced view: detailed stats
   const badge = document.getElementById('jobStatusBadge');

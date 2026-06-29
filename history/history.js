@@ -1,4 +1,5 @@
 import { loadRuns, deleteRun, clearHistory } from '../lib/run-history.js';
+import { getRunOutcomeSummary } from '../lib/user-feedback.js';
 
 let runs = [];
 
@@ -38,6 +39,7 @@ function renderCard(run) {
     `<div class="warning">${esc(w.message)}</div>`
   ).join('');
 
+  const feedback = getRunOutcomeSummary(run);
   const retailerName = (run.retailer || 'unknown').toUpperCase();
   const dateStr = new Date(run.completedAt || run.startedAt).toLocaleString();
 
@@ -48,6 +50,7 @@ function renderCard(run) {
         <span class="badge badge-${run.status === 'done' ? 'done' : 'error'}">${run.status}</span>
         <span class="run-date">${esc(dateStr)}</span>
       </div>
+      <div class="run-outcome outcome-${feedback.level}">${esc(feedback.title)}</div>
       <div class="run-stats">
         <span>Receipts: <strong>${run.summary.receiptCount}</strong></span>
         <span>Items: <strong>${run.summary.itemCount}</strong></span>

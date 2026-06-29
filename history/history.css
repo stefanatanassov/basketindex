@@ -22,6 +22,11 @@ header h1 { font-size: 20px; }
 .run-stats { display: flex; gap: 24px; margin-bottom: 8px; font-size: 12px; }
 .run-stats span { color: #888; }
 .run-stats strong { color: #333; }
+.run-outcome { font-size: 12px; padding: 4px 8px; border-radius: 4px; margin-bottom: 8px; }
+.outcome-success { color: #155724; background: #d4edda; }
+.outcome-warning { color: #856404; background: #fff3cd; }
+.outcome-error { color: #721c24; background: #f8d7da; }
+.outcome-info { color: #1a56a0; background: #e8f0fe; }
 .warnings { margin: 8px 0; }
 .warning { font-size: 11px; color: #856404; background: #fff3cd; padding: 4px 8px; border-radius: 4px; margin-bottom: 4px; }
 .run-actions { display: flex; gap: 8px; margin-top: 10px; }
