@@ -4,6 +4,7 @@
 import { loadRuns } from '../lib/run-history.js';
 import { buildProductSeries, getAllBuckets } from '../lib/trends.js';
 import { t } from '../lib/i18n-helper.js';
+import { encodeQR } from '../lib/qr.js';
 
 const COLORS = ['#4a90d9', '#e8734a', '#3a8a40', '#9b59b6', '#e67e22', '#1abc9c', '#e74c3c', '#3498db', '#2ecc71', '#f39c12'];
 const LANDING_URL = 'https://basketindex.stefanatanasov.dev/';
@@ -170,37 +171,7 @@ function drawChart(series) {
   ctx.fillText(LANDING_URL, W - margin.right, H - 12);
 
   // QR code
-  const qrSize = 40;
-  drawQR(ctx, W - margin.right + 250, H - margin.bottom - qrSize, qrSize, LANDING_URL);
-}
-
-function drawQR(ctx, x, y, size, url) {
-  // Simple QR-like square pattern (visual placeholder — real QR would need a library)
-  ctx.fillStyle = '#1a1a2e';
-  const cells = 7;
-  const cs = size / cells;
-  // Draw a simplified QR pattern
-  const pattern = [
-    [1,1,1,1,1,1,0],
-    [1,0,0,0,0,1,0],
-    [1,0,1,0,1,1,0],
-    [1,0,1,0,0,1,0],
-    [1,0,0,0,1,1,0],
-    [1,1,1,1,0,1,0],
-    [0,0,0,0,0,0,0],
-  ];
-  for (let r = 0; r < cells; r++) {
-    for (let c = 0; c < cells; c++) {
-      if (pattern[r] && pattern[r][c]) {
-        ctx.fillRect(x + c * cs, y + r * cs, cs, cs);
-      }
-    }
-  }
-  // URL label under QR
-  ctx.fillStyle = '#aaa';
-  ctx.font = '8px -apple-system, BlinkMacSystemFont, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('basketindex.stefanatanasov.dev', x + size / 2, y + size + 10);
+  encodeQR(ctx, W - 60, H - 60, 48, LANDING_URL);
 }
 
 function exportPng() {
