@@ -55,7 +55,8 @@ async function handlePopupMessage(message, sendResponse) {
           recoveryRounds: job.config.recoveryRounds,
           updatedAt: job.updatedAt,
           listingTabId: job.listingTabId || null,
-          adapterId: job.config?.adapterId || null
+          adapterId: job.config?.adapterId || null,
+          lastError: job._lastError || null
         }
       });
       return;

@@ -325,7 +325,7 @@ function updateUI(summary) {
   }
   document.getElementById('simpleSubline').textContent = subline;
 
-  const fb = classifyFromJobStatus(currentStatus, summary.phase, summary.stats, summary.warnings);
+  const fb = classifyFromJobStatus(currentStatus, summary.phase, { ...summary.stats, lastError: summary.lastError }, summary.warnings);
   const panel = document.getElementById('feedbackPanel');
   const prefix = fb.i18nPrefix || 'feedbackUnknown';
   document.getElementById('feedbackTitle').textContent = t(prefix + 'Title');
