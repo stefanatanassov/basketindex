@@ -307,11 +307,11 @@ function updateUI(summary) {
 
   const fb = classifyFromJobStatus(currentStatus, summary.phase, summary.stats, summary.warnings);
   const panel = document.getElementById('feedbackPanel');
-  const code = fb.code;
-  document.getElementById('feedbackTitle').textContent = t('feedback' + code.charAt(0).toUpperCase() + code.slice(1) + 'Title');
-  document.getElementById('feedbackBody').textContent = t('feedback' + code.charAt(0).toUpperCase() + code.slice(1) + 'Message');
-  const hint = t('feedback' + code.charAt(0).toUpperCase() + code.slice(1) + 'Hint');
-  document.getElementById('feedbackHint').textContent = hint === ('feedback' + code.charAt(0).toUpperCase() + code.slice(1) + 'Hint') ? '' : hint;
+  const prefix = fb.i18nPrefix || 'feedbackUnknown';
+  document.getElementById('feedbackTitle').textContent = t(prefix + 'Title');
+  document.getElementById('feedbackBody').textContent = t(prefix + 'Message');
+  const hint = t(prefix + 'Hint');
+  document.getElementById('feedbackHint').textContent = (hint === (prefix + 'Hint') || hint.startsWith('feedback')) ? '' : hint;
   panel.className = 'feedback-panel feedback-' + (fb.level || 'info');
 
   // Advanced view: detailed stats
