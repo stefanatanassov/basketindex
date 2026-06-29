@@ -10,6 +10,7 @@ import { MESSAGE_TYPES, CONTROL_ACTIONS } from './core/messaging.js';
 import { triggerJsonDownload, triggerSnapshotDownload, triggerCsvDownload } from './core/download.js';
 import { failReceipt } from './core/queue.js';
 import { getAdapter, resolveAdapter } from './core/adapter-registry.js';
+import { getLatestRun } from './lib/run-history.js';
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log('BasketIndex installed');
