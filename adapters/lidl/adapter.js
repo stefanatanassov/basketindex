@@ -18,6 +18,10 @@ const lidlAdapter = {
   version: '0.1.0',
   status: 'prototype',
 
+  // API-first with DOM fallback. Listing and detail both use authenticated REST APIs.
+  // Cookie-based auth — no token acquisition needed.
+  executionMode: 'api_listing_api_detail',
+
   supportsUrl(url) {
     try {
       const parsed = new URL(url);
