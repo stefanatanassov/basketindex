@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "BasketIndex",
+  "name": "__MSG_extensionName__",
   "version": "0.1.0",
-  "description": "Local-first receipt export. Uses your existing retailer login. No server, no accounts, your data stays in your browser.",
+  "description": "__MSG_extensionDescription__",
+  "default_locale": "bg",
   "homepage_url": "https://basketindex.stefanatanasov.dev/",
   "permissions": [
     "storage",

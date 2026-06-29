@@ -1,5 +1,6 @@
 import { listAdapters, resolveAdapter } from '../core/adapter-registry.js';
 import { classifyFromJobStatus } from '../lib/user-feedback.js';
+import { t } from '../lib/i18n-helper.js';
 
 const MESSAGE_TYPES = {
   JOB_REQUEST: 'LIDL_JOB_REQUEST',
@@ -28,12 +29,28 @@ let currentStatus = 'idle';
 let isAdvanced = false;
 
 document.addEventListener('DOMContentLoaded', () => {
+  applyPopupI18n();
   populateAdapterOptions();
   bindEvents();
   loadSavedConfig();
   refreshJobState();
   pollTimer = setInterval(refreshJobState, 1500);
 });
+
+function applyPopupI18n() {
+  document.getElementById('startBtn').textContent = t('popupStart');
+  document.getElementById('startBtnAdv').textContent = t('popupStart');
+  document.getElementById('resetBtn').textContent = t('popupReset');
+  document.getElementById('resetBtnAdv').textContent = t('popupReset');
+  document.getElementById('exportCsvBtn').textContent = t('popupExportCsv');
+  document.getElementById('exportCsvBtnAdv').textContent = t('popupExportCsv');
+  document.getElementById('pauseBtn').textContent = t('advancedPause');
+  document.getElementById('resumeBtn').textContent = t('advancedResume');
+  document.getElementById('exportBtn').textContent = t('popupExportJson');
+  document.getElementById('snapshotBtn').textContent = t('popupSnapshotJson');
+  document.querySelector('#simpleView label[for=\"adapterId\"]').textContent = t('popupRetailer');
+  document.querySelector('#advancedView label[for=\"adapterId\"]').textContent = t('popupRetailer');
+}
 
 function bindEvents() {
   document.getElementById('startBtn').addEventListener('click', handleStart);
@@ -113,7 +130,9 @@ function populateAdapterOptions() {
   for (const adapter of listAdapters()) {
     const option = document.createElement('option');
     option.value = adapter.id;
-    option.textContent = adapter.status === 'planned' ? `${adapter.name} — Planned` : `${adapter.name} — Available`;
+    const name = t('retailer' + adapter.name.charAt(0).toUpperCase() + adapter.name.slice(1)) || adapter.name;
+    const status = adapter.status === 'planned' ? t('retailerPlanned') : t('retailerAvailable');
+    option.textContent = `${name} — ${status}`;
     if (adapter.status === 'planned') option.disabled = true;
     select.appendChild(option);
   }
@@ -192,9 +211,9 @@ async function handleStart() {
 function resetPopupUI() {
   document.getElementById('progressBar').style.width = '0%';
   document.getElementById('simplePercent').textContent = '—';
-  document.getElementById('simpleSubline').textContent = 'Ready';
-  document.getElementById('feedbackTitle').textContent = 'Ready';
-  document.getElementById('feedbackBody').textContent = 'Choose a retailer and start an extraction.';
+  document.getElementById('simpleSubline').textContent = t('popupReady');
+  document.getElementById('feedbackTitle').textContent = t('feedbackReadyTitle');
+  document.getElementById('feedbackBody').textContent = t('feedbackReadyMessage');
   document.getElementById('feedbackHint').textContent = '';
   document.getElementById('feedbackPanel').className = 'feedback-panel feedback-info';
   document.getElementById('exportCsvBtn').disabled = true;
@@ -263,7 +282,6 @@ async function refreshJobState() {
 function updateUI(summary) {
   currentStatus = summary.status || 'idle';
 
-  // Simple view: progress
   const complete = summary.completedCount || 0;
   const total = summary.stats?.receiptsDiscovered || 0;
   const pct = total > 0 ? Math.round(complete / total * 100) : 0;
@@ -272,26 +290,26 @@ function updateUI(summary) {
   document.getElementById('progressBarAdv').style.width = pct + '%';
   document.getElementById('simplePercent').textContent = total > 0 ? pct + '%' : '—';
 
-  // Status subline
-  let subline = 'Ready';
+  let subline = t('popupReadySubline');
   if (currentStatus === 'running') {
-    subline = total > 0 ? `Processed ${complete} of ${total} receipts` : 'Discovering receipts...';
+    subline = total > 0 ? t('popupProcessing', [String(complete), String(total)]) : t('popupDiscovering');
   } else if (currentStatus === 'completed') {
-    subline = total > 0 ? `Export ready: ${total} receipts` : 'Job completed';
+    subline = total > 0 ? t('popupExportReady', [String(total)]) : t('popupJobCompleted');
   } else if (currentStatus === 'error') {
-    subline = 'Error — see details below';
+    subline = t('popupErrorDetails');
   } else if (currentStatus === 'paused') {
-    subline = 'Paused';
+    subline = t('popupPaused');
   }
   document.getElementById('simpleSubline').textContent = subline;
 
-  // Feedback panel
-  const feedback = classifyFromJobStatus(currentStatus, summary.phase, summary.stats, summary.warnings);
+  const fb = classifyFromJobStatus(currentStatus, summary.phase, summary.stats, summary.warnings);
   const panel = document.getElementById('feedbackPanel');
-  document.getElementById('feedbackTitle').textContent = feedback.title;
-  document.getElementById('feedbackBody').textContent = feedback.message;
-  document.getElementById('feedbackHint').textContent = feedback.hint || '';
-  panel.className = 'feedback-panel feedback-' + (feedback.level || 'info');
+  const code = fb.code;
+  document.getElementById('feedbackTitle').textContent = t('feedback' + code.charAt(0).toUpperCase() + code.slice(1) + 'Title');
+  document.getElementById('feedbackBody').textContent = t('feedback' + code.charAt(0).toUpperCase() + code.slice(1) + 'Message');
+  const hint = t('feedback' + code.charAt(0).toUpperCase() + code.slice(1) + 'Hint');
+  document.getElementById('feedbackHint').textContent = hint === ('feedback' + code.charAt(0).toUpperCase() + code.slice(1) + 'Hint') ? '' : hint;
+  panel.className = 'feedback-panel feedback-' + (fb.level || 'info');
 
   // Advanced view: detailed stats
   const badge = document.getElementById('jobStatusBadge');

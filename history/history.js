@@ -1,9 +1,11 @@
 import { loadRuns, deleteRun, clearHistory } from '../lib/run-history.js';
-import { getRunOutcomeSummary } from '../lib/user-feedback.js';
+import { getRunOutcomeCode } from '../lib/user-feedback.js';
+import { t } from '../lib/i18n-helper.js';
 
 let runs = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
+  applyI18n();
   await load();
   document.getElementById('clearAllBtn').addEventListener('click', handleClearAll);
 });
@@ -26,7 +28,6 @@ function render() {
   empty.style.display = 'none';
   list.innerHTML = runs.map(run => renderCard(run)).join('');
 
-  // Bind buttons after render
   for (const run of runs) {
     document.getElementById(`csv-${run.runId}`)?.addEventListener('click', () => exportRunCsv(run));
     document.getElementById(`json-${run.runId}`)?.addEventListener('click', () => exportRunJson(run));
@@ -34,33 +35,44 @@ function render() {
   }
 }
 
+// Set localized HTML content on load
+function applyI18n() {
+  document.title = t('historyTitle');
+  document.querySelector('.subtitle').textContent = t('historySubtitle');
+  document.getElementById('clearAllBtn').textContent = t('historyClearAll');
+  document.querySelector('#emptyState p:first-child').textContent = t('historyEmpty');
+  document.querySelector('#emptyState p:last-child').textContent = t('historyEmptyHint');
+}
+
 function renderCard(run) {
   const warningsHtml = (run.warnings || []).map(w =>
     `<div class="warning">${esc(w.message)}</div>`
   ).join('');
 
-  const feedback = getRunOutcomeSummary(run);
-  const retailerName = (run.retailer || 'unknown').toUpperCase();
+  const outcomeCode = getRunOutcomeCode(run);
+  const outcomeLabel = t('outcome' + outcomeCode.charAt(0).toUpperCase() + outcomeCode.slice(1));
+  const retailerName = t('retailer' + (run.retailer || 'unknown').charAt(0).toUpperCase() + (run.retailer || 'unknown').slice(1)) || (run.retailer || 'unknown').toUpperCase();
   const dateStr = new Date(run.completedAt || run.startedAt).toLocaleString();
+  const statusLabel = t('runStatus' + (run.status === 'done' ? 'Done' : 'Error'));
 
   return `
     <div class="run-card">
       <div class="run-header">
         <span class="run-retailer">${esc(retailerName)}</span>
-        <span class="badge badge-${run.status === 'done' ? 'done' : 'error'}">${run.status}</span>
+        <span class="badge badge-${run.status === 'done' ? 'done' : 'error'}">${esc(statusLabel)}</span>
         <span class="run-date">${esc(dateStr)}</span>
       </div>
-      <div class="run-outcome outcome-${feedback.level}">${esc(feedback.title)}</div>
+      <div class="run-outcome outcome-${outcomeCode === 'success' ? 'success' : outcomeCode === 'partial' ? 'warning' : 'error'}">${esc(outcomeLabel)}</div>
       <div class="run-stats">
-        <span>Receipts: <strong>${run.summary.receiptCount}</strong></span>
-        <span>Items: <strong>${run.summary.itemCount}</strong></span>
-        ${run.summary.failedCount > 0 ? `<span>Failed: <strong>${run.summary.failedCount}</strong></span>` : ''}
+        <span>${t('historyReceipts')}: <strong>${run.summary.receiptCount}</strong></span>
+        <span>${t('historyItems')}: <strong>${run.summary.itemCount}</strong></span>
+        ${run.summary.failedCount > 0 ? `<span>${t('historyFailed')}: <strong>${run.summary.failedCount}</strong></span>` : ''}
       </div>
       ${warningsHtml ? `<div class="warnings">${warningsHtml}</div>` : ''}
       <div class="run-actions">
-        <button id="csv-${run.runId}" class="btn btn-export">Export CSV</button>
-        <button id="json-${run.runId}" class="btn btn-primary">Export JSON</button>
-        <button id="del-${run.runId}" class="btn btn-danger">Delete</button>
+        <button id="csv-${run.runId}" class="btn btn-export">${t('historyCsv')}</button>
+        <button id="json-${run.runId}" class="btn btn-primary">${t('historyJson')}</button>
+        <button id="del-${run.runId}" class="btn btn-danger">${t('historyDelete')}</button>
       </div>
     </div>`;
 }
@@ -146,13 +158,13 @@ function exportRunJson(run) {
 }
 
 async function handleDelete(runId) {
-  if (!confirm('Delete this run? This cannot be undone.')) return;
+  if (!confirm(t('historyConfirmDelete'))) return;
   await deleteRun(runId);
   await load();
 }
 
 async function handleClearAll() {
-  if (!confirm('Delete all extraction history? Active jobs are not affected.')) return;
+  if (!confirm(t('historyConfirmClearAll'))) return;
   await clearHistory();
   await load();
 }
