@@ -38,18 +38,20 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function applyPopupI18n() {
-  document.getElementById('startBtn').textContent = t('popupStart');
-  document.getElementById('startBtnAdv').textContent = t('popupStart');
-  document.getElementById('resetBtn').textContent = t('popupReset');
-  document.getElementById('resetBtnAdv').textContent = t('popupReset');
-  document.getElementById('exportCsvBtn').textContent = t('popupExportCsv');
-  document.getElementById('exportCsvBtnAdv').textContent = t('popupExportCsv');
-  document.getElementById('pauseBtn').textContent = t('advancedPause');
-  document.getElementById('resumeBtn').textContent = t('advancedResume');
-  document.getElementById('exportBtn').textContent = t('popupExportJson');
-  document.getElementById('snapshotBtn').textContent = t('popupSnapshotJson');
-  document.querySelector('#simpleView label[for=\"adapterId\"]').textContent = t('popupRetailer');
-  document.querySelector('#advancedView label[for=\"adapterId\"]').textContent = t('popupRetailer');
+  const setText = (id, key) => { const el = document.getElementById(id); if (el) el.textContent = t(key); };
+  const setLabel = (selector, key) => { const el = document.querySelector(selector); if (el) el.textContent = t(key); };
+
+  setText('startBtn', 'popupStart');
+  setText('startBtnAdv', 'popupStart');
+  setText('resetBtn', 'popupReset');
+  setText('resetBtnAdv', 'popupReset');
+  setText('exportCsvBtn', 'popupExportCsv');
+  setText('exportCsvBtnAdv', 'popupExportCsv');
+  setText('pauseBtn', 'advancedPause');
+  setText('resumeBtn', 'advancedResume');
+  setText('exportBtn', 'popupExportJson');
+  setText('snapshotBtn', 'popupSnapshotJson');
+  setLabel('#simpleView label[for=\"adapterId\"]', 'popupRetailer');
 }
 
 function bindEvents() {
