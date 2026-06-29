@@ -7,7 +7,9 @@
     CHECK_AUTH: 'LIDL_CHECK_AUTH',
     AUTH_RESULT: 'LIDL_AUTH_RESULT',
     ERROR: 'LIDL_CONTENT_ERROR',
-    PARSE_RECEIPT_HTML: 'LIDL_PARSE_RECEIPT_HTML'
+    PARSE_RECEIPT_HTML: 'LIDL_PARSE_RECEIPT_HTML',
+    FETCH_LISTING: 'LIDL_FETCH_LISTING',
+    FETCH_DETAIL: 'LIDL_FETCH_DETAIL'
   };
 
   function waitForElement(selector, timeout = 8000) {
@@ -89,16 +91,56 @@
   // with DOMParser (available in content script, not SW context).
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (message.type === LIDL_RECEIPT_MESSAGES.PARSE_RECEIPT_HTML) {
-      const html = message.html || '';
       const receiptId = message.receiptId || '';
-      try {
-        const doc = new DOMParser().parseFromString(html, 'text/html');
-        const result = window._parseLidlReceiptHtml(doc, receiptId);
-        sendResponse(result || { success: false, error: 'Parse produced no result' });
-      } catch (err) {
-        sendResponse({ success: false, error: err.message });
-      }
-      return false;
+      const html = message.html || '';
+
+      (async () => {
+        try {
+          let htmlStr = html;
+          // If the SW sends '__FETCH__', fetch the detail API ourselves
+          if (htmlStr === '__FETCH__') {
+            const resp = await fetch(
+              `https://www.lidl.bg/mre/api/v1/tickets/${receiptId}?country=BG&languageCode=bg-BG`,
+              { credentials: 'include' }
+            );
+            if (!resp.ok) {
+              sendResponse({ success: false, error: `Detail API returned ${resp.status}` });
+              return;
+            }
+            const data = await resp.json();
+            htmlStr = data.ticket?.htmlPrintedReceipt || '';
+            if (!htmlStr) {
+              sendResponse({ success: false, error: 'No htmlPrintedReceipt in response' });
+              return;
+            }
+          }
+
+          const doc = new DOMParser().parseFromString(htmlStr, 'text/html');
+          const result = window._parseLidlReceiptHtml(doc, receiptId);
+          sendResponse(result || { success: false, error: 'Parse produced no result' });
+        } catch (err) {
+          sendResponse({ success: false, error: err.message });
+        }
+      })();
+      return true;
+    }
+
+    if (message.type === LIDL_RECEIPT_MESSAGES.FETCH_LISTING) {
+      const page = message.page || 1;
+      fetch(`https://www.lidl.bg/mre/api/v1/tickets?country=BG&page=${page}`, { credentials: 'include' })
+        .then(r => r.json())
+        .then(data => sendResponse({ success: true, data }))
+        .catch(err => sendResponse({ success: false, error: err.message }));
+      return true;
+    }
+
+    if (message.type === LIDL_RECEIPT_MESSAGES.FETCH_DETAIL) {
+      const id = message.receiptId || '';
+      fetch(`https://www.lidl.bg/mre/api/v1/tickets/${id}?country=BG&languageCode=bg-BG`, { credentials: 'include' })
+        .then(r => r.json())
+        .then(data => sendResponse({ success: true, data }))
+        .catch(err => sendResponse({ success: false, error: err.message }));
+      return true;
     }
   });
 
