@@ -38,7 +38,8 @@
     "https://*.lidl.fi/*",
     "https://*.lidl.se/*",
     "https://*.lidl.dk/*",
-    "https://*.lidl.no/*"
+    "https://*.lidl.no/*",
+    "https://docs.metro.bg/*"
   ],
   "background": {
     "service_worker": "service-worker.js",
@@ -125,6 +126,11 @@
         "https://*.lidl.no/*/purchase-detail*"
       ],
       "js": ["adapters/lidl/shared.js", "adapters/lidl/detail-extractor.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://docs.metro.bg/*"],
+      "js": ["adapters/metro/shared.js"],
       "run_at": "document_idle"
     }
   ]

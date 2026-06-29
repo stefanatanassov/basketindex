@@ -23,8 +23,11 @@ import { validateNormalized } from '../core/receipt-normalizer.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const FIXTURES_DIR = resolve(ROOT, 'fixtures', 'lidl');
+const METRO_FIXTURES_DIR = resolve(ROOT, 'fixtures', 'metro');
 const DETAIL_DIR = resolve(FIXTURES_DIR, 'detail');
+const METRO_DETAIL_DIR = resolve(METRO_FIXTURES_DIR, 'detail');
 const EXPECTED_DIR = resolve(FIXTURES_DIR, 'expected');
+const METRO_EXPECTED_DIR = resolve(METRO_FIXTURES_DIR, 'expected');
 
 let passed = 0;
 let failed = 0;
@@ -98,7 +101,7 @@ function deepCompare(actual, expected, path = '') {
   return diffs;
 }
 
-function runValidation(rawFile, expectedFile, label) {
+async function runValidation(rawFile, expectedFile, label, isMetro = false) {
   console.log(`\n=== ${label} ===`);
 
   const raw = loadJson(rawFile);
@@ -109,13 +112,15 @@ function runValidation(rawFile, expectedFile, label) {
     return;
   }
 
-  const expected = loadJson(expectedFile);
-  if (!expected) {
-    console.log('  WARN: no expected file found; running schema validation only');
+  let normalized;
+  if (isMetro) {
+    const { normalizeReceipt: metroNormalize } = await import('../adapters/metro/normalizer.js');
+    normalized = metroNormalize(raw.invoice, raw.articles);
+  } else {
+    normalized = normalizeReceipt(raw);
   }
 
-  const normalized = normalizeReceipt(raw);
-  const validation = validateNormalized('lidl', normalized);
+  const validation = validateNormalized(isMetro ? 'metro' : 'lidl', normalized);
 
   if (!validation.valid) {
     failed++;
@@ -128,37 +133,44 @@ function runValidation(rawFile, expectedFile, label) {
   }
   console.log('  PASS: schema validation');
 
-  if (expected) {
-    const diffs = deepCompare(normalized, expected, 'root');
-    if (diffs.length > 0) {
-      failed++;
-      failures.push(`${label}: expected output mismatch (${diffs.length} diffs)`);
-      console.log(`  FAIL: expected output mismatch (${diffs.length} diffs):`);
-      for (const d of diffs.slice(0, 15)) {
-        console.log('    -', d);
-      }
-      if (diffs.length > 15) console.log(`    ... and ${diffs.length - 15} more`);
-    } else {
-      passed++;
-      console.log('  PASS: expected output matches');
+  const expected = loadJson(expectedFile);
+  if (!expected) {
+    console.log('  WARN: no expected file found; running schema validation only');
+    passed++;
+    return;
+  }
+
+  const diffs = deepCompare(normalized, expected, 'root');
+  if (diffs.length > 0) {
+    failed++;
+    failures.push(`${label}: expected output mismatch (${diffs.length} diffs)`);
+    console.log(`  FAIL: expected output mismatch (${diffs.length} diffs):`);
+    for (const d of diffs.slice(0, 15)) {
+      console.log('    -', d);
     }
+    if (diffs.length > 15) console.log(`    ... and ${diffs.length - 15} more`);
   } else {
     passed++;
-    console.log('  PASS: schema validation only (no expected file)');
+    console.log('  PASS: expected output matches');
   }
 }
 
-function main() {
+async function main() {
   console.log('BasketIndex — Fixture Validation');
-  console.log(`Fixtures: ${FIXTURES_DIR}`);
+  console.log(`Lidl fixtures: ${FIXTURES_DIR}`);
+  console.log(`Metro fixtures: ${METRO_FIXTURES_DIR}`);
   console.log('Layer: raw fixture JSON → normalize → validate → compare to expected');
 
   const detailFiles = readdirSync(DETAIL_DIR, { withFileTypes: true })
     .filter(e => e.isFile() && e.name.endsWith('.json'))
     .map(e => e.name);
 
-  if (detailFiles.length === 0) {
-    console.log('\nNo detail fixture files found.');
+  const metroDetailFiles = readdirSync(METRO_DETAIL_DIR, { withFileTypes: true })
+    .filter(e => e.isFile() && e.name.endsWith('.json'))
+    .map(e => e.name);
+
+  if (detailFiles.length === 0 && metroDetailFiles.length === 0) {
+    console.log('\nNo fixture files found.');
     process.exit(1);
   }
 
@@ -166,7 +178,14 @@ function main() {
     const rawFile = resolve(DETAIL_DIR, filename);
     const base = basename(filename, '.json');
     const expectedFile = resolve(EXPECTED_DIR, `${base}.normalized.json`);
-    runValidation(rawFile, expectedFile, base);
+    await runValidation(rawFile, expectedFile, base, false);
+  }
+
+  for (const filename of metroDetailFiles) {
+    const rawFile = resolve(METRO_DETAIL_DIR, filename);
+    const base = basename(filename, '.json');
+    const expectedFile = resolve(METRO_EXPECTED_DIR, `${base}.normalized.json`);
+    await runValidation(rawFile, expectedFile, base, true);
   }
 
   console.log(`\n========================================`);

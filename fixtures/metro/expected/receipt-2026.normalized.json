@@ -1,0 +1,112 @@
+{
+  "schema_version": "1.0",
+  "import_metadata": {
+    "imported_at": "FIXTURE_TIMESTAMP",
+    "importer": "basketindex-extension",
+    "importer_version": "0.1.0",
+    "adapter_id": "metro",
+    "adapter_version": "0.1.0"
+  },
+  "source": {
+    "retailer_id": "metro",
+    "retailer_name": "METRO",
+    "country": "BG",
+    "country_name": "Bulgaria",
+    "source_url": "https://docs.metro.bg/"
+  },
+  "receipt": {
+    "id": "BGR_25_8_000000_20260516164107",
+    "date": "2026-05-16",
+    "time": "16:41:07",
+    "datetime_local": "2026-05-16T16:41:07.000Z"
+  },
+  "store": {
+    "code": "25",
+    "name": "METRO",
+    "address": null,
+    "tax_id": null,
+    "company_id": null
+  },
+  "currency": {
+    "primary": "EUR",
+    "secondary": null,
+    "exchange_rate": null,
+    "exchange_rate_source": null
+  },
+  "totals": {
+    "subtotal_primary": 50.93,
+    "subtotal_secondary": null,
+    "total_primary": 61.12,
+    "total_secondary": null,
+    "discount_total_primary": 3.78,
+    "discount_total_secondary": null
+  },
+  "items": [
+    {
+      "line_no": 15,
+      "product": {
+        "retailer_product_id": "349168",
+        "name": "16БР КУХ.РОЛКА FAMILIA NATURAL",
+        "category": null
+      },
+      "quantity": {
+        "value": 1,
+        "unit": "kg"
+      },
+      "pricing": {
+        "unit_price_primary": 7.15,
+        "line_total_primary": 7.15,
+        "unit_price_secondary": null,
+        "line_total_secondary": null
+      },
+      "tax": {
+        "type": "СТ",
+        "rate": null
+      },
+      "discounts": [],
+      "raw": {
+        "text": "16БР КУХ.РОЛКА FAMILIA NATURAL",
+        "adapter_parse_method": "metro_api"
+      }
+    },
+    {
+      "line_no": 17,
+      "product": {
+        "retailer_product_id": "264721",
+        "name": "11Л ИЗВОРНА ВОДА FINE LIFE",
+        "category": null
+      },
+      "quantity": {
+        "value": 9,
+        "unit": "pcs"
+      },
+      "pricing": {
+        "unit_price_primary": 1.79,
+        "line_total_primary": 16.09,
+        "unit_price_secondary": null,
+        "line_total_secondary": null
+      },
+      "tax": {
+        "type": "БР",
+        "rate": null
+      },
+      "discounts": [
+        {
+          "description": "Item discount",
+          "promotion_id": null,
+          "amount_primary": 3.78,
+          "amount_secondary": null,
+          "applied_to_lines": [
+            17
+          ]
+        }
+      ],
+      "raw": {
+        "text": "11Л ИЗВОРНА ВОДА FINE LIFE",
+        "adapter_parse_method": "metro_api"
+      }
+    }
+  ],
+  "payments": [],
+  "discounts": []
+}

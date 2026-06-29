@@ -1,21 +1,9 @@
 import { lidlAdapter } from '../adapters/lidl/adapter.js';
+import { metroAdapter } from '../adapters/metro/adapter.js';
 
 const kauflandAdapter = {
   id: 'kaufland',
   name: 'Kaufland',
-  supportedCountries: [],
-  status: 'planned',
-  supportsUrl() { return false; },
-  hostPatterns() { return []; },
-  getPurchaseHistoryUrl() { return ''; },
-  getListingAction() { return ''; },
-  getDetailAction() { return ''; },
-  normalizeReceipt(r) { return r; }
-};
-
-const metroAdapter = {
-  id: 'metro',
-  name: 'METRO',
   supportedCountries: [],
   status: 'planned',
   supportsUrl() { return false; },
