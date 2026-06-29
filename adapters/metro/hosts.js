@@ -2,7 +2,10 @@
 // Canonical source for Metro Bulgaria host/match metadata.
 // Run `node scripts/sync-manifest.mjs` after changes.
 
-const METRO_HOST_PATTERNS = ['https://docs.metro.bg/*'];
+const METRO_HOST_PATTERNS = [
+  'https://docs.metro.bg/*',
+  'https://mriapi.einvoice.metro.cloud/*'
+];
 const METRO_LISTING_MATCHES = ['https://docs.metro.bg/*'];
 const METRO_DETAIL_MATCHES = [];
 

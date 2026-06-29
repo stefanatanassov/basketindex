@@ -39,7 +39,8 @@
     "https://*.lidl.se/*",
     "https://*.lidl.dk/*",
     "https://*.lidl.no/*",
-    "https://docs.metro.bg/*"
+    "https://docs.metro.bg/*",
+    "https://mriapi.einvoice.metro.cloud/*"
   ],
   "background": {
     "service_worker": "service-worker.js",
