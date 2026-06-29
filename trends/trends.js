@@ -7,7 +7,9 @@ import { encodeQR } from '../lib/qr.js';
 const COLORS = ['#4a90d9', '#e8734a', '#3a8a40', '#9b59b6', '#e67e22', '#1abc9c', '#e74c3c', '#3498db', '#2ecc71', '#f39c12'];
 const LANDING_URL = 'https://basketindex.stefanatanasov.dev/';
 
-let runs = [], itemOptions = [], selectedIds = null, isAllItems = true;
+let runs = [], itemOptions = [];
+let selectedIds = new Set();
+let isAllItems = true;
 let itemsDropdownOpen = false;
 
 document.addEventListener('DOMContentLoaded', init);
@@ -60,10 +62,11 @@ function bindEvents() {
 function refreshItems() {
   const runId = getScopeRunId();
   itemOptions = getItemOptions(runs, runId);
-  selectedIds = null;
+  selectedIds = new Set();
   isAllItems = true;
   updateToggleLabel();
   renderItemList(document.getElementById('itemsSearch').value);
+  renderChart();
 }
 
 function getScopeRunId() {
@@ -78,19 +81,39 @@ function renderItemList(search) {
   const list = document.getElementById('itemsList');
   const q = (search || '').toLowerCase();
   const filtered = q ? itemOptions.filter(it => it.label.toLowerCase().includes(q)) : itemOptions;
-  list.innerHTML = filtered.map(it => {
-    const checked = !isAllItems && selectedIds && selectedIds.includes(it.id);
-    return `<label class="multi-item"><input type="checkbox" value="${esc(it.id)}" ${checked ? 'checked' : ''} onchange="window._trendsItemChange()">${esc(it.label)} <span class="multi-count">${it.count}</span></label>`;
-  }).join('');
-  if (filtered.length === 0) list.innerHTML = '<div class="multi-empty">Няма съвпадения</div>';
 
-  window._trendsItemChange = () => {
-    const checks = document.querySelectorAll('#itemsList input:checked');
-    selectedIds = Array.from(checks).map(c => c.value);
-    isAllItems = selectedIds.length === 0;
-    updateToggleLabel();
-    renderChart();
-  };
+  list.innerHTML = '';
+  for (const it of filtered) {
+    const label = document.createElement('label');
+    label.className = 'multi-item';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.value = it.id;
+    cb.checked = !isAllItems && selectedIds.has(it.id);
+    cb.addEventListener('change', () => onItemToggle(it.id, cb.checked));
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode(it.label + ' '));
+    const count = document.createElement('span');
+    count.className = 'multi-count';
+    count.textContent = it.count;
+    label.appendChild(count);
+    list.appendChild(label);
+  }
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="multi-empty">Няма съвпадения</div>';
+  }
+}
+
+function onItemToggle(id, checked) {
+  if (checked) {
+    selectedIds.add(id);
+    isAllItems = false;
+  } else {
+    selectedIds.delete(id);
+    if (selectedIds.size === 0) isAllItems = true;
+  }
+  updateToggleLabel();
+  renderChart();
 }
 
 function toggleItemsDropdown() {
@@ -110,7 +133,7 @@ function closeItemsDropdown() {
 function updateToggleLabel() {
   const btn = document.getElementById('itemsToggle');
   if (isAllItems) btn.textContent = 'Всички артикули';
-  else btn.textContent = `${selectedIds.length} избрани`;
+  else btn.textContent = `${selectedIds.size} избрани`;
 }
 
 function renderChart() {
@@ -122,11 +145,11 @@ function renderChart() {
   if (isAllItems) {
     series = buildAggregateSeries(runs, runId, agg);
   } else {
-    if (!selectedIds || selectedIds.length === 0) {
+    if (selectedIds.size === 0) {
       document.getElementById('chartContainer').style.display = 'none';
       return;
     }
-    series = buildSelectedSeries(runs, runId, selectedIds, agg);
+    series = buildSelectedSeries(runs, runId, Array.from(selectedIds), agg);
   }
 
   if (!series.length || series.every(s => s.points.length < 2)) {
@@ -229,8 +252,12 @@ function drawChart(series, mode) {
     const s = series[si]; const x = W - m.right + 10;
     ctx.fillStyle = COLORS[si % COLORS.length]; ctx.fillRect(x - 12, ly - 6, 8, 8);
     ctx.fillStyle = '#333';
-    const lbl = (s.label || s.name).length > 28 ? (s.label || s.name).slice(0, 25) + '...' : (s.label || s.name);
-    ctx.fillText(lbl + ' (' + s.totalObservations + ')', x, ly); ly += 16;
+    const lbl = (s.label || s.name).length > 26 ? (s.label || s.name).slice(0, 23) + '...' : (s.label || s.name);
+    ctx.fillText(lbl, x, ly); ly += 14;
+    ctx.fillStyle = '#888'; ctx.font = '10px sans-serif';
+    const eurStr = (s.totalEur != null && s.totalEur > 0) ? ` · ${s.totalEur.toFixed(2)} €` : '';
+    ctx.fillText(`${s.totalObservations} пок.${eurStr}`, x, ly); ly += 14;
+    ctx.fillStyle = '#333'; ctx.font = '11px sans-serif';
   }
 
   ctx.fillStyle = '#aaa'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
@@ -238,7 +265,6 @@ function drawChart(series, mode) {
   encodeQR(ctx, W - 54, H - 54, 42, LANDING_URL);
 }
 
-function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 function exportPng() {
   const c = document.getElementById('chartCanvas');
   c.toBlob(b => { const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = 'basketindex-price-trends.png'; a.click(); URL.revokeObjectURL(u); }, 'image/png');
