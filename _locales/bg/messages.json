@@ -58,6 +58,7 @@
 
   "feedbackReadyTitle": { "message": "Готов" },
   "feedbackReadyMessage": { "message": "Избери търговец и стартирай извличане." },
+  "feedbackReadyHint": { "message": "" },
   "feedbackDiscoveringTitle": { "message": "Откриване на бележки" },
   "feedbackDiscoveringMessage": { "message": "BasketIndex търси наличните ти бележки." },
   "feedbackProcessingTitle": { "message": "Обработка на бележки" },
