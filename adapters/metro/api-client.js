@@ -26,8 +26,23 @@ async function fetchInvoices(token, accountId, fromDate, toDate, start = 0) {
   return await resp.json();
 }
 
+function rewriteHost(url) {
+  try {
+    const u = new URL(url);
+    if (u.hostname === 'mriapi.einvoice.metro.cloud') {
+      u.hostname = 'docs.metro.bg';
+    }
+    return u.href;
+  } catch (_) {
+    return url;
+  }
+}
+
 async function fetchArticles(token, articlesHref) {
-  const resp = await fetch(articlesHref, {
+  // Rewrite mriapi.einvoice.metro.cloud → docs.metro.bg to stay within
+  // the extension's host permissions (manifest only allows docs.metro.bg).
+  const url = rewriteHost(articlesHref);
+  const resp = await fetch(url, {
     headers: { 'Authorization': 'Bearer ' + token }
   });
 
