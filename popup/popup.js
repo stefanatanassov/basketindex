@@ -189,6 +189,17 @@ async function handleStart() {
   refreshJobState();
 }
 
+function resetPopupUI() {
+  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('simplePercent').textContent = '—';
+  document.getElementById('simpleSubline').textContent = 'Ready';
+  document.getElementById('feedbackTitle').textContent = 'Ready';
+  document.getElementById('feedbackBody').textContent = 'Choose a retailer and start an extraction.';
+  document.getElementById('feedbackHint').textContent = '';
+  document.getElementById('feedbackPanel').className = 'feedback-panel feedback-info';
+  document.getElementById('exportCsvBtn').disabled = true;
+}
+
 async function handlePause() {
   const resp = await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.PAUSE });
   if (!resp || !resp.success) showMessage(friendlyError(resp), 'error');
@@ -203,10 +214,10 @@ async function handleResume() {
 
 async function handleReset() {
   applyRetailerDefaults();
-  document.getElementById('progressBar').style.width = '0%';
-  document.getElementById('simplePercent').textContent = '—';
-  document.getElementById('simpleSubline').textContent = 'Ready';
-  showMessage('Form reset to defaults.', 'info');
+  // Clear active job state via SW (does NOT delete run history)
+  await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.RESET });
+  // Immediately reset UI to clean ready state
+  resetPopupUI();
 }
 
 async function handleExport() {
