@@ -31,6 +31,10 @@ function rewriteHost(url) {
     const u = new URL(url);
     if (u.hostname === 'mriapi.einvoice.metro.cloud') {
       u.hostname = 'docs.metro.bg';
+      // docs.metro.bg requires /mriapi prefix; mriapi.einvoice.metro.cloud does not
+      if (!u.pathname.startsWith('/mriapi')) {
+        u.pathname = '/mriapi' + u.pathname;
+      }
     }
     return u.href;
   } catch (_) {
@@ -39,15 +43,19 @@ function rewriteHost(url) {
 }
 
 async function fetchArticles(token, articlesHref) {
-  // Rewrite mriapi.einvoice.metro.cloud → docs.metro.bg to stay within
-  // the extension's host permissions (manifest only allows docs.metro.bg).
+  // Rewrite mriapi.einvoice.metro.cloud → docs.metro.bg/mriapi to stay
+  // within extension host permissions and match the correct API path.
   const url = rewriteHost(articlesHref);
   const resp = await fetch(url, {
     headers: { 'Authorization': 'Bearer ' + token }
   });
 
   if (!resp.ok) {
-    throw new Error(`Articles API returned ${resp.status}`);
+    const ct = resp.headers.get('content-type') || '';
+    if (ct.includes('text/html') || ct.includes('html')) {
+      throw new Error(`Articles API returned HTML (status ${resp.status}) — likely wrong URL or auth: ${url.slice(0, 80)}`);
+    }
+    throw new Error(`Articles API returned ${resp.status} from ${new URL(url).hostname}`);
   }
 
   return await resp.json();
