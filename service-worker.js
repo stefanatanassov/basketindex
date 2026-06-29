@@ -151,7 +151,11 @@ async function handlePopupMessage(message, sendResponse) {
       case CONTROL_ACTIONS.EXPORT_CSV: {
         const job = await loadJob();
         if (!job || job.completed.length === 0) {
-          sendResponse({ success: false, error: 'No completed receipts to export' });
+          sendResponse({ success: false, error: 'No completed receipts to export. If the job shows completed with 0 receipts, try reducing the page range.' });
+          return;
+        }
+        if (!job.completed.some(c => c._normalized)) {
+          sendResponse({ success: false, error: 'Normalized receipt data not available. Re-run the export to regenerate receipts in the current format.' });
           return;
         }
         triggerCsvDownload(job);
