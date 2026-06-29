@@ -51,6 +51,7 @@ function applyPopupI18n() {
   setText('resumeBtn', 'advancedResume');
   setText('exportBtn', 'popupExportJson');
   setText('snapshotBtn', 'popupSnapshotJson');
+  setText('footerDisclaimer', 'footerDisclaimer');
   setLabel('#simpleView label[for=\"adapterId\"]', 'popupRetailer');
 }
 

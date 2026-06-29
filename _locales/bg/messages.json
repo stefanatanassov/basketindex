@@ -92,6 +92,9 @@
   "outcomePartial": { "message": "Завършено с проблеми" },
   "outcomeError": { "message": "Неуспешно" },
 
+  "warningLidlPageWindow": { "message": "Конфигурираният обхват от страници приключи на страница $PAGE$. Възможно е да съществуват още бележки извън този обхват.", "placeholders": { "page": { "content": "$1" } } },
+  "warningPartialCompletion": { "message": "$COUNT$ бележки не успяха да се извлекат и не са включени.", "placeholders": { "count": { "content": "$1" } } },
+
   "retailerLidl": { "message": "Лидл" },
   "retailerMetro": { "message": "МЕТРО" },
   "retailerKaufland": { "message": "Кауфланд" },
