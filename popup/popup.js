@@ -38,23 +38,20 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function applyPopupI18n() {
-  const setText = (id, key) => { const el = document.getElementById(id); if (el) el.textContent = t(key); };
-  const setLabel = (selector, key) => { const el = document.querySelector(selector); if (el) el.textContent = t(key); };
+  // Scan all elements with data-i18n attribute
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
 
-  setText('startBtn', 'popupStart');
-  setText('startBtnAdv', 'popupStart');
-  setText('resetBtn', 'popupReset');
-  setText('resetBtnAdv', 'popupReset');
-  setText('exportCsvBtn', 'popupExportCsv');
-  setText('exportCsvBtnAdv', 'popupExportCsv');
-  setText('pauseBtn', 'advancedPause');
-  setText('resumeBtn', 'advancedResume');
-  setText('exportBtn', 'popupExportJson');
-  setText('snapshotBtn', 'popupSnapshotJson');
-  setText('historyLink', 'popupHistory');
-  setText('advancedLink', 'popupAdvanced');
+  // IDs for elements that need i18n but can't use data-i18n (buttons, links)
+  const setText = (id, key) => { const el = document.getElementById(id); if (el) el.textContent = t(key); };
+  setText('startBtn', 'popupStart'); setText('startBtnAdv', 'popupStart');
+  setText('resetBtn', 'popupReset'); setText('resetBtnAdv', 'popupReset');
+  setText('exportCsvBtn', 'popupExportCsv'); setText('exportCsvBtnAdv', 'popupExportCsv');
+  setText('pauseBtn', 'advancedPause'); setText('resumeBtn', 'advancedResume');
+  setText('exportBtn', 'popupExportJson'); setText('snapshotBtn', 'popupSnapshotJson');
+  setText('historyLink', 'popupHistory'); setText('advancedLink', 'popupAdvanced');
   setText('footerDisclaimer', 'footerDisclaimer');
-  setLabel('#simpleView label[for=\"adapterId\"]', 'popupRetailer');
 }
 
 function bindEvents() {

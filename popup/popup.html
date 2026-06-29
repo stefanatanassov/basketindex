@@ -18,7 +18,7 @@
     <div id="simpleView">
       <section class="config-section">
         <div class="form-group">
-          <label for="adapterId">Retailer</label>
+          <label for="adapterId" data-i18n="popupRetailer">Retailer</label>
           <select id="adapterId"></select>
         </div>
       </section>
@@ -58,17 +58,17 @@
     <!-- ===== ADVANCED VIEW ===== -->
     <div id="advancedView" style="display:none">
       <section class="config-section">
-        <h2>Configuration</h2>
+        <h2 data-i18n="advancedTitle">Configuration</h2>
         <div class="form-group lidl-only">
-          <label for="startPage">Start Page</label>
+          <label for="startPage" data-i18n="advancedStartPage">Start Page</label>
           <input type="number" id="startPage" value="1" min="1" max="9999">
         </div>
         <div class="form-group lidl-only">
-          <label for="endPage">End Page</label>
+          <label for="endPage" data-i18n="advancedEndPage">End Page</label>
           <input type="number" id="endPage" value="50" min="1" max="9999">
         </div>
         <div class="form-group lidl-only">
-          <label for="workerCount">Workers <span class="hint">(speed/reliability)</span></label>
+          <label for="workerCount"><span data-i18n="advancedWorkers">Workers</span> <span class="hint" data-i18n="advancedWorkersHint">(speed/reliability)</span></label>
           <select id="workerCount">
             <option value="1">1 — slow, most reliable</option>
             <option value="2" selected>2 — balanced (recommended)</option>
@@ -77,15 +77,15 @@
           </select>
         </div>
         <div class="form-group metro-only" style="display:none">
-          <label for="fromDate">From Date</label>
+          <label for="fromDate" data-i18n="advancedFromDate">From Date</label>
           <input type="date" id="fromDate" value="2019-01-01">
         </div>
         <div class="form-group metro-only" style="display:none">
-          <label for="toDate">To Date</label>
+          <label for="toDate" data-i18n="advancedToDate">To Date</label>
           <input type="date" id="toDate">
         </div>
         <div class="form-group">
-          <label for="maxRetries">Max Retries per Receipt</label>
+          <label for="maxRetries" data-i18n="advancedMaxRetries">Max Retries per Receipt</label>
           <select id="maxRetries">
             <option value="1">1</option>
             <option value="2">2</option>
@@ -94,7 +94,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label for="recoveryRounds">Recovery Rounds</label>
+          <label for="recoveryRounds" data-i18n="advancedRecoveryRounds">Recovery Rounds</label>
           <select id="recoveryRounds">
             <option value="0">0 — no recovery</option>
             <option value="1">1</option>
@@ -103,23 +103,23 @@
           </select>
         </div>
         <div class="form-group lidl-only">
-          <label for="listingUrl">Listing URL</label>
+          <label for="listingUrl" data-i18n="advancedListingUrl">Listing URL</label>
           <input type="text" id="listingUrl" placeholder="https://.../purchase-history">
-          <button id="detectUrlBtn" class="btn-sm" title="Detect from current Lidl tab">Detect</button>
+          <button id="detectUrlBtn" class="btn-sm" data-i18n="advancedDetect" title="Detect from current Lidl tab">Detect</button>
         </div>
       </section>
 
       <section class="status-section" id="statusSection">
-        <h2>Job Status <span id="jobStatusBadge" class="badge badge-idle">Idle</span></h2>
+        <h2><span data-i18n="advancedStatus">Job Status</span> <span id="jobStatusBadge" class="badge badge-idle">Idle</span></h2>
         <div class="stats-grid">
-          <div class="stat"><span class="stat-label">Phase</span><span class="stat-value" id="statPhase">—</span></div>
-          <div class="stat"><span class="stat-label">Pages</span><span class="stat-value" id="statPages">—</span></div>
-          <div class="stat"><span class="stat-label">Queue</span><span class="stat-value" id="statQueue">0</span></div>
-          <div class="stat"><span class="stat-label">In Flight</span><span class="stat-value" id="statInFlight">0</span></div>
-          <div class="stat"><span class="stat-label">Complete</span><span class="stat-value" id="statComplete">0</span></div>
-          <div class="stat"><span class="stat-label">Failed</span><span class="stat-value" id="statFailed">0</span></div>
-          <div class="stat"><span class="stat-label">Final Fail</span><span class="stat-value" id="statFinalFail">0</span></div>
-          <div class="stat"><span class="stat-label">Recovery</span><span class="stat-value" id="statRecovery">—</span></div>
+          <div class="stat"><span class="stat-label" data-i18n="advancedPhase">Phase</span><span class="stat-value" id="statPhase">—</span></div>
+          <div class="stat"><span class="stat-label" data-i18n="advancedPages">Pages</span><span class="stat-value" id="statPages">—</span></div>
+          <div class="stat"><span class="stat-label" data-i18n="advancedQueue">Queue</span><span class="stat-value" id="statQueue">0</span></div>
+          <div class="stat"><span class="stat-label" data-i18n="advancedInFlight">In Flight</span><span class="stat-value" id="statInFlight">0</span></div>
+          <div class="stat"><span class="stat-label" data-i18n="advancedComplete">Complete</span><span class="stat-value" id="statComplete">0</span></div>
+          <div class="stat"><span class="stat-label" data-i18n="advancedFailed">Failed</span><span class="stat-value" id="statFailed">0</span></div>
+          <div class="stat"><span class="stat-label" data-i18n="advancedFinalFail">Final Fail</span><span class="stat-value" id="statFinalFail">0</span></div>
+          <div class="stat"><span class="stat-label" data-i18n="advancedRecovery">Recovery</span><span class="stat-value" id="statRecovery">—</span></div>
         </div>
         <div class="progress-bar-container">
           <div class="progress-bar" id="progressBarAdv"></div>
