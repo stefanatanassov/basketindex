@@ -28,14 +28,27 @@
         </select>
       </div>
       <div class="control-group">
+        <label>Артикули</label>
+        <select id="itemsFilter" size="1" style="min-width:180px">
+          <option value="__ALL__" selected>Всички артикули</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label>Стойност</label>
+        <select id="valueType">
+          <option value="percentage" selected>Проценти</option>
+          <option value="nominal">Номинална</option>
+        </select>
+      </div>
+      <div class="control-group">
         <label>Период</label>
         <select id="aggregation">
-          <option value="quarter">Тримесечия</option>
+          <option value="quarter" selected>Тримесечия</option>
           <option value="month">Месеци</option>
           <option value="year">Години</option>
         </select>
       </div>
-      <button id="exportPngBtn" class="btn btn-primary">Изтегли като PNG</button>
+      <button id="exportPngBtn" class="btn btn-primary">Изтегли PNG</button>
     </div>
 
     <div id="chartContainer" class="chart-container" style="display:none">
@@ -43,7 +56,7 @@
     </div>
 
     <div id="methodology" class="methodology" style="display:none">
-      <p>Тенденциите са базирани на съхранените ти касови бележки и са групирани по повтарящи се имена на продукти. Резултатите са ориентировъчни и могат да бъдат повлияни от промени в имената или разфасовките. Това не е официален инфлационен анализ.</p>
+      <p>Тенденциите са базирани на съхранените ти касови бележки. В режим „Проценти“ стойностите показват промяна спрямо първия наличен период за всеки артикул. Резултатите са ориентировъчни. Това не е официален инфлационен анализ.</p>
     </div>
 
     <div class="footer-links">
