@@ -447,7 +447,6 @@ function exportAnalysisPng() {
 }
 
 function exportSocialCard() {
-  const screenCanvas = document.getElementById('chartCanvas');
   const W = 1200, H = 630;
   const c = document.createElement('canvas');
   c.width = W; c.height = H;
@@ -469,104 +468,222 @@ function exportSocialCard() {
   else if (mode === 'index') series = convertToIndex(series);
   if (!series.length) { alert('Няма данни за генериране на social card.'); return; }
 
+  const buckets = getAllBuckets(series);
+  const isAggregate = isAllItems;
+  const isMulti = series.length > 1;
+  const isSingle = series.length === 1 && !isAggregate;
   const s0 = series[0];
   const lastPt = s0.points[s0.points.length - 1];
-  const buckets = getAllBuckets(series);
 
   function bucketToMonthYear(bucketKey) {
     const pt = s0.points.find(p => p.bucket === bucketKey);
     const label = pt?.bucketLabel || bucketKey;
-    // Convert '2026/04' or '2026-04' to '04.2026'; '2026' stays '2026'
     const m1 = label.match(/^(\d{4})[\/\-](\d{2})$/);
     if (m1) return `${m1[2]}.${m1[1]}`;
     return label;
   }
 
-  // Background
-  ctx.fillStyle = '#0f0f1a'; ctx.fillRect(0, 0, W, H);
-
-  // Accent bar
-  ctx.fillStyle = '#4a90d9'; ctx.fillRect(0, 0, W, 6);
-
-  // Brand
-  ctx.fillStyle = '#888'; ctx.font = '14px -apple-system, sans-serif';
-  ctx.fillText('BasketIndex', 60, 60);
-
-  // Headline
-  ctx.fillStyle = '#fff'; ctx.font = 'bold 32px -apple-system, sans-serif';
-  const label = s0.label || s0.name || '';
-  const headline = label.length > 45 ? label.slice(0, 42) + '...' : label;
-  ctx.fillText(headline, 60, 120);
-
-  // Date range subtitle
-  ctx.fillStyle = '#999'; ctx.font = '16px -apple-system, sans-serif';
   const rangeStr = buckets.length > 1
     ? `${bucketToMonthYear(buckets[0])} – ${bucketToMonthYear(buckets[buckets.length - 1])}`
     : '';
-  ctx.fillText(rangeStr, 60, 155);
 
-  // Key statistic
-  let statText = '';
-  if (mode === 'nominal') statText = lastPt.avgPrice.toFixed(2) + ' лв';
-  else if (mode === 'index') {
-    const d = Math.round(lastPt.avgPrice - 100);
-    statText = (d > 0 ? '+' : '') + d + '%';
-  } else statText = (lastPt.avgPrice > 0 ? '+' : '') + Math.round(lastPt.avgPrice) + '%';
+  // --- Layout computation ---
+  // Header: brand + headline + range
+  // Center: stat + interpretation or multi-series visual
+  // Footer: URL + disclaimer
 
-  ctx.fillStyle = '#4a90d9'; ctx.font = 'bold 72px -apple-system, sans-serif';
-  ctx.fillText(statText, 60, 260);
+  // Background
+  ctx.fillStyle = '#0f0f1a'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#4a90d9'; ctx.fillRect(0, 0, W, 6);
 
-  // Interpretation
-  let interp = '';
-  if (mode === 'index' || mode === 'percentage') {
-    const d = mode === 'index' ? Math.round(lastPt.avgPrice - 100) : Math.round(lastPt.avgPrice);
-    if (d > 0) interp = 'спрямо началото на периода';
-    else if (d < 0) interp = 'спрямо началото на периода';
-    else interp = 'без промяна спрямо началото на периода';
+  // Brand
+  ctx.fillStyle = '#6b7280'; ctx.font = '14px -apple-system, sans-serif';
+  ctx.fillText('BasketIndex', 60, 60);
+
+  // --- HEADLINE ---
+  let headline;
+  if (isSingle) {
+    const name = s0.label || s0.name || '';
+    headline = name.length > 52 ? name.slice(0, 49) + '…' : name;
+  } else if (isMulti) {
+    headline = `${series.length} избрани продукта`;
   } else {
-    interp = 'средна платена цена в последния период';
+    headline = 'Ценова тенденция';
   }
-  ctx.fillStyle = '#777'; ctx.font = '16px -apple-system, sans-serif';
-  ctx.fillText(interp, 60, 295);
 
-  // Mini chart (sparkline area)
-  if (buckets.length > 1) {
-    const plotX = 60, plotW = W - 120, plotY = 330, plotH = 200;
-    const allPts = s0.points;
-    let minV2 = Infinity, maxV2 = -Infinity;
-    for (const p of allPts) { if (p.avgPrice < minV2) minV2 = p.avgPrice; if (p.avgPrice > maxV2) maxV2 = p.avgPrice; }
-    const vRange = maxV2 - minV2 || 1;
-    // Axis line
-    ctx.strokeStyle = '#333'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(plotX, plotY + plotH); ctx.lineTo(plotX + plotW, plotY + plotH); ctx.stroke();
-    // Sparkline
-    ctx.strokeStyle = '#4a90d9'; ctx.lineWidth = 3; ctx.beginPath();
-    for (let i = 0; i < allPts.length; i++) {
-      const x = plotX + (plotW / (allPts.length - 1)) * i;
-      const y = plotY + plotH - ((allPts[i].avgPrice - minV2) / vRange) * plotH;
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  ctx.fillStyle = '#f1f5f9'; ctx.font = 'bold 34px -apple-system, sans-serif';
+  ctx.fillText(headline, 60, 130);
+
+  // Date range
+  ctx.fillStyle = '#9ca3af'; ctx.font = '16px -apple-system, sans-serif';
+  ctx.fillText(rangeStr, 60, 165);
+
+  // --- MODE-SPECIFIC CONTENT ---
+
+  if (isSingle) {
+    // SINGLE ITEM: large stat + interpretation + sparkline
+    let statText, interp;
+    if (mode === 'nominal') {
+      statText = lastPt.avgPrice.toFixed(2) + ' лв';
+      interp = 'средна платена цена в последния период';
+    } else {
+      const d = mode === 'index' ? Math.round(lastPt.avgPrice - 100) : Math.round(lastPt.avgPrice);
+      statText = (d > 0 ? '+' : '') + d + '%';
+      interp = d > 0 ? 'спрямо началото на периода'
+        : d < 0 ? 'спрямо началото на периода'
+        : 'без промяна спрямо началото';
     }
-    ctx.stroke();
-    // Fill below
-    ctx.lineTo(plotX + plotW, plotY + plotH);
-    ctx.lineTo(plotX, plotY + plotH);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(74, 144, 217, 0.12)';
-    ctx.fill();
-    // Endpoint dot
-    const lastX = plotX + plotW;
-    const lastY = plotY + plotH - ((lastPt.avgPrice - minV2) / vRange) * plotH;
-    ctx.fillStyle = '#4a90d9'; ctx.beginPath(); ctx.arc(lastX, lastY, 6, 0, Math.PI * 2); ctx.fill();
+
+    ctx.fillStyle = '#4a90d9'; ctx.font = 'bold 80px -apple-system, sans-serif';
+    ctx.fillText(statText, 60, 270);
+    ctx.fillStyle = '#6b7280'; ctx.font = '16px -apple-system, sans-serif';
+    ctx.fillText(interp, 60, 305);
+
+    // Sparkline with fill
+    if (buckets.length > 1) {
+      const plotX = 60, plotW = W - 120, plotY = 340, plotH = 220;
+      const pts = s0.points;
+      let mn = Infinity, mx = -Infinity;
+      for (const p of pts) { if (p.avgPrice < mn) mn = p.avgPrice; if (p.avgPrice > mx) mx = p.avgPrice; }
+      const vr = mx - mn || 1;
+
+      ctx.strokeStyle = '#374151'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(plotX, plotY + plotH); ctx.lineTo(plotX + plotW, plotY + plotH); ctx.stroke();
+
+      ctx.strokeStyle = '#4a90d9'; ctx.lineWidth = 3; ctx.beginPath();
+      for (let i = 0; i < pts.length; i++) {
+        const x = plotX + (plotW / (pts.length - 1)) * i;
+        const y = plotY + plotH - ((pts[i].avgPrice - mn) / vr) * plotH;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.lineTo(plotX + plotW, plotY + plotH);
+      ctx.lineTo(plotX, plotY + plotH);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(74, 144, 217, 0.10)';
+      ctx.fill();
+
+      const lx = plotX + plotW;
+      const ly = plotY + plotH - ((lastPt.avgPrice - mn) / vr) * plotH;
+      ctx.fillStyle = '#4a90d9'; ctx.beginPath(); ctx.arc(lx, ly, 6, 0, Math.PI * 2); ctx.fill();
+    }
+
+  } else if (isMulti) {
+    // MULTI ITEM: ranked mini-trends with key moves
+    const top = series.slice(0, Math.min(5, series.length));
+    const numBuckets = buckets.length;
+
+    // Key stat: average change or range
+    let totalD = 0;
+    for (const s of top) {
+      const first = s.points[0]?.avgPrice || 1;
+      const last = s.points[s.points.length - 1]?.avgPrice || first;
+      totalD += mode === 'nominal' ? ((last - first) / (first || 1) * 100) : (last - first > 0 ? 1 : last < first ? -1 : 0);
+    }
+    const avgDir = totalD > 1 ? 'преобладаващо покачване' : totalD < -1 ? 'преобладаващо понижение' : 'смесена картина';
+    ctx.fillStyle = '#9ca3af'; ctx.font = '16px -apple-system, sans-serif';
+    ctx.fillText(avgDir, 60, 225);
+
+    // Ranked mini-trend row
+    const rowY = 270, rowH = 42, gap = 8;
+    for (let i = 0; i < top.length; i++) {
+      const s = top[i];
+      const y = rowY + i * (rowH + gap);
+      const name = s.label || s.name || '';
+      const shortName = name.length > 24 ? name.slice(0, 21) + '…' : name;
+      const color = COLORS[i % COLORS.length];
+
+      // Label
+      ctx.fillStyle = '#9ca3af'; ctx.font = '13px -apple-system, sans-serif';
+      ctx.fillText(shortName, 60, y + 16);
+
+      // Mini sparkline
+      const spX = 320, spW = 200;
+      if (s.points.length > 1) {
+        let mn = Infinity, mx = -Infinity;
+        for (const p of s.points) { if (p.avgPrice < mn) mn = p.avgPrice; if (p.avgPrice > mx) mx = p.avgPrice; }
+        const vr = mx - mn || 1;
+        ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath();
+        for (let j = 0; j < s.points.length; j++) {
+          const x = spX + (spW / (s.points.length - 1)) * j;
+          const py = y + rowH / 2 - ((s.points[j].avgPrice - mn) / vr) * (rowH - 6);
+          if (j === 0) ctx.moveTo(x, py); else ctx.lineTo(x, py);
+        }
+        ctx.stroke();
+        // End dot
+        const lastX = spX + spW;
+        const lastY = y + rowH / 2 - ((s.points[s.points.length - 1].avgPrice - mn) / vr) * (rowH - 6);
+        ctx.fillStyle = color; ctx.beginPath(); ctx.arc(lastX, lastY, 3, 0, Math.PI * 2); ctx.fill();
+      }
+
+      // Change indicator
+      const first = s.points[0]?.avgPrice || 1;
+      const last = s.points[s.points.length - 1]?.avgPrice || first;
+      let changeText = '';
+      if (mode === 'nominal') {
+        const pct = ((last - first) / (first || 1) * 100);
+        changeText = (pct > 0 ? '+' : '') + pct.toFixed(0) + '%';
+      } else {
+        changeText = (last > 0 ? '+' : '') + Math.round(last) + (mode === 'index' ? '' : '%');
+      }
+      ctx.fillStyle = changeText.startsWith('-') ? '#ef4444' : changeText.startsWith('+') ? '#22c55e' : '#9ca3af';
+      ctx.font = 'bold 14px -apple-system, sans-serif';
+      ctx.fillText(changeText, spX + spW + 16, y + 16);
+
+      // Obs count
+      ctx.fillStyle = '#4b5563'; ctx.font = '11px -apple-system, sans-serif';
+      ctx.fillText(`${s.totalObservations} пок.`, spX + spW + 80, y + 16);
+    }
+
+  } else {
+    // AGGREGATE: overall stat + interpretation + sparkline
+    let statText, interp;
+    if (mode === 'nominal') {
+      statText = lastPt.avgPrice.toFixed(2) + ' лв';
+      interp = 'средна платена цена';
+    } else {
+      const d = mode === 'index' ? Math.round(lastPt.avgPrice - 100) : Math.round(lastPt.avgPrice);
+      statText = (d > 0 ? '+' : '') + d + '%';
+      interp = d !== 0 ? 'спрямо началото на периода' : 'без промяна';
+    }
+    const allObs = series.reduce((s, ser) => s + ser.totalObservations, 0);
+
+    ctx.fillStyle = '#4a90d9'; ctx.font = 'bold 80px -apple-system, sans-serif';
+    ctx.fillText(statText, 60, 270);
+    ctx.fillStyle = '#6b7280'; ctx.font = '16px -apple-system, sans-serif';
+    ctx.fillText(`${interp} · ${allObs} покупки`, 60, 305);
+
+    // Sparkline
+    if (buckets.length > 1) {
+      const plotX = 60, plotW = W - 120, plotY = 340, plotH = 220;
+      const pts = s0.points;
+      let mn = Infinity, mx = -Infinity;
+      for (const p of pts) { if (p.avgPrice < mn) mn = p.avgPrice; if (p.avgPrice > mx) mx = p.avgPrice; }
+      const vr = mx - mn || 1;
+      ctx.strokeStyle = '#374151'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(plotX, plotY + plotH); ctx.lineTo(plotX + plotW, plotY + plotH); ctx.stroke();
+      ctx.strokeStyle = '#4a90d9'; ctx.lineWidth = 3; ctx.beginPath();
+      for (let i = 0; i < pts.length; i++) {
+        const x = plotX + (plotW / (pts.length - 1)) * i;
+        const y = plotY + plotH - ((pts[i].avgPrice - mn) / vr) * plotH;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.lineTo(plotX + plotW, plotY + plotH);
+      ctx.lineTo(plotX, plotY + plotH);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(74, 144, 217, 0.10)';
+      ctx.fill();
+      const lx = plotX + plotW;
+      const ly = plotY + plotH - ((lastPt.avgPrice - mn) / vr) * plotH;
+      ctx.fillStyle = '#4a90d9'; ctx.beginPath(); ctx.arc(lx, ly, 6, 0, Math.PI * 2); ctx.fill();
+    }
   }
 
   // Footer
-  ctx.fillStyle = '#555'; ctx.font = '12px -apple-system, sans-serif';
-  ctx.fillText('basketindex.stefanatanasov.dev', W - 60, H - 30);
-
-  // Disclaimer
-  ctx.textAlign = 'right';
-  ctx.fillStyle = '#444'; ctx.font = '10px -apple-system, sans-serif';
-  ctx.fillText('Базирано на реални покупки · не е официален инфлационен анализ', W - 60, H - 15);
+  ctx.fillStyle = '#4b5563'; ctx.font = '12px -apple-system, sans-serif'; ctx.textAlign = 'right';
+  ctx.fillText('Базирано на реални покупки', W - 60, H - 30);
+  ctx.fillText('basketindex.stefanatanasov.dev', W - 60, H - 60);
 
   c.toBlob(b => { const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = 'basketindex-social-card.png'; a.click(); URL.revokeObjectURL(u); }, 'image/png');
 }
