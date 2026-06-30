@@ -392,7 +392,7 @@ function drawChart(series, mode) {
   // Pass 1: draw all lines
   for (let si = 0; si < series.length; si++) {
     const s = series[si]; const color = COLORS[si % COLORS.length];
-    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.beginPath();
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.beginPath();
     let started = false;
     for (let i = 0; i < buckets.length; i++) {
       const pt = s.points.find(p => p.bucket === buckets[i]); if (!pt) continue;
