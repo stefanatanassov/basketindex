@@ -60,6 +60,8 @@
   "historySnapshot": { "message": "Първоначално извличане" },
   "historyFollowup": { "message": "Последващо извличане" },
   "historyFollowupAction": { "message": "Обнови с нови покупки" },
+  "historyNoNewData": { "message": "Без нови" },
+  "historyNoNewReceipts": { "message": " · няма нови бележки" },
 
   "feedbackReadyTitle": { "message": "Готов" },
   "feedbackReadyMessage": { "message": "Избери търговец и стартирай извличане." },

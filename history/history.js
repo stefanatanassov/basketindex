@@ -1,5 +1,4 @@
 import { loadRuns, deleteRun, clearHistory } from '../lib/run-history.js';
-import { getRunOutcomeCode } from '../lib/user-feedback.js';
 import { t } from '../lib/i18n-helper.js';
 import { CONTROL_ACTIONS, MESSAGE_TYPES } from '../lib/messaging.js';
 
@@ -51,80 +50,97 @@ function applyI18n() {
 }
 
 function renderCard(run) {
-  const warningsHtml = (run.warnings || []).map(w =>
-    `<div class="warning">${esc(w.message)}</div>`
-  ).join('');
-
-  const outcomeCode = getRunOutcomeCode(run);
-  const outcomeLabel = t('outcome' + outcomeCode.charAt(0).toUpperCase() + outcomeCode.slice(1));
   const retailerName = t('retailer' + (run.retailer || 'unknown').charAt(0).toUpperCase() + (run.retailer || 'unknown').slice(1)) || (run.retailer || 'unknown').toUpperCase();
-  const statusLabel = t('runStatus' + (run.status === 'done' ? 'Done' : 'Error'));
-
-  // Run type badge
-  const runType = run.runType || 'snapshot';
-  let typeLabel, typeClass;
-  if (runType === 'followup' && run.derivedFromRunId) {
-    typeLabel = t('historyFollowup');
-    typeClass = 'badge-followup';
-  } else if (runType === 'followup') {
-    typeLabel = t('historyFollowup');
-    typeClass = 'badge-followup';
-  } else {
-    typeLabel = '';
-    typeClass = '';
-  }
-
-  // Title: retailer + run completion date
   const dateStr = new Date(run.completedAt || run.startedAt).toLocaleDateString('bg-BG', { day: 'numeric', month: 'long', year: 'numeric' });
 
-  // Coverage line
-  const cov = run.coverage || {};
-  let coverageHtml = '';
-  if (cov.fromDate && cov.toDate) {
-    coverageHtml = `<span class="run-coverage">${t('historyCoverage')}: <strong>${esc(cov.fromDate)} → ${esc(cov.toDate)}</strong></span>`;
-  } else if (cov.fromDate) {
-    coverageHtml = `<span class="run-coverage">${t('historyCoverage')}: ${esc(cov.fromDate)}</span>`;
+  // Status badge
+  let statusLabel, statusClass;
+  if (run.status === 'info') {
+    statusLabel = t('historyNoNewData') || 'Без нови';
+    statusClass = 'badge-info';
+  } else if (run.status === 'done') {
+    statusLabel = t('runStatusDone');
+    statusClass = 'badge-done';
+  } else {
+    statusLabel = t('runStatusError');
+    statusClass = 'badge-error';
   }
 
-  // Follow-up parent reference
-  let followupHtml = '';
-  if (run.derivedFromRunId) {
-    const parentRun = runs.find(r => r.runId === run.derivedFromRunId);
-    if (parentRun) {
-      const parentDate = new Date(parentRun.completedAt || parentRun.startedAt).toLocaleDateString('bg-BG', { day: 'numeric', month: 'long', year: 'numeric' });
-      const parentRetailer = t('retailer' + (parentRun.retailer || 'unknown').charAt(0).toUpperCase() + (parentRun.retailer || 'unknown').slice(1)) || parentRun.retailer;
-      followupHtml = `<div class="run-followup">${t('historyFollowupOf', [parentDate])} · ${esc(parentRetailer)}</div>`;
+  // Outcome / type / dedup line
+  let sublineParts = [];
+
+  if (run.runType === 'followup') {
+    const fm = run.followupMeta || {};
+    if (run.status === 'info') {
+      sublineParts.push(t('historyFollowup') + t('historyNoNewReceipts'));
+    } else if (fm.hasNewReceipts) {
+      sublineParts.push(t('historyFollowup'));
+      sublineParts.push(`добавени: ${fm.addedReceiptCount || 0}`);
+      if (fm.duplicateReceiptCount > 0) sublineParts.push(`дубликати: ${fm.duplicateReceiptCount}`);
     } else {
-      followupHtml = `<div class="run-followup">${t('historyFollowup')}</div>`;
+      sublineParts.push(t('historyFollowup'));
+    }
+
+    // Parent reference: compact inline
+    if (run.derivedFromRunId) {
+      const parentRun = runs.find(r => r.runId === run.derivedFromRunId);
+      if (parentRun) {
+        const parentDate = new Date(parentRun.completedAt || parentRun.startedAt).toLocaleDateString('bg-BG', { day: 'numeric', month: 'short' });
+        sublineParts.push(`от ${parentDate}`);
+      }
+    }
+  } else {
+    // Snapshot: show coverage
+    const cov = run.coverage || {};
+    if (cov.fromDate && cov.toDate) {
+      sublineParts.push(`${cov.fromDate} → ${cov.toDate}`);
     }
   }
+
+  const sublineHtml = sublineParts.length ? `<div class="run-subline">${sublineParts.join(' · ')}</div>` : '';
+
+  // Stats: compact
+  const hasDedup = run.followupMeta && run.followupMeta.addedReceiptCount != null;
+  const showReceipts = hasDedup ? run.followupMeta.addedReceiptCount : run.summary.receiptCount;
+
+  // Warnings: only if non-zero
+  const warningsHtml = run.summary.warningCount > 0 && run.warnings && run.warnings.length > 0
+    ? `<div class="warnings">${run.warnings.map(w => `<div class="warning">${esc(w.message)}</div>`).join('')}</div>`
+    : '';
+
+  // Follow-up button: only on the latest run per retailer (not on follow-ups)
+  const isLatest = isLatestRunForRetailer(run);
+  const showFollowup = !run.derivedFromRunId && run.status === 'done' && isLatest;
 
   return `
     <div class="run-card">
       <div class="run-header">
         <span class="run-retailer">${esc(retailerName)}</span>
-        ${typeLabel ? `<span class="badge ${typeClass}">${esc(typeLabel)}</span>` : ''}
-        <span class="badge badge-${run.status === 'done' ? 'done' : 'error'}">${esc(statusLabel)}</span>
+        <span class="badge ${statusClass}">${esc(statusLabel)}</span>
         <span class="run-date">${dateStr}</span>
       </div>
-      <div class="run-meta">
-        ${coverageHtml}
-      </div>
-      ${followupHtml}
-      <div class="run-outcome outcome-${outcomeCode === 'success' ? 'success' : outcomeCode === 'partial' ? 'warning' : 'error'}">${esc(outcomeLabel)}</div>
+      ${sublineHtml}
       <div class="run-stats">
-        <span>${t('historyReceipts')}: <strong>${run.summary.receiptCount}</strong></span>
+        <span>${t('historyReceipts')}: <strong>${showReceipts}</strong></span>
         <span>${t('historyItems')}: <strong>${run.summary.itemCount}</strong></span>
-        ${run.summary.failedCount > 0 ? `<span>${t('historyFailed')}: <strong>${run.summary.failedCount}</strong></span>` : ''}
       </div>
-      ${warningsHtml ? `<div class="warnings">${warningsHtml}</div>` : ''}
+      ${warningsHtml}
       <div class="run-actions">
-        ${!run.derivedFromRunId && run.status === 'done' ? `<button id="followup-${run.runId}" class="btn btn-followup">${t('historyFollowupAction')}</button>` : ''}
+        ${showFollowup ? `<button id="followup-${run.runId}" class="btn btn-followup">${t('historyFollowupAction')}</button>` : ''}
         <button id="csv-${run.runId}" class="btn btn-export">${t('historyCsv')}</button>
         <button id="json-${run.runId}" class="btn btn-primary">${t('historyJson')}</button>
         <button id="del-${run.runId}" class="btn btn-danger">${t('historyDelete')}</button>
       </div>
     </div>`;
+}
+
+function isLatestRunForRetailer(run) {
+  const snapshots = runs.filter(r => r.retailer === run.retailer && !r.derivedFromRunId && r.status === 'done');
+  if (snapshots.length === 0) return false;
+  const latest = snapshots.reduce((a, b) =>
+    new Date(a.completedAt || a.startedAt) > new Date(b.completedAt || b.startedAt) ? a : b
+  );
+  return latest.runId === run.runId;
 }
 
 function esc(str) {
