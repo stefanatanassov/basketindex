@@ -26,6 +26,7 @@ header h1 { font-size: 20px; }
 .chart-tooltip .tt-value { font-size: 14px; font-weight: 600; margin: 4px 0; }
 .chart-tooltip .tt-meta { color: #aaa; font-size: 11px; }
 .chart-tooltip .tt-sparse { color: #e67e22; font-size: 10px; margin-top: 2px; }
+.chart-tooltip .tt-interp { color: #a0d2a0; font-size: 11px; margin: 2px 0; }
 .evidence-section { border-top: 1px solid #e8e8e8; padding-top: 16px; margin-bottom: 16px; }
 .evidence-section h3 { font-size: 15px; margin-bottom: 8px; color: #1a1a2e; }
 .evidence-meta { font-size: 11px; color: #888; margin-bottom: 10px; }
@@ -37,6 +38,7 @@ header h1 { font-size: 20px; }
 .evidence-table .ev-link { color: #4a90d9; text-decoration: none; font-size: 10px; white-space: nowrap; }
 .evidence-table .ev-link:hover { text-decoration: underline; }
 .evidence-table .ev-price { text-align: right; white-space: nowrap; }
+.evidence-table .ev-currency { text-align: center; white-space: nowrap; }
 .ev-modal-btn { background: none; border: none; color: #4a90d9; cursor: pointer; font-size: 10px; text-decoration: underline; padding: 0; font-family: inherit; }
 .ev-modal-btn:hover { color: #357abd; }
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 100; display: flex; align-items: center; justify-content: center; }
@@ -50,11 +52,15 @@ header h1 { font-size: 20px; }
 .modal-body .detail-label { color: #888; width: 100px; flex-shrink: 0; font-size: 11px; }
 .modal-body .detail-value { color: #333; word-break: break-word; }
 .modal-body h4 { font-size: 13px; margin: 14px 0 6px 0; padding-top: 10px; border-top: 1px solid #e8e8e8; }
+.modal-body .detail-note { margin: 10px 0 0 0; padding: 10px 12px; background: #f7f9fc; border-left: 3px solid #4a90d9; border-radius: 6px; color: #425466; line-height: 1.45; }
 .modal-body .detail-items { margin-top: 8px; }
-.modal-body .detail-item { display: flex; justify-content: space-between; padding: 4px 0; font-size: 12px; border-bottom: 1px solid #f0f2f5; }
-.modal-body .detail-item-name { flex: 1; }
-.modal-body .detail-item-qty { width: 50px; text-align: right; color: #888; }
-.modal-body .detail-item-price { width: 70px; text-align: right; }
+.modal-body .detail-item { display: grid; grid-template-columns: minmax(0, 1fr) 52px 90px 90px; gap: 8px; align-items: center; padding: 6px 8px; font-size: 12px; border-bottom: 1px solid #f0f2f5; border-radius: 6px; }
+.modal-body .detail-item-highlight { background: #eef6ff; border-left: 3px solid #4a90d9; }
+.modal-body .detail-item-name { min-width: 0; }
+.modal-body .detail-item-qty { text-align: right; color: #888; }
+.modal-body .detail-item-price { text-align: right; white-space: nowrap; }
+.modal-body .detail-item-total { text-align: right; white-space: nowrap; color: #425466; font-weight: 600; }
+.modal-body .detail-actions { margin-top: 12px; }
 .methodology { font-size: 11px; color: #aaa; margin-bottom: 16px; line-height: 1.5; padding: 10px; background: #f8f8f8; border-radius: 6px; }
 .footer-links { text-align: center; padding-top: 12px; border-top: 1px solid #e8e8e8; }
 .footer-links a { color: #4a90d9; font-size: 11px; text-decoration: none; }
@@ -73,4 +79,5 @@ header h1 { font-size: 20px; }
 
 .trend-summary { font-size: 14px; color: #333; padding: 10px 14px; background: #f0f4fa; border-radius: 8px; margin-bottom: 12px; text-align: center; }
 .trend-summary strong { color: #4a90d9; }
+.trend-summary .ts-formal { display: block; font-size: 11px; color: #888; margin-top: 4px; }
 .empty-chart-msg { text-align: center; padding: 24px; color: #888; font-size: 14px; background: #f8f8f8; border-radius: 8px; margin-bottom: 12px; }

@@ -220,7 +220,11 @@ function drawChart(series, mode) {
   ctx.fillStyle = '#1a1a2e'; ctx.font = 'bold 18px sans-serif';
   ctx.fillText('BasketIndex — Ценови тенденции', m.left, 32);
   ctx.fillStyle = '#666'; ctx.font = '12px sans-serif';
-  const subtitles = { index: 'Индекс (100 = начален период)', percentage: 'Промяна спрямо първия период (%)', nominal: 'Средна цена (лв)' };
+  const subtitles = {
+    index: 'Индекс · 100 = начален период · над 100 = по-скъпо, под 100 = по-евтино',
+    percentage: 'Процентна промяна спрямо първия период · положителна = по-скъпо, отрицателна = по-евтино',
+    nominal: 'Средна платена цена в лева за всеки период'
+  };
   ctx.fillText(subtitles[mode] || '', m.left, 50);
 
   const buckets = getAllBuckets(series);
@@ -355,9 +359,22 @@ function showTooltip(e, hit) {
   const s = hit.series;
 
   let valueLine = '';
-  if (mode === 'nominal') valueLine = `Средна цена за периода: <strong>${pt.origAvgPrice.toFixed(2)} лв</strong>`;
-  else if (mode === 'index') valueLine = `Индекс за периода: <strong>${Math.round(pt.avgPrice)}</strong>`;
-  else valueLine = `Промяна спрямо началото: <strong>${pt.avgPrice > 0 ? '+' : ''}${Math.round(pt.avgPrice)}%</strong>`;
+  let interpLine = '';
+  if (mode === 'nominal') {
+    valueLine = `Средна цена за периода: <strong>${pt.origAvgPrice.toFixed(2)} лв</strong>`;
+  } else if (mode === 'index') {
+    valueLine = `Индекс за периода: <strong>${Math.round(pt.avgPrice)}</strong>`;
+    const d = Math.round(pt.avgPrice - 100);
+    if (d > 0) interpLine = `≈ ${d}% по-скъпо от началото`;
+    else if (d < 0) interpLine = `≈ ${Math.abs(d)}% по-евтино от началото`;
+    else interpLine = `≈ без промяна спрямо началото`;
+  } else {
+    valueLine = `Промяна спрямо началото: <strong>${pt.avgPrice > 0 ? '+' : ''}${Math.round(pt.avgPrice)}%</strong>`;
+    const a = Math.abs(Math.round(pt.avgPrice));
+    interpLine = pt.avgPrice > 0 ? `≈ ${a}% по-скъпо от началото`
+      : pt.avgPrice < 0 ? `≈ ${a}% по-евтино от началото`
+      : `≈ без промяна спрямо началото`;
+  }
 
   const bgnStr = pt.totalBgn > 0 ? `${pt.totalBgn.toFixed(2)} лв` : '';
   const eurStr = pt.totalEur > 0 ? ` · €${pt.totalEur.toFixed(2)}` : '';
@@ -366,6 +383,7 @@ function showTooltip(e, hit) {
   let html = `<span class="tt-label">${escStr(s.label || s.name)}</span>`;
   html += `<span class="tt-period">Период: ${pt.bucketLabel}</span>`;
   html += `<div class="tt-value">${valueLine}</div>`;
+  if (interpLine) html += `<div class="tt-interp">${interpLine}</div>`;
   html += `<div class="tt-meta">Покупки: ${pt.observations}</div>`;
   if (spendLine) html += `<div class="tt-meta">${spendLine}</div>`;
   if (pt.observations < 3) html += `<div class="tt-sparse">Ограничени данни: ${pt.observations} покупки</div>`;
