@@ -1,7 +1,7 @@
 // trends/trends.js
 // Trends page — run-scoped, searchable multi-select items, index/percent/nominal.
 
-import { loadRuns, getRunOptions, getItemOptions, getAvailableDateRange, buildAggregateSeries, buildSelectedSeries, collectEvidence, convertToPercentage, convertToIndex, getAllBuckets, getTrendSummary, sanitizeDisplayName } from '../lib/trends.js';
+import { loadRuns, getRunOptions, getItemOptions, getAvailableDateRange, buildAggregateSeries, buildSelectedSeries, collectEvidence, convertToPercentage, convertToIndex, getAllBuckets, getTrendSummary, sanitizeDisplayName, getRichestRun, getTopProductId } from '../lib/trends.js';
 import { encodeQR } from '../lib/qr.js';
 
 const COLORS = ['#4a90d9', '#e8734a', '#3a8a40', '#9b59b6', '#e67e22', '#1abc9c', '#e74c3c', '#3498db', '#2ecc71', '#f39c12'];
@@ -21,8 +21,25 @@ async function init() {
   if (runs.length === 0) return;
 
   populateRunFilter();
-  initDateRange(null);
-  itemOptions = getItemOptions(runs, null);
+
+  // Default to richest run
+  const richest = getRichestRun(runs);
+  if (richest) {
+    document.getElementById('runFilter').value = richest.runId;
+    initDateRange(richest.runId);
+    itemOptions = getItemOptions(runs, richest.runId);
+    // Default to top product within that run
+    const topId = getTopProductId(runs, richest.runId);
+    if (topId) {
+      selectedIds = new Set([topId]);
+      isAllItems = false;
+      updateToggleLabel();
+    }
+  } else {
+    initDateRange(null);
+    itemOptions = getItemOptions(runs, null);
+  }
+
   if (itemOptions.length === 0) {
     document.getElementById('emptyState').querySelector('p').textContent = 'Няма достатъчно повтарящи се продукти за генериране на тенденции.';
     return;
