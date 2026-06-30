@@ -18,6 +18,8 @@ header h1 { font-size: 20px; }
 .btn { padding: 8px 16px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500; }
 .btn-primary { background: #4a90d9; color: white; border-color: #357abd; }
 .btn-primary:hover { background: #357abd; }
+.btn-social { background: #1a1a2e; color: white; border-color: #0f0f1a; }
+.btn-social:hover { background: #0f0f1a; }
 .chart-container { margin-bottom: 16px; position: relative; }
 .chart-container canvas { width: 100%; height: auto; border: 1px solid #e8e8e8; border-radius: 8px; }
 .chart-tooltip { position: absolute; pointer-events: none; background: rgba(26, 26, 46, 0.92); color: #fff; border-radius: 8px; padding: 10px 14px; font-size: 12px; line-height: 1.6; max-width: 250px; z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
