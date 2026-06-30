@@ -294,33 +294,39 @@ function drawChart(series, mode) {
   const canvas = document.getElementById('chartCanvas');
   const ctx = canvas.getContext('2d');
   const W = 900, H = 540;
-  const m = { top: 80, right: 50, bottom: 60, left: 70 };
-  const pw = W - m.left - m.right, ph = H - m.top - m.bottom;
+  const margin = { top: 80, right: 50, bottom: 55, left: 70 };
+  const innerPad = 6;
+  const pw = W - margin.left - margin.right - innerPad * 2;
+  const ph = H - margin.top - margin.bottom;
 
   ctx.clearRect(0, 0, W, H);
   ctx.fillStyle = '#fafbfc'; ctx.fillRect(0, 0, W, H);
 
-  // Title block
+  // Title — centered
+  ctx.textAlign = 'center';
   ctx.fillStyle = '#1a1a2e'; ctx.font = 'bold 20px -apple-system, sans-serif';
-  ctx.fillText('BasketIndex  ·  Ценови тенденции', m.left, m.top - 48);
+  ctx.fillText('BasketIndex  ·  Ценови тенденции', W / 2, margin.top - 48);
 
+  // Subtitle — centered
   ctx.fillStyle = '#555'; ctx.font = '13px -apple-system, sans-serif';
   const subtitles = {
     index: 'Индекс  ·  100 = начален период  ·  над 100 = по-скъпо',
     percentage: 'Процентна промяна спрямо началния период',
     nominal: 'Средна платена цена в лева за всеки период'
   };
-  ctx.fillText(subtitles[mode] || '', m.left, m.top - 28);
+  ctx.fillText(subtitles[mode] || '', W / 2, margin.top - 28);
 
-  // Context line: product + date range + obs count
+  // Context line — centered
   const s0 = series[0];
   const allObs = series.reduce((s, ser) => s + ser.totalObservations, 0);
   const buckets = getAllBuckets(series);
-  const rangeStr = buckets.length ? `${buckets[0]}  –  ${buckets[buckets.length-1]}` : '';
+  const firstLabel = s0.points.find(p => p.bucket === buckets[0])?.bucketLabel || buckets[0];
+  const lastLabel = s0.points.find(p => p.bucket === buckets[buckets.length - 1])?.bucketLabel || buckets[buckets.length - 1];
   const modeLabel = mode === 'index' ? 'Индекс' : mode === 'percentage' ? 'Проценти' : 'лв';
   const ctxLine = series.length === 1 ? (s0.label || s0.name) : `${series.length} серии`;
   ctx.fillStyle = '#888'; ctx.font = '11px -apple-system, sans-serif';
-  ctx.fillText(`${ctxLine}  ·  ${rangeStr}  ·  ${allObs} покупки  ·  ${modeLabel}`, m.left, m.top - 12);
+  ctx.fillText(`${ctxLine}  ·  ${firstLabel}  –  ${lastLabel}  ·  ${allObs} покупки  ·  ${modeLabel}`, W / 2, margin.top - 12);
+  ctx.textAlign = 'left';
 
   if (buckets.length < 2) return;
 
@@ -337,41 +343,45 @@ function drawChart(series, mode) {
     if (minV > 0) minV = 0;
     maxV = Math.ceil(maxV * 1.15);
   }
-  const range = maxV - minV;
+  const range = maxV - minV || 1;
+
+  const plotLeft = margin.left + innerPad;
+  const plotRight = W - margin.right - innerPad;
 
   // Plot area background
-  ctx.fillStyle = '#fff'; ctx.fillRect(m.left, m.top, pw, ph);
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(margin.left, margin.top, W - margin.left - margin.right, ph);
   ctx.strokeStyle = '#e0e0e0'; ctx.lineWidth = 1;
-  ctx.strokeRect(m.left, m.top, pw, ph);
+  ctx.strokeRect(margin.left, margin.top, W - margin.left - margin.right, ph);
 
   // Grid
   ctx.strokeStyle = '#eef0f2'; ctx.lineWidth = 0.5;
   for (let i = 0; i <= 4; i++) {
-    const y = m.top + (ph / 4) * i;
-    ctx.beginPath(); ctx.moveTo(m.left, y); ctx.lineTo(m.left + pw, y); ctx.stroke();
+    const y = margin.top + (ph / 4) * i;
+    ctx.beginPath(); ctx.moveTo(margin.left, y); ctx.lineTo(margin.left + W - margin.left - margin.right, y); ctx.stroke();
     const val = maxV - (range / 4) * i;
     ctx.fillStyle = '#777'; ctx.font = '11px -apple-system, sans-serif'; ctx.textAlign = 'right';
-    const label = mode === 'nominal' ? (val % 1 === 0 ? val.toFixed(0) : val.toFixed(2)) + ' лв' : Math.round(val) + (mode === 'percentage' ? '%' : '');
-    ctx.fillText(label, m.left - 8, y + 4);
+    const lbl = mode === 'nominal' ? (val % 1 === 0 ? val.toFixed(0) : val.toFixed(2)) + ' лв' : Math.round(val) + (mode === 'percentage' ? '%' : '');
+    ctx.fillText(lbl, margin.left - 8, y + 4);
   }
 
   // Baseline
   const baseline = mode === 'index' ? 100 : 0;
   if ((baseline >= minV && baseline <= maxV) || mode === 'index') {
-    const by = m.top + ph - ((baseline - minV) / range) * ph;
+    const by = margin.top + ph - ((baseline - minV) / range) * ph;
     ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
-    ctx.beginPath(); ctx.moveTo(m.left, by); ctx.lineTo(m.left + pw, by); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(margin.left, by); ctx.lineTo(margin.left + W - margin.left - margin.right, by); ctx.stroke();
     ctx.setLineDash([]);
   }
 
   // X-axis labels
-  const xStep = pw / (buckets.length - 1);
+  const xStep = (plotRight - plotLeft) / (buckets.length - 1);
   ctx.save();
   for (let i = 0; i < buckets.length; i++) {
-    const x = m.left + xStep * i;
+    const x = plotLeft + xStep * i;
     const label = series[0]?.points.find(p => p.bucket === buckets[i])?.bucketLabel || buckets[i];
     ctx.fillStyle = '#777'; ctx.font = '10px -apple-system, sans-serif'; ctx.textAlign = 'right';
-    ctx.translate(x, H - m.bottom + 18); ctx.rotate(-Math.PI / 3);
+    ctx.translate(x, H - margin.bottom + 16); ctx.rotate(-Math.PI / 3);
     ctx.fillText(label, 0, 0); ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
   ctx.restore();
@@ -384,10 +394,10 @@ function drawChart(series, mode) {
     let prevX;
     for (let i = 0; i < buckets.length; i++) {
       const pt = s.points.find(p => p.bucket === buckets[i]); if (!pt) continue;
-      const x = m.left + xStep * i, y = m.top + ph - ((pt.avgPrice - minV) / range) * ph;
+      const x = plotLeft + xStep * i;
+      const y = margin.top + ph - ((pt.avgPrice - minV) / range) * ph;
       if (!prevX) ctx.moveTo(x, y); else ctx.lineTo(x, y);
       prevX = x;
-      // Draw point
       ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 3.5, 0, Math.PI * 2); ctx.fill();
       hitAreas.push({ x, y, point: pt, series: s, color, si });
@@ -395,25 +405,26 @@ function drawChart(series, mode) {
     ctx.stroke();
   }
 
-  // Legend below chart
-  ctx.textAlign = 'center'; let lx = m.left + pw / 2;
-  const totalW = series.reduce((s, ser) => s + ctx.measureText(ser.label || ser.name).width + 30, 0);
-  lx = Math.max(m.left + 10, lx - totalW / 2);
+  // Legend — set font BEFORE measuring
+  ctx.font = '11px -apple-system, sans-serif';
+  ctx.textAlign = 'left';
+  let lx = plotLeft;
   for (let si = 0; si < series.length; si++) {
     const s = series[si];
     const txt = (s.label || s.name) + ' (' + s.totalObservations + ')' + (s.totalEur > 0 ? ' · €' + s.totalEur.toFixed(2) : '');
     const tw = ctx.measureText(txt).width;
+    if (lx + tw + 20 > plotRight) { lx = plotLeft; }
     ctx.fillStyle = COLORS[si % COLORS.length];
-    ctx.fillRect(lx, H - 28, 8, 8);
-    ctx.fillStyle = '#555'; ctx.font = '11px -apple-system, sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText(txt, lx + 12, H - 20);
-    lx += tw + 24;
+    ctx.fillRect(lx, H - margin.bottom + 8, 8, 8);
+    ctx.fillStyle = '#555';
+    ctx.fillText(txt, lx + 12, H - margin.bottom + 16);
+    lx += tw + 20;
   }
 
   // Footer
-  ctx.fillStyle = '#aaa'; ctx.font = '10px -apple-system, sans-serif'; ctx.textAlign = 'right';
-  ctx.fillText('basketindex.stefanatanasov.dev', m.left + pw, H - 6);
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#aaa'; ctx.font = '10px -apple-system, sans-serif';
+  ctx.fillText('basketindex.stefanatanasov.dev', plotRight, H - 6);
 }
 
 function exportAnalysisPng() {
@@ -448,6 +459,15 @@ function exportSocialCard() {
   const lastPt = s0.points[s0.points.length - 1];
   const buckets = getAllBuckets(series);
 
+  function bucketToMonthYear(bucketKey) {
+    const pt = s0.points.find(p => p.bucket === bucketKey);
+    const label = pt?.bucketLabel || bucketKey;
+    // Convert '2026/04' or '2026-04' to '04.2026'; '2026' stays '2026'
+    const m1 = label.match(/^(\d{4})[\/\-](\d{2})$/);
+    if (m1) return `${m1[2]}.${m1[1]}`;
+    return label;
+  }
+
   // Background
   ctx.fillStyle = '#0f0f1a'; ctx.fillRect(0, 0, W, H);
 
@@ -466,7 +486,9 @@ function exportSocialCard() {
 
   // Date range subtitle
   ctx.fillStyle = '#999'; ctx.font = '16px -apple-system, sans-serif';
-  const rangeStr = buckets.length > 1 ? `${buckets[0]} – ${buckets[buckets.length-1]}` : '';
+  const rangeStr = buckets.length > 1
+    ? `${bucketToMonthYear(buckets[0])} – ${bucketToMonthYear(buckets[buckets.length - 1])}`
+    : '';
   ctx.fillText(rangeStr, 60, 155);
 
   // Key statistic
