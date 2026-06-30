@@ -312,8 +312,8 @@ function renderChart() {
 function drawChart(series, mode) {
   const canvas = document.getElementById('chartCanvas');
   const ctx = canvas.getContext('2d');
-  const W = 900, H = 570;
-  const margin = { top: 80, right: 50, bottom: 70, left: 70 };
+  const W = 900, H = 590;
+  const margin = { top: 80, right: 50, bottom: 80, left: 70 };
   const innerPad = 6;
   const pw = W - margin.left - margin.right - innerPad * 2;
   const ph = H - margin.top - margin.bottom;
@@ -448,9 +448,9 @@ function drawChart(series, mode) {
     const tw = ctx.measureText(txt).width;
     if (lx + tw + 20 > plotRight && lx > plotLeft) { lx = plotLeft; }
     ctx.fillStyle = COLORS[si % COLORS.length];
-    ctx.fillRect(lx, H - margin.bottom + 8, 8, 8);
+    ctx.fillRect(lx, H - 20, 8, 8);
     ctx.fillStyle = '#555';
-    ctx.fillText(txt, lx + 12, H - margin.bottom + 16);
+    ctx.fillText(txt, lx + 12, H - 12);
     lx += tw + 20;
   }
 
@@ -676,7 +676,7 @@ function onCanvasMove(e) {
   const canvas = document.getElementById('chartCanvas');
   const rect = canvas.getBoundingClientRect();
   const scaleX = 900 / rect.width;
-  const scaleY = 570 / rect.height;
+  const scaleY = 590 / rect.height;
   const mx = (e.clientX - rect.left) * scaleX;
   const my = (e.clientY - rect.top) * scaleY;
 
@@ -736,7 +736,7 @@ function showTooltip(e, hit) {
   const canvas = document.getElementById('chartCanvas');
   const rect = canvas.getBoundingClientRect();
   let left = hit.x / 900 * rect.width + 12;
-  let top = hit.y / 570 * rect.height - 30;
+  let top = hit.y / 590 * rect.height - 30;
 
   if (left + 260 > rect.right) left = hit.x / 900 * rect.width - 12 - 260;
   if (top < 0) top = 5;
@@ -754,7 +754,7 @@ function hideTooltip() {
 function drawHoverRing(hit) {
   const c = document.getElementById('hoverCanvas');
   const ctx = c.getContext('2d');
-  ctx.clearRect(0, 0, 900, 570);
+  ctx.clearRect(0, 0, 900, 590);
   ctx.strokeStyle = hit.color;
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -769,7 +769,7 @@ function drawHoverRing(hit) {
 
 function clearHoverRing() {
   const c = document.getElementById('hoverCanvas');
-  c.getContext('2d').clearRect(0, 0, 900, 570);
+  c.getContext('2d').clearRect(0, 0, 900, 590);
 }
 
 function renderEvidence() {
@@ -798,7 +798,7 @@ function renderEvidence() {
   meta.textContent = `${rows.length} покупки · ${scopeLabel} · ${itemLabel}${rangeLabel}`;
 
   const header = `<table><thead><tr>
-    <th>Търговец</th><th>Дата</th><th>Продукт</th><th>Кол.</th><th>Ед. цена</th><th>Общо</th><th>Валута</th><th>Източник</th>
+    <th>Търговец</th><th>Дата</th><th>Продукт</th><th>Кол.</th><th>Ед. цена (€)</th><th>Общо (€)</th><th>Оригинал</th><th>Източник</th>
   </tr></thead><tbody>`;
 
   let body = '';
@@ -813,14 +813,17 @@ function renderEvidence() {
     } else {
       linkHtml = '';
     }
+    const origCur = r.primaryCurrency || r.receiptCurrency || '';
+    const unitEur = r.unitPriceEurNorm;
+    const totalEur = r.lineTotalEurNorm;
     body += `<tr>
       <td>${escStr(rl)}</td>
       <td>${escStr(r.receiptDate)}</td>
       <td>${escStr(r.productName)}</td>
       <td>${r.quantity}</td>
-      <td class="ev-price">${formatMoney(r.unitPricePrimary, '')}</td>
-      <td class="ev-price">${formatMoney(r.lineTotalPrimary, '')}</td>
-      <td class="ev-currency">${escStr(r.primaryCurrency || '—')}</td>
+      <td class="ev-price">${unitEur > 0 ? unitEur.toFixed(2) : '—'}</td>
+      <td class="ev-price">${totalEur > 0 ? totalEur.toFixed(2) : '—'}</td>
+      <td class="ev-currency">${escStr(origCur || '—')}</td>
       <td>${linkHtml}</td>
     </tr>`;
   }
