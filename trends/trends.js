@@ -4,7 +4,7 @@
 import { loadRuns, getRunOptions, getItemOptions, getAvailableDateRange, buildAggregateSeries, buildSelectedSeries, collectEvidence, convertToPercentage, convertToIndex, getAllBuckets, getTrendSummary, sanitizeDisplayName, getRichestRun, getTopProductId } from '../lib/trends.js';
 import { encodeQR } from '../lib/qr.js';
 
-const COLORS = ['#4a90d9', '#e8734a', '#3a8a40', '#9b59b6', '#e67e22', '#1abc9c', '#e74c3c', '#3498db', '#2ecc71', '#f39c12'];
+const COLORS = ['#2563eb', '#dc2626', '#16a34a', '#9333ea', '#ea580c', '#0891b2', '#db2777', '#ca8a04', '#4f46e5', '#059669'];
 const LANDING_URL = 'https://basketindex.stefanatanasov.dev/';
 
 let runs = [], itemOptions = [], runOptions = [];
@@ -386,34 +386,48 @@ function drawChart(series, mode) {
   }
   ctx.restore();
 
-  // Lines + points
+  // Lines + points — two-pass: all lines first, then all points on top
   hitAreas = [];
+
+  // Pass 1: draw all lines
   for (let si = 0; si < series.length; si++) {
     const s = series[si]; const color = COLORS[si % COLORS.length];
-    ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.beginPath();
-    let prevX;
+    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.beginPath();
+    let started = false;
     for (let i = 0; i < buckets.length; i++) {
       const pt = s.points.find(p => p.bucket === buckets[i]); if (!pt) continue;
       const x = plotLeft + xStep * i;
       const y = margin.top + ph - ((pt.avgPrice - minV) / range) * ph;
-      if (!prevX) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      prevX = x;
-      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 3.5, 0, Math.PI * 2); ctx.fill();
-      hitAreas.push({ x, y, point: pt, series: s, color, si });
+      if (!started) { ctx.moveTo(x, y); started = true; }
+      else ctx.lineTo(x, y);
     }
     ctx.stroke();
   }
 
-  // Legend — set font BEFORE measuring
+  // Pass 2: draw points on top of lines
+  for (let si = 0; si < series.length; si++) {
+    const s = series[si]; const color = COLORS[si % COLORS.length];
+    for (let i = 0; i < buckets.length; i++) {
+      const pt = s.points.find(p => p.bucket === buckets[i]); if (!pt) continue;
+      const x = plotLeft + xStep * i;
+      const y = margin.top + ph - ((pt.avgPrice - minV) / range) * ph;
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
+      hitAreas.push({ x, y, point: pt, series: s, color, si });
+    }
+  }
+
+  // Legend — compact, single-line per series
   ctx.font = '11px -apple-system, sans-serif';
   ctx.textAlign = 'left';
   let lx = plotLeft;
   for (let si = 0; si < series.length; si++) {
     const s = series[si];
-    const txt = (s.label || s.name) + ' (' + s.totalObservations + ')' + (s.totalEur > 0 ? ' · €' + s.totalEur.toFixed(2) : '');
+    const name = s.label || s.name || '';
+    const shortName = name.length > 22 ? name.slice(0, 19) + '…' : name;
+    const txt = shortName + ' (' + s.totalObservations + ')' + (s.totalEur > 0 ? ' · €' + s.totalEur.toFixed(2) : '');
     const tw = ctx.measureText(txt).width;
-    if (lx + tw + 20 > plotRight) { lx = plotLeft; }
+    if (lx + tw + 20 > plotRight && lx > plotLeft) { lx = plotLeft; }
     ctx.fillStyle = COLORS[si % COLORS.length];
     ctx.fillRect(lx, H - margin.bottom + 8, 8, 8);
     ctx.fillStyle = '#555';
