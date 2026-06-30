@@ -55,6 +55,10 @@
   "historyReceipts": { "message": "Бележки" },
   "historyItems": { "message": "Артикули" },
   "historyFailed": { "message": "Неуспешни" },
+  "historyCoverage": { "message": "Период" },
+  "historyFollowupOf": { "message": "Продължение на извличане от $DATE$", "placeholders": { "date": { "content": "$1" } } },
+  "historySnapshot": { "message": "Първоначално извличане" },
+  "historyFollowup": { "message": "Последващо извличане" },
 
   "feedbackReadyTitle": { "message": "Готов" },
   "feedbackReadyMessage": { "message": "Избери търговец и стартирай извличане." },

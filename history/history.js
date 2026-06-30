@@ -56,16 +56,59 @@ function renderCard(run) {
   const outcomeCode = getRunOutcomeCode(run);
   const outcomeLabel = t('outcome' + outcomeCode.charAt(0).toUpperCase() + outcomeCode.slice(1));
   const retailerName = t('retailer' + (run.retailer || 'unknown').charAt(0).toUpperCase() + (run.retailer || 'unknown').slice(1)) || (run.retailer || 'unknown').toUpperCase();
-  const dateStr = new Date(run.completedAt || run.startedAt).toLocaleString();
   const statusLabel = t('runStatus' + (run.status === 'done' ? 'Done' : 'Error'));
+
+  // Run type badge
+  const runType = run.runType || 'snapshot';
+  let typeLabel, typeClass;
+  if (runType === 'followup' && run.derivedFromRunId) {
+    typeLabel = t('historyFollowup');
+    typeClass = 'badge-followup';
+  } else if (runType === 'followup') {
+    typeLabel = t('historyFollowup');
+    typeClass = 'badge-followup';
+  } else {
+    typeLabel = '';
+    typeClass = '';
+  }
+
+  // Title: retailer + run completion date
+  const dateStr = new Date(run.completedAt || run.startedAt).toLocaleDateString('bg-BG', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  // Coverage line
+  const cov = run.coverage || {};
+  let coverageHtml = '';
+  if (cov.fromDate && cov.toDate) {
+    coverageHtml = `<span class="run-coverage">${t('historyCoverage')}: <strong>${esc(cov.fromDate)} → ${esc(cov.toDate)}</strong></span>`;
+  } else if (cov.fromDate) {
+    coverageHtml = `<span class="run-coverage">${t('historyCoverage')}: ${esc(cov.fromDate)}</span>`;
+  }
+
+  // Follow-up parent reference
+  let followupHtml = '';
+  if (run.derivedFromRunId) {
+    const parentRun = runs.find(r => r.runId === run.derivedFromRunId);
+    if (parentRun) {
+      const parentDate = new Date(parentRun.completedAt || parentRun.startedAt).toLocaleDateString('bg-BG', { day: 'numeric', month: 'long', year: 'numeric' });
+      const parentRetailer = t('retailer' + (parentRun.retailer || 'unknown').charAt(0).toUpperCase() + (parentRun.retailer || 'unknown').slice(1)) || parentRun.retailer;
+      followupHtml = `<div class="run-followup">${t('historyFollowupOf', [parentDate])} · ${esc(parentRetailer)}</div>`;
+    } else {
+      followupHtml = `<div class="run-followup">${t('historyFollowup')}</div>`;
+    }
+  }
 
   return `
     <div class="run-card">
       <div class="run-header">
         <span class="run-retailer">${esc(retailerName)}</span>
+        ${typeLabel ? `<span class="badge ${typeClass}">${esc(typeLabel)}</span>` : ''}
         <span class="badge badge-${run.status === 'done' ? 'done' : 'error'}">${esc(statusLabel)}</span>
-        <span class="run-date">${esc(dateStr)}</span>
+        <span class="run-date">${dateStr}</span>
       </div>
+      <div class="run-meta">
+        ${coverageHtml}
+      </div>
+      ${followupHtml}
       <div class="run-outcome outcome-${outcomeCode === 'success' ? 'success' : outcomeCode === 'partial' ? 'warning' : 'error'}">${esc(outcomeLabel)}</div>
       <div class="run-stats">
         <span>${t('historyReceipts')}: <strong>${run.summary.receiptCount}</strong></span>
