@@ -72,8 +72,10 @@ function bindEvents() {
   document.getElementById('exportPngBtn').addEventListener('click', exportAnalysisPng);
   document.getElementById('exportSocialBtn').addEventListener('click', exportSocialCard);
   document.getElementById('itemsToggle').addEventListener('click', toggleItemsDropdown);
+  document.getElementById('itemsClear').addEventListener('click', clearItems);
   document.getElementById('itemsSearch').addEventListener('input', (e) => renderItemList(e.target.value));
   document.getElementById('runsToggle').addEventListener('click', toggleRunsDropdown);
+  document.getElementById('runsClear').addEventListener('click', clearRuns);
   document.getElementById('runsSearch').addEventListener('input', (e) => renderRunList(e.target.value));
   document.getElementById('dateFrom').addEventListener('change', () => { validateDateRange(); renderChart(); });
   document.getElementById('dateTo').addEventListener('change', () => { validateDateRange(); renderChart(); });
@@ -95,6 +97,14 @@ function toggleRunsDropdown() {
     document.getElementById('runsSearch').focus();
     renderRunList(document.getElementById('runsSearch').value);
   }
+}
+
+function clearRuns(e) {
+  e.stopPropagation();
+  selectedRunIds = new Set();
+  isAllRuns = true;
+  updateRunsToggleLabel();
+  refreshItems();
 }
 
 function closeRunsDropdown() {
@@ -210,6 +220,15 @@ function toggleItemsDropdown() {
   }
 }
 
+function clearItems(e) {
+  e.stopPropagation();
+  selectedIds = new Set();
+  isAllItems = true;
+  updateToggleLabel();
+  renderItemList(document.getElementById('itemsSearch').value);
+  renderChart();
+}
+
 function closeItemsDropdown() {
   itemsDropdownOpen = false;
   document.getElementById('itemsDropdown').style.display = 'none';
@@ -293,8 +312,8 @@ function renderChart() {
 function drawChart(series, mode) {
   const canvas = document.getElementById('chartCanvas');
   const ctx = canvas.getContext('2d');
-  const W = 900, H = 540;
-  const margin = { top: 80, right: 50, bottom: 55, left: 70 };
+  const W = 900, H = 570;
+  const margin = { top: 80, right: 50, bottom: 70, left: 70 };
   const innerPad = 6;
   const pw = W - margin.left - margin.right - innerPad * 2;
   const ph = H - margin.top - margin.bottom;
@@ -312,7 +331,7 @@ function drawChart(series, mode) {
   const subtitles = {
     index: 'Индекс  ·  100 = начален период  ·  над 100 = по-скъпо',
     percentage: 'Процентна промяна спрямо началния период',
-    nominal: 'Средна платена цена в лева за всеки период'
+    nominal: 'Средна платена цена в евро за всеки период'
   };
   ctx.fillText(subtitles[mode] || '', W / 2, margin.top - 28);
 
@@ -322,7 +341,7 @@ function drawChart(series, mode) {
   const buckets = getAllBuckets(series);
   const firstLabel = s0.points.find(p => p.bucket === buckets[0])?.bucketLabel || buckets[0];
   const lastLabel = s0.points.find(p => p.bucket === buckets[buckets.length - 1])?.bucketLabel || buckets[buckets.length - 1];
-  const modeLabel = mode === 'index' ? 'Индекс' : mode === 'percentage' ? 'Проценти' : 'лв';
+  const modeLabel = mode === 'index' ? 'Индекс' : mode === 'percentage' ? 'Проценти' : '€';
   const ctxLine = series.length === 1 ? (s0.label || s0.name) : `${series.length} серии`;
   ctx.fillStyle = '#888'; ctx.font = '11px -apple-system, sans-serif';
   ctx.fillText(`${ctxLine}  ·  ${firstLabel}  –  ${lastLabel}  ·  ${allObs} покупки  ·  ${modeLabel}`, W / 2, margin.top - 12);
@@ -361,7 +380,7 @@ function drawChart(series, mode) {
     ctx.beginPath(); ctx.moveTo(margin.left, y); ctx.lineTo(margin.left + W - margin.left - margin.right, y); ctx.stroke();
     const val = maxV - (range / 4) * i;
     ctx.fillStyle = '#777'; ctx.font = '11px -apple-system, sans-serif'; ctx.textAlign = 'right';
-    const lbl = mode === 'nominal' ? (val % 1 === 0 ? val.toFixed(0) : val.toFixed(2)) + ' лв' : Math.round(val) + (mode === 'percentage' ? '%' : '');
+    const lbl = mode === 'nominal' ? (val % 1 === 0 ? val.toFixed(0) : val.toFixed(2)) + ' €' : Math.round(val) + (mode === 'percentage' ? '%' : '');
     ctx.fillText(lbl, margin.left - 8, y + 4);
   }
 
@@ -528,7 +547,7 @@ function exportSocialCard() {
     statText = (avgD > 0 ? '+' : '') + avgD + '%';
     interp = avgD > 0 ? 'спрямо началото на периода' : avgD < 0 ? 'спрямо началото на периода' : 'без промяна';
   } else if (mode === 'nominal') {
-    statText = lastPt.avgPrice.toFixed(2) + ' лв';
+    statText = lastPt.avgPrice.toFixed(2) + ' €';
     interp = 'средна платена цена в последния период';
   } else {
     const d = mode === 'index' ? Math.round(lastPt.avgPrice - 100) : Math.round(lastPt.avgPrice);
@@ -657,7 +676,7 @@ function onCanvasMove(e) {
   const canvas = document.getElementById('chartCanvas');
   const rect = canvas.getBoundingClientRect();
   const scaleX = 900 / rect.width;
-  const scaleY = 540 / rect.height;
+  const scaleY = 570 / rect.height;
   const mx = (e.clientX - rect.left) * scaleX;
   const my = (e.clientY - rect.top) * scaleY;
 
@@ -685,7 +704,7 @@ function showTooltip(e, hit) {
   let valueLine = '';
   let interpLine = '';
   if (mode === 'nominal') {
-    valueLine = `Средна цена за периода: <strong>${pt.origAvgPrice.toFixed(2)} лв</strong>`;
+    valueLine = `Средна цена за периода: <strong>${pt.origAvgPrice.toFixed(2)} €</strong>`;
   } else if (mode === 'index') {
     valueLine = `Индекс за периода: <strong>${Math.round(pt.avgPrice)}</strong>`;
     const d = Math.round(pt.avgPrice - 100);
@@ -700,9 +719,8 @@ function showTooltip(e, hit) {
       : `≈ без промяна спрямо началото`;
   }
 
-  const bgnStr = pt.totalBgn > 0 ? `${pt.totalBgn.toFixed(2)} лв` : '';
   const eurStr = pt.totalEur > 0 ? ` · €${pt.totalEur.toFixed(2)}` : '';
-  const spendLine = (bgnStr || eurStr) ? `Общо: ${bgnStr}${eurStr}` : '';
+  const spendLine = eurStr ? `Общо:${eurStr}` : '';
 
   let html = `<span class="tt-label">${escStr(s.label || s.name)}</span>`;
   html += `<span class="tt-period">Период: ${pt.bucketLabel}</span>`;
@@ -718,7 +736,7 @@ function showTooltip(e, hit) {
   const canvas = document.getElementById('chartCanvas');
   const rect = canvas.getBoundingClientRect();
   let left = hit.x / 900 * rect.width + 12;
-  let top = hit.y / 540 * rect.height - 30;
+  let top = hit.y / 570 * rect.height - 30;
 
   if (left + 260 > rect.right) left = hit.x / 900 * rect.width - 12 - 260;
   if (top < 0) top = 5;
@@ -736,7 +754,7 @@ function hideTooltip() {
 function drawHoverRing(hit) {
   const c = document.getElementById('hoverCanvas');
   const ctx = c.getContext('2d');
-  ctx.clearRect(0, 0, 900, 540);
+  ctx.clearRect(0, 0, 900, 570);
   ctx.strokeStyle = hit.color;
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -751,7 +769,7 @@ function drawHoverRing(hit) {
 
 function clearHoverRing() {
   const c = document.getElementById('hoverCanvas');
-  c.getContext('2d').clearRect(0, 0, 900, 540);
+  c.getContext('2d').clearRect(0, 0, 900, 570);
 }
 
 function renderEvidence() {

@@ -23,6 +23,7 @@
         <label>Извличания</label>
         <div class="multi-select" id="runsMulti">
           <button id="runsToggle" class="multi-toggle">Всички извличания</button>
+          <button id="runsClear" class="multi-clear" title="Изчисти">&times;</button>
           <div id="runsDropdown" class="multi-dropdown" style="display:none">
             <input type="text" id="runsSearch" class="multi-search" placeholder="Търси извличания...">
             <div id="runsList" class="multi-list"></div>
@@ -33,6 +34,7 @@
         <label>Артикули</label>
         <div class="multi-select" id="itemsMulti">
           <button id="itemsToggle" class="multi-toggle">Всички артикули</button>
+          <button id="itemsClear" class="multi-clear" title="Изчисти">&times;</button>
           <div id="itemsDropdown" class="multi-dropdown" style="display:none">
             <input type="text" id="itemsSearch" class="multi-search" placeholder="Търси артикули...">
             <div id="itemsList" class="multi-list"></div>
@@ -70,8 +72,8 @@
     <div id="trendSummary" class="trend-summary" style="display:none"></div>
 
     <div id="chartContainer" class="chart-container" style="display:none">
-      <canvas id="chartCanvas" width="900" height="540"></canvas>
-      <canvas id="hoverCanvas" width="900" height="540" class="hover-canvas"></canvas>
+      <canvas id="chartCanvas" width="900" height="570"></canvas>
+      <canvas id="hoverCanvas" width="900" height="570" class="hover-canvas"></canvas>
       <div id="tooltip" class="chart-tooltip" style="display:none"></div>
     </div>
 
