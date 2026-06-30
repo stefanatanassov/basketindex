@@ -416,7 +416,7 @@ function renderEvidence() {
   meta.textContent = `${rows.length} покупки · ${scopeLabel} · ${itemLabel}${rangeLabel}`;
 
   const header = `<table><thead><tr>
-    <th>Търговец</th><th>Дата</th><th>Продукт</th><th>Кол.</th><th>Цена лв</th><th>Общо лв</th><th>€</th><th>Източник</th>
+    <th>Търговец</th><th>Дата</th><th>Продукт</th><th>Кол.</th><th>Ед. цена</th><th>Общо</th><th>Валута</th><th>Източник</th>
   </tr></thead><tbody>`;
 
   let body = '';
@@ -431,15 +431,14 @@ function renderEvidence() {
     } else {
       linkHtml = '';
     }
-    const totalBgn = (r.unitPriceBgn * r.quantity).toFixed(2);
     body += `<tr>
       <td>${escStr(rl)}</td>
       <td>${escStr(r.receiptDate)}</td>
       <td>${escStr(r.productName)}</td>
       <td>${r.quantity}</td>
-      <td class="ev-price">${r.unitPriceBgn.toFixed(2)}</td>
-      <td class="ev-price">${totalBgn}</td>
-      <td class="ev-price">${r.unitPriceEur > 0 ? r.unitPriceEur.toFixed(2) : '—'}</td>
+      <td class="ev-price">${formatMoney(r.unitPricePrimary, '')}</td>
+      <td class="ev-price">${formatMoney(r.lineTotalPrimary, '')}</td>
+      <td class="ev-currency">${escStr(r.primaryCurrency || '—')}</td>
       <td>${linkHtml}</td>
     </tr>`;
   }
@@ -457,6 +456,33 @@ function renderEvidence() {
 function escStr(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 function escAttr(s) { return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 function retailerLabel(r) { return r === 'lidl' ? 'Лидл' : r === 'metro' ? 'МЕТРО' : r.toUpperCase(); }
+function normalizeMatchText(text) { return sanitizeDisplayName(text || '').toUpperCase().replace(/\s+/g, ' ').trim(); }
+
+function formatMoney(value, currency) {
+  if (value == null || Number.isNaN(Number(value))) return '—';
+  const amount = Number(value).toFixed(2);
+  return currency ? `${amount} ${currency}` : amount;
+}
+
+function getItemPrimaryPricing(item, quantity) {
+  const pricing = item.pricing || {};
+  const primaryCurrency = pricing.unit_price_bgn != null || pricing.line_total_bgn != null
+    ? 'лв'
+    : pricing.unit_price_eur != null || pricing.line_total_eur != null
+      ? 'EUR'
+      : '';
+  const unitPrice = pricing.unit_price_primary
+    ?? pricing.unit_price_bgn
+    ?? pricing.unit_price_eur
+    ?? pricing.line_total_primary
+    ?? 0;
+  const lineTotal = pricing.line_total_primary
+    ?? pricing.line_total_bgn
+    ?? pricing.line_total_eur
+    ?? (unitPrice * (quantity || 1));
+
+  return { unitPrice, lineTotal, primaryCurrency };
+}
 
 function openReceiptModal(row) {
   const run = runs.find(r => r.runId === row.runId);
@@ -469,14 +495,28 @@ function openReceiptModal(row) {
   const totals = receipt.totals || {};
   const store = receipt.store || {};
   const currency = receipt.currency || {};
+  const selectedProductKey = normalizeMatchText(row.productName);
 
   let html = `<div class="detail-row"><span class="detail-label">Търговец</span><span class="detail-value">${escStr(rl)}</span></div>`;
-  html += `<div class="detail-row"><span class="detail-label">Дата</span><span class="detail-value">${escStr(row.receiptDate)}</span></div>`;
+  html += `<div class="detail-row"><span class="detail-label">Дата</span><span class="detail-value">${escStr(receipt.receipt?.datetime_local || row.receiptDate)}</span></div>`;
   if (row.receiptId) html += `<div class="detail-row"><span class="detail-label">Номер</span><span class="detail-value">${escStr(row.receiptId)}</span></div>`;
   if (store.code) html += `<div class="detail-row"><span class="detail-label">Обект</span><span class="detail-value">${escStr(store.code)}${store.name ? ' — ' + escStr(store.name) : ''}</span></div>`;
   if (totals.total_primary != null) {
     const ccy = currency.primary || '';
     html += `<div class="detail-row"><span class="detail-label">Общо</span><span class="detail-value">${Number(totals.total_primary).toFixed(2)} ${escStr(ccy)}</span></div>`;
+  }
+  if (row.retailer === 'metro') {
+    const dateStr = row.receiptDate ? row.receiptDate.split('-').reverse().join('.') : '';
+    let guidance = 'Няма пряк линк към конкретна фактура в METRO Docs. ';
+    if (dateStr) {
+      guidance += `Филтрирай документите за дата <strong>${escStr(dateStr)}</strong>`;
+      guidance += row.receiptId
+        ? ` и сравни номера на фактурата<strong> (${escStr(row.receiptId)})</strong>.`
+        : '.';
+    } else if (row.receiptId) {
+      guidance += `Сравни номера на фактурата<strong> (${escStr(row.receiptId)})</strong>.`;
+    }
+    html += `<div class="detail-note">${guidance}</div>`;
   }
 
   const items = receipt.items || [];
@@ -486,9 +526,9 @@ function openReceiptModal(row) {
       const name = sanitizeDisplayName(it.product?.name || '');
       if (!name || name.length < 3) continue;
       const qty = it.quantity?.value || 1;
-      const unitBgn = it.pricing?.unit_price_bgn ?? 0;
-      const lineBgn = it.pricing?.line_total_bgn ?? (unitBgn * qty);
-      html += `<div class="detail-item"><span class="detail-item-name">${escStr(name)}</span><span class="detail-item-qty">×${qty}</span><span class="detail-item-price">${unitBgn.toFixed(2)} лв</span></div>`;
+      const { unitPrice, lineTotal, primaryCurrency } = getItemPrimaryPricing(it, qty);
+      const isSelected = normalizeMatchText(name) === selectedProductKey;
+      html += `<div class="detail-item${isSelected ? ' detail-item-highlight' : ''}"><span class="detail-item-name">${escStr(name)}</span><span class="detail-item-qty">×${qty}</span><span class="detail-item-price">${formatMoney(unitPrice, primaryCurrency)}</span><span class="detail-item-total">${formatMoney(lineTotal, primaryCurrency)}</span></div>`;
     }
     html += '</div>';
   }
@@ -496,6 +536,8 @@ function openReceiptModal(row) {
   const rid = receipt.receipt?.id || '';
   if (rid && row.retailer === 'lidl') {
     html += `<div style="margin-top:12px"><a class="ev-link" href="https://www.lidl.bg/mre/purchase-detail?t=${escAttr(rid)}" target="_blank" rel="noopener">Отвори в Lidl</a></div>`;
+  } else if (row.retailer === 'metro') {
+    html += `<div class="detail-actions"><a class="ev-link" href="https://docs.metro.bg/" target="_blank" rel="noopener">Отвори METRO Docs</a></div>`;
   }
 
   document.getElementById('modalBody').innerHTML = html;
