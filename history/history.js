@@ -1,6 +1,7 @@
 import { loadRuns, deleteRun, clearHistory } from '../lib/run-history.js';
 import { getRunOutcomeCode } from '../lib/user-feedback.js';
 import { t } from '../lib/i18n-helper.js';
+import { CONTROL_ACTIONS, MESSAGE_TYPES } from '../lib/messaging.js';
 
 let runs = [];
 
@@ -36,6 +37,7 @@ function render() {
     document.getElementById(`csv-${run.runId}`)?.addEventListener('click', () => exportRunCsv(run));
     document.getElementById(`json-${run.runId}`)?.addEventListener('click', () => exportRunJson(run));
     document.getElementById(`del-${run.runId}`)?.addEventListener('click', () => handleDelete(run.runId));
+    document.getElementById(`followup-${run.runId}`)?.addEventListener('click', () => handleFollowup(run));
   }
 }
 
@@ -117,6 +119,7 @@ function renderCard(run) {
       </div>
       ${warningsHtml ? `<div class="warnings">${warningsHtml}</div>` : ''}
       <div class="run-actions">
+        ${!run.derivedFromRunId && run.status === 'done' ? `<button id="followup-${run.runId}" class="btn btn-followup">${t('historyFollowupAction')}</button>` : ''}
         <button id="csv-${run.runId}" class="btn btn-export">${t('historyCsv')}</button>
         <button id="json-${run.runId}" class="btn btn-primary">${t('historyJson')}</button>
         <button id="del-${run.runId}" class="btn btn-danger">${t('historyDelete')}</button>
@@ -214,4 +217,21 @@ async function handleClearAll() {
   if (!confirm(t('historyConfirmClearAll'))) return;
   await clearHistory();
   await load();
+}
+
+async function handleFollowup(run) {
+  try {
+    const resp = await chrome.runtime.sendMessage({
+      type: MESSAGE_TYPES.JOB_CONTROL,
+      action: CONTROL_ACTIONS.FOLLOWUP,
+      runId: run.runId
+    });
+    if (resp && resp.success) {
+      chrome.action.openPopup();
+    } else {
+      alert(resp?.error || 'Неуспешно стартиране на последващо извличане.');
+    }
+  } catch (err) {
+    alert('Грешка при стартиране: ' + err.message);
+  }
 }

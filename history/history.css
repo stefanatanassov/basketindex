@@ -42,3 +42,5 @@ header h1 { font-size: 20px; }
 .btn-export:hover { background: #218838; }
 .btn-danger { background: #fff; color: #d33; border-color: #d33; }
 .btn-danger:hover { background: #d33; color: #fff; }
+.btn-followup { background: #5a2d82; color: #fff; border-color: #4a1d72; }
+.btn-followup:hover { background: #4a1d72; }

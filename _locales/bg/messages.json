@@ -59,6 +59,7 @@
   "historyFollowupOf": { "message": "Продължение на извличане от $DATE$", "placeholders": { "date": { "content": "$1" } } },
   "historySnapshot": { "message": "Първоначално извличане" },
   "historyFollowup": { "message": "Последващо извличане" },
+  "historyFollowupAction": { "message": "Обнови с нови покупки" },
 
   "feedbackReadyTitle": { "message": "Готов" },
   "feedbackReadyMessage": { "message": "Избери търговец и стартирай извличане." },

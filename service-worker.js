@@ -11,6 +11,7 @@ import { triggerJsonDownload, triggerSnapshotDownload, triggerCsvDownload } from
 import { failReceipt } from './core/queue.js';
 import { getAdapter, resolveAdapter } from './core/adapter-registry.js';
 import { getLatestRun } from './lib/run-history.js';
+import { loadRuns } from './lib/run-history.js';
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log('BasketIndex installed');
@@ -168,6 +169,70 @@ async function handlePopupMessage(message, sendResponse) {
         }
         triggerCsvDownload(job);
         sendResponse({ success: true, message: 'CSV export started' });
+        return;
+      }
+
+      case CONTROL_ACTIONS.FOLLOWUP: {
+        const { runId } = message;
+        if (!runId) {
+          sendResponse({ success: false, error: 'Run ID is required for follow-up' });
+          return;
+        }
+        const runs = await loadRuns();
+        const baseRun = runs.find(r => r.runId === runId);
+        if (!baseRun) {
+          sendResponse({ success: false, error: 'Base run not found' });
+          return;
+        }
+
+        const retailer = baseRun.retailer;
+        const cov = baseRun.coverage || {};
+        const today = new Date().toISOString().slice(0, 10);
+        const fromDate = cov.toDate || baseRun.configSnapshot?.toDate || today;
+
+        const followupConfig = {
+          adapterId: retailer,
+          derivedFromRunId: runId,
+          startPage: 1,
+          endPage: 50,
+          workerCount: 2,
+          maxRetries: 3,
+          recoveryRounds: 3
+        };
+
+        if (retailer === 'lidl') {
+          followupConfig.startPage = baseRun.configSnapshot?.startPage || 1;
+          followupConfig.endPage = baseRun.configSnapshot?.endPage || 50;
+        } else if (retailer === 'metro') {
+          followupConfig.fromDate = fromDate;
+          followupConfig.toDate = today;
+        }
+
+        const listingUrl = retailer === 'metro' ? 'https://docs.metro.bg/'
+          : retailer === 'lidl' ? 'https://www.lidl.bg/mre/purchase-history' : '';
+
+        const existing = await loadJob();
+        if (existing && existing.status === 'running') {
+          sendResponse({ success: false, error: 'A job is already running. Pause or reset it first.' });
+          return;
+        }
+
+        await startJob(followupConfig, listingUrl);
+        const job = await loadJob();
+        sendResponse({ success: true, summary: {
+          adapterId: job.config.adapterId,
+          status: job.status, phase: job.phase,
+          stats: job.stats,
+          queueSize: job.queue.length,
+          inFlightCount: job.inFlight.length,
+          completedCount: job.completedIds.length,
+          failuresCount: Object.keys(job.failuresById).length,
+          finalFailures: job.finalFailures.length,
+          pagesScanned: job.stats.pagesScanned,
+          totalPages: job.stats.totalPages,
+          recoveryRound: job.stats.recoveryRound,
+          recoveryRounds: job.config.recoveryRounds
+        }});
         return;
       }
 
