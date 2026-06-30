@@ -1,7 +1,7 @@
 // trends/trends.js
 // Trends page — run-scoped, searchable multi-select items, index/percent/nominal.
 
-import { loadRuns, getRunOptions, getItemOptions, getAvailableDateRange, buildAggregateSeries, buildSelectedSeries, convertToPercentage, convertToIndex, getAllBuckets, getTrendSummary } from '../lib/trends.js';
+import { loadRuns, getRunOptions, getItemOptions, getAvailableDateRange, buildAggregateSeries, buildSelectedSeries, collectEvidence, convertToPercentage, convertToIndex, getAllBuckets, getTrendSummary } from '../lib/trends.js';
 import { encodeQR } from '../lib/qr.js';
 
 const COLORS = ['#4a90d9', '#e8734a', '#3a8a40', '#9b59b6', '#e67e22', '#1abc9c', '#e74c3c', '#3498db', '#2ecc71', '#f39c12'];
@@ -11,6 +11,7 @@ let runs = [], itemOptions = [];
 let selectedIds = new Set();
 let isAllItems = true;
 let itemsDropdownOpen = false;
+let hitAreas = [];  // {x, y, point, series, color} in canvas coords
 
 document.addEventListener('DOMContentLoaded', init);
 
@@ -59,6 +60,8 @@ function bindEvents() {
   document.getElementById('itemsSearch').addEventListener('input', (e) => renderItemList(e.target.value));
   document.getElementById('dateFrom').addEventListener('change', () => { validateDateRange(); renderChart(); });
   document.getElementById('dateTo').addEventListener('change', () => { validateDateRange(); renderChart(); });
+  document.getElementById('chartCanvas').addEventListener('mousemove', onCanvasMove);
+  document.getElementById('chartCanvas').addEventListener('mouseleave', hideTooltip);
   document.addEventListener('click', (e) => { if (!e.target.closest('.multi-select')) closeItemsDropdown(); });
 }
 
@@ -175,6 +178,7 @@ function renderChart() {
   } else {
     if (selectedIds.size === 0) {
       document.getElementById('chartContainer').style.display = 'none';
+      document.getElementById('evidenceSection').style.display = 'none';
       return;
     }
     series = buildSelectedSeries(runs, runId, Array.from(selectedIds), agg, dateFrom, dateTo);
@@ -183,6 +187,7 @@ function renderChart() {
   if (!series.length || series.every(s => s.points.length < 2)) {
     document.getElementById('chartContainer').style.display = 'none';
     document.getElementById('trendSummary').style.display = 'none';
+    document.getElementById('evidenceSection').style.display = 'none';
     showEmptyMessage('Няма достатъчно данни за избрания период.');
     return;
   }
@@ -197,6 +202,7 @@ function renderChart() {
 
   drawChart(series, mode);
   document.getElementById('trendSummary').innerHTML = getTrendSummary(series, mode);
+  renderEvidence();
 }
 
 function drawChart(series, mode) {
@@ -264,6 +270,7 @@ function drawChart(series, mode) {
   ctx.restore();
 
   // Lines
+  hitAreas = [];
   for (let si = 0; si < series.length; si++) {
     const s = series[si]; const color = COLORS[si % COLORS.length];
     ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath();
@@ -273,6 +280,7 @@ function drawChart(series, mode) {
       const x = m.left + xStep * i, y = m.top + ph - ((pt.avgPrice - minV) / range) * ph;
       if (!prevX) ctx.moveTo(x, y); else ctx.lineTo(x, y);
       prevX = x; ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
+      hitAreas.push({ x, y, point: pt, series: s, color, si });
     }
     ctx.stroke();
   }
@@ -318,3 +326,114 @@ function hideEmptyMessage() {
   const box = document.getElementById('emptyChartMsg');
   if (box) box.style.display = 'none';
 }
+
+function onCanvasMove(e) {
+  const canvas = document.getElementById('chartCanvas');
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = 900 / rect.width;
+  const scaleY = 500 / rect.height;
+  const mx = (e.clientX - rect.left) * scaleX;
+  const my = (e.clientY - rect.top) * scaleY;
+
+  let best = null, bestDist = 18;
+  for (const h of hitAreas) {
+    const d = Math.sqrt((h.x - mx) ** 2 + (h.y - my) ** 2);
+    if (d < bestDist) { bestDist = d; best = h; }
+  }
+
+  if (best) showTooltip(e, best);
+  else hideTooltip();
+}
+
+function showTooltip(e, hit) {
+  const tip = document.getElementById('tooltip');
+  const mode = getValueMode();
+  const pt = hit.point;
+  const s = hit.series;
+
+  let valueLine = '';
+  if (mode === 'nominal') valueLine = `Средна цена за периода: <strong>${pt.origAvgPrice.toFixed(2)} лв</strong>`;
+  else if (mode === 'index') valueLine = `Индекс за периода: <strong>${Math.round(pt.avgPrice)}</strong>`;
+  else valueLine = `Промяна спрямо началото: <strong>${pt.avgPrice > 0 ? '+' : ''}${Math.round(pt.avgPrice)}%</strong>`;
+
+  const bgnStr = pt.totalBgn > 0 ? `${pt.totalBgn.toFixed(2)} лв` : '';
+  const eurStr = pt.totalEur > 0 ? ` · €${pt.totalEur.toFixed(2)}` : '';
+  const spendLine = (bgnStr || eurStr) ? `Общо: ${bgnStr}${eurStr}` : '';
+
+  let html = `<span class="tt-label">${escStr(s.label || s.name)}</span>`;
+  html += `<span class="tt-period">Период: ${pt.bucketLabel}</span>`;
+  html += `<div class="tt-value">${valueLine}</div>`;
+  html += `<div class="tt-meta">Покупки: ${pt.observations}</div>`;
+  if (spendLine) html += `<div class="tt-meta">${spendLine}</div>`;
+  if (pt.observations < 3) html += `<div class="tt-sparse">Ограничени данни: ${pt.observations} покупки</div>`;
+
+  tip.innerHTML = html;
+  tip.style.display = '';
+
+  const canvas = document.getElementById('chartCanvas');
+  const rect = canvas.getBoundingClientRect();
+  let left = hit.x / 900 * rect.width + 12;
+  let top = hit.y / 500 * rect.height - 30;
+
+  if (left + 260 > rect.right) left = hit.x / 900 * rect.width - 12 - 260;
+  if (top < 0) top = 5;
+  if (top + 140 > rect.bottom) top = rect.height - 150;
+
+  tip.style.left = left + 'px';
+  tip.style.top = top + 'px';
+}
+
+function hideTooltip() {
+  document.getElementById('tooltip').style.display = 'none';
+}
+
+function renderEvidence() {
+  const sec = document.getElementById('evidenceSection');
+  const table = document.getElementById('evidenceTable');
+  const meta = document.getElementById('evidenceMeta');
+
+  const runId = getScopeRunId();
+  const dateFrom = getDateFrom();
+  const dateTo = getDateTo();
+  const selIds = isAllItems ? null : Array.from(selectedIds);
+
+  const rows = collectEvidence(runs, runId, selIds, dateFrom, dateTo);
+
+  if (!rows.length) {
+    sec.style.display = 'none';
+    return;
+  }
+
+  sec.style.display = '';
+  const scopeLabel = runId ? 'едно извличане' : 'всички извличания';
+  const itemLabel = isAllItems ? 'всички артикули' : `${selectedIds.size} избрани`;
+  const rangeLabel = dateFrom || dateTo ? ` (${dateFrom || 'начало'} – ${dateTo || 'край'})` : '';
+  meta.textContent = `${rows.length} покупки · ${scopeLabel} · ${itemLabel}${rangeLabel}`;
+
+  const header = `<table><thead><tr>
+    <th>Търговец</th><th>Дата</th><th>Продукт</th><th>Кол.</th><th>Цена лв</th><th>Общо лв</th><th>€</th><th>Източник</th>
+  </tr></thead><tbody>`;
+
+  let body = '';
+  for (const r of rows) {
+    const rl = retailerLabel(r.retailer);
+    const link = r.receiptLink ? `<a class="ev-link" href="${escAttr(r.receiptLink)}" target="_blank" rel="noopener">преглед</a>` : '';
+    const totalBgn = (r.unitPriceBgn * r.quantity).toFixed(2);
+    body += `<tr>
+      <td>${escStr(rl)}</td>
+      <td>${escStr(r.receiptDate)}</td>
+      <td>${escStr(r.productName)}</td>
+      <td>${r.quantity}</td>
+      <td class="ev-price">${r.unitPriceBgn.toFixed(2)}</td>
+      <td class="ev-price">${totalBgn}</td>
+      <td class="ev-price">${r.unitPriceEur > 0 ? r.unitPriceEur.toFixed(2) : '—'}</td>
+      <td>${link}</td>
+    </tr>`;
+  }
+
+  table.innerHTML = header + body + '</tbody></table>';
+}
+
+function escStr(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function escAttr(s) { return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function retailerLabel(r) { return r === 'lidl' ? 'Лидл' : r === 'metro' ? 'МЕТРО' : r.toUpperCase(); }

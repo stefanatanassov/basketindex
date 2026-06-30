@@ -18,8 +18,25 @@ header h1 { font-size: 20px; }
 .btn { padding: 8px 16px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500; }
 .btn-primary { background: #4a90d9; color: white; border-color: #357abd; }
 .btn-primary:hover { background: #357abd; }
-.chart-container { margin-bottom: 16px; }
+.chart-container { margin-bottom: 16px; position: relative; }
 .chart-container canvas { width: 100%; height: auto; border: 1px solid #e8e8e8; border-radius: 8px; }
+.chart-tooltip { position: absolute; pointer-events: none; background: rgba(26, 26, 46, 0.92); color: #fff; border-radius: 8px; padding: 10px 14px; font-size: 12px; line-height: 1.6; max-width: 250px; z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.chart-tooltip .tt-label { font-weight: 700; font-size: 13px; margin-bottom: 4px; display: block; }
+.chart-tooltip .tt-period { color: #aaa; }
+.chart-tooltip .tt-value { font-size: 14px; font-weight: 600; margin: 4px 0; }
+.chart-tooltip .tt-meta { color: #aaa; font-size: 11px; }
+.chart-tooltip .tt-sparse { color: #e67e22; font-size: 10px; margin-top: 2px; }
+.evidence-section { border-top: 1px solid #e8e8e8; padding-top: 16px; margin-bottom: 16px; }
+.evidence-section h3 { font-size: 15px; margin-bottom: 8px; color: #1a1a2e; }
+.evidence-meta { font-size: 11px; color: #888; margin-bottom: 10px; }
+.evidence-table { max-height: 320px; overflow-y: auto; border: 1px solid #e8e8e8; border-radius: 6px; }
+.evidence-table table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.evidence-table th { background: #f0f4fa; text-align: left; padding: 6px 8px; font-weight: 600; color: #555; border-bottom: 1px solid #e0e4ea; position: sticky; top: 0; z-index: 1; }
+.evidence-table td { padding: 5px 8px; border-bottom: 1px solid #f0f2f5; color: #333; }
+.evidence-table tr:hover td { background: #f8fafc; }
+.evidence-table .ev-link { color: #4a90d9; text-decoration: none; font-size: 10px; white-space: nowrap; }
+.evidence-table .ev-link:hover { text-decoration: underline; }
+.evidence-table .ev-price { text-align: right; white-space: nowrap; }
 .methodology { font-size: 11px; color: #aaa; margin-bottom: 16px; line-height: 1.5; padding: 10px; background: #f8f8f8; border-radius: 6px; }
 .footer-links { text-align: center; padding-top: 12px; border-top: 1px solid #e8e8e8; }
 .footer-links a { color: #4a90d9; font-size: 11px; text-decoration: none; }
