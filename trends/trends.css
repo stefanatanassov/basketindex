@@ -37,6 +37,24 @@ header h1 { font-size: 20px; }
 .evidence-table .ev-link { color: #4a90d9; text-decoration: none; font-size: 10px; white-space: nowrap; }
 .evidence-table .ev-link:hover { text-decoration: underline; }
 .evidence-table .ev-price { text-align: right; white-space: nowrap; }
+.ev-modal-btn { background: none; border: none; color: #4a90d9; cursor: pointer; font-size: 10px; text-decoration: underline; padding: 0; font-family: inherit; }
+.ev-modal-btn:hover { color: #357abd; }
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 100; display: flex; align-items: center; justify-content: center; }
+.modal-box { background: white; border-radius: 12px; max-width: 520px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #e8e8e8; }
+.modal-header h3 { font-size: 15px; margin: 0; }
+.modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: #888; padding: 0 4px; line-height: 1; }
+.modal-close:hover { color: #333; }
+.modal-body { padding: 16px 18px; font-size: 13px; }
+.modal-body .detail-row { display: flex; margin-bottom: 6px; }
+.modal-body .detail-label { color: #888; width: 100px; flex-shrink: 0; font-size: 11px; }
+.modal-body .detail-value { color: #333; word-break: break-word; }
+.modal-body h4 { font-size: 13px; margin: 14px 0 6px 0; padding-top: 10px; border-top: 1px solid #e8e8e8; }
+.modal-body .detail-items { margin-top: 8px; }
+.modal-body .detail-item { display: flex; justify-content: space-between; padding: 4px 0; font-size: 12px; border-bottom: 1px solid #f0f2f5; }
+.modal-body .detail-item-name { flex: 1; }
+.modal-body .detail-item-qty { width: 50px; text-align: right; color: #888; }
+.modal-body .detail-item-price { width: 70px; text-align: right; }
 .methodology { font-size: 11px; color: #aaa; margin-bottom: 16px; line-height: 1.5; padding: 10px; background: #f8f8f8; border-radius: 6px; }
 .footer-links { text-align: center; padding-top: 12px; border-top: 1px solid #e8e8e8; }
 .footer-links a { color: #4a90d9; font-size: 11px; text-decoration: none; }

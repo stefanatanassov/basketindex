@@ -1,7 +1,7 @@
 // trends/trends.js
 // Trends page — run-scoped, searchable multi-select items, index/percent/nominal.
 
-import { loadRuns, getRunOptions, getItemOptions, getAvailableDateRange, buildAggregateSeries, buildSelectedSeries, collectEvidence, convertToPercentage, convertToIndex, getAllBuckets, getTrendSummary } from '../lib/trends.js';
+import { loadRuns, getRunOptions, getItemOptions, getAvailableDateRange, buildAggregateSeries, buildSelectedSeries, collectEvidence, convertToPercentage, convertToIndex, getAllBuckets, getTrendSummary, sanitizeDisplayName } from '../lib/trends.js';
 import { encodeQR } from '../lib/qr.js';
 
 const COLORS = ['#4a90d9', '#e8734a', '#3a8a40', '#9b59b6', '#e67e22', '#1abc9c', '#e74c3c', '#3498db', '#2ecc71', '#f39c12'];
@@ -12,6 +12,7 @@ let selectedIds = new Set();
 let isAllItems = true;
 let itemsDropdownOpen = false;
 let hitAreas = [];  // {x, y, point, series, color} in canvas coords
+let evidenceRows = [];
 
 document.addEventListener('DOMContentLoaded', init);
 
@@ -62,6 +63,8 @@ function bindEvents() {
   document.getElementById('dateTo').addEventListener('change', () => { validateDateRange(); renderChart(); });
   document.getElementById('chartCanvas').addEventListener('mousemove', onCanvasMove);
   document.getElementById('chartCanvas').addEventListener('mouseleave', hideTooltip);
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  document.getElementById('receiptModal').addEventListener('click', (e) => { if (e.target === document.getElementById('receiptModal')) closeModal(); });
   document.addEventListener('click', (e) => { if (!e.target.closest('.multi-select')) closeItemsDropdown(); });
 }
 
@@ -399,6 +402,8 @@ function renderEvidence() {
 
   const rows = collectEvidence(runs, runId, selIds, dateFrom, dateTo);
 
+  evidenceRows = rows;
+
   if (!rows.length) {
     sec.style.display = 'none';
     return;
@@ -415,9 +420,17 @@ function renderEvidence() {
   </tr></thead><tbody>`;
 
   let body = '';
-  for (const r of rows) {
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
     const rl = retailerLabel(r.retailer);
-    const link = r.receiptLink ? `<a class="ev-link" href="${escAttr(r.receiptLink)}" target="_blank" rel="noopener">преглед</a>` : '';
+    let linkHtml;
+    if (r.receiptLink) {
+      linkHtml = `<a class="ev-link" href="${escAttr(r.receiptLink)}" target="_blank" rel="noopener">преглед</a>`;
+    } else if (r.needsModal) {
+      linkHtml = `<button class="ev-modal-btn" data-ev-idx="${i}">преглед</button>`;
+    } else {
+      linkHtml = '';
+    }
     const totalBgn = (r.unitPriceBgn * r.quantity).toFixed(2);
     body += `<tr>
       <td>${escStr(rl)}</td>
@@ -427,13 +440,68 @@ function renderEvidence() {
       <td class="ev-price">${r.unitPriceBgn.toFixed(2)}</td>
       <td class="ev-price">${totalBgn}</td>
       <td class="ev-price">${r.unitPriceEur > 0 ? r.unitPriceEur.toFixed(2) : '—'}</td>
-      <td>${link}</td>
+      <td>${linkHtml}</td>
     </tr>`;
   }
 
   table.innerHTML = header + body + '</tbody></table>';
+
+  table.querySelectorAll('.ev-modal-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.evIdx);
+      openReceiptModal(evidenceRows[idx]);
+    });
+  });
 }
 
 function escStr(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 function escAttr(s) { return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 function retailerLabel(r) { return r === 'lidl' ? 'Лидл' : r === 'metro' ? 'МЕТРО' : r.toUpperCase(); }
+
+function openReceiptModal(row) {
+  const run = runs.find(r => r.runId === row.runId);
+  const receipts = (run && run.results) || [];
+  const receipt = receipts.find(rc => (rc.receipt?.id || '') === row.receiptId);
+  if (!receipt) return;
+
+  const rl = retailerLabel(row.retailer);
+  document.getElementById('modalTitle').textContent = `Касова бележка — ${rl}`;
+  const totals = receipt.totals || {};
+  const store = receipt.store || {};
+  const currency = receipt.currency || {};
+
+  let html = `<div class="detail-row"><span class="detail-label">Търговец</span><span class="detail-value">${escStr(rl)}</span></div>`;
+  html += `<div class="detail-row"><span class="detail-label">Дата</span><span class="detail-value">${escStr(row.receiptDate)}</span></div>`;
+  if (row.receiptId) html += `<div class="detail-row"><span class="detail-label">Номер</span><span class="detail-value">${escStr(row.receiptId)}</span></div>`;
+  if (store.code) html += `<div class="detail-row"><span class="detail-label">Обект</span><span class="detail-value">${escStr(store.code)}${store.name ? ' — ' + escStr(store.name) : ''}</span></div>`;
+  if (totals.total_primary != null) {
+    const ccy = currency.primary || '';
+    html += `<div class="detail-row"><span class="detail-label">Общо</span><span class="detail-value">${Number(totals.total_primary).toFixed(2)} ${escStr(ccy)}</span></div>`;
+  }
+
+  const items = receipt.items || [];
+  if (items.length) {
+    html += '<h4>Артикули</h4><div class="detail-items">';
+    for (const it of items) {
+      const name = sanitizeDisplayName(it.product?.name || '');
+      if (!name || name.length < 3) continue;
+      const qty = it.quantity?.value || 1;
+      const unitBgn = it.pricing?.unit_price_bgn ?? 0;
+      const lineBgn = it.pricing?.line_total_bgn ?? (unitBgn * qty);
+      html += `<div class="detail-item"><span class="detail-item-name">${escStr(name)}</span><span class="detail-item-qty">×${qty}</span><span class="detail-item-price">${unitBgn.toFixed(2)} лв</span></div>`;
+    }
+    html += '</div>';
+  }
+
+  const rid = receipt.receipt?.id || '';
+  if (rid && row.retailer === 'lidl') {
+    html += `<div style="margin-top:12px"><a class="ev-link" href="https://www.lidl.bg/mre/purchase-detail?t=${escAttr(rid)}" target="_blank" rel="noopener">Отвори в Lidl</a></div>`;
+  }
+
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('receiptModal').style.display = '';
+}
+
+function closeModal() {
+  document.getElementById('receiptModal').style.display = 'none';
+}
