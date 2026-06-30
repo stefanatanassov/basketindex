@@ -19,9 +19,15 @@
     </div>
 
     <div id="controls" class="controls" style="display:none">
-      <div class="control-group">
+      <div class="control-group item-picker">
         <label>Извличания</label>
-        <select id="runFilter"><option value="__ALL__">Всички извличания</option></select>
+        <div class="multi-select" id="runsMulti">
+          <button id="runsToggle" class="multi-toggle">Всички извличания</button>
+          <div id="runsDropdown" class="multi-dropdown" style="display:none">
+            <input type="text" id="runsSearch" class="multi-search" placeholder="Търси извличания...">
+            <div id="runsList" class="multi-list"></div>
+          </div>
+        </div>
       </div>
       <div class="control-group item-picker">
         <label>Артикули</label>

@@ -66,7 +66,7 @@ header h1 { font-size: 20px; }
 .footer-links a { color: #4a90d9; font-size: 11px; text-decoration: none; }
 
 .multi-select { position: relative; }
-.multi-toggle { padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; background: white; cursor: pointer; min-width: 180px; text-align: left; }
+.multi-toggle { padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; background: white; cursor: pointer; min-width: 180px; max-width: 340px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .multi-toggle:hover { border-color: #4a90d9; }
 .multi-dropdown { position: absolute; top: 100%; left: 0; z-index: 10; background: white; border: 1px solid #ccc; border-radius: 6px; width: 300px; max-height: 260px; overflow: hidden; margin-top: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 .multi-search { width: 100%; padding: 8px 10px; border: none; border-bottom: 1px solid #e8e8e8; font-size: 12px; outline: none; box-sizing: border-box; }

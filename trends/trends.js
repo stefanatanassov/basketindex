@@ -1,5 +1,5 @@
 // trends/trends.js
-// Trends page — run-scoped, searchable multi-select items, index/percent/nominal.
+// Trends page — multi-select runs + searchable multi-select items, index/percent/nominal.
 
 import { loadRuns, getRunOptions, getItemOptions, getAvailableDateRange, buildAggregateSeries, buildSelectedSeries, collectEvidence, convertToPercentage, convertToIndex, getAllBuckets, getTrendSummary, sanitizeDisplayName, getRichestRun, getTopProductId } from '../lib/trends.js';
 import { encodeQR } from '../lib/qr.js';
@@ -7,11 +7,14 @@ import { encodeQR } from '../lib/qr.js';
 const COLORS = ['#4a90d9', '#e8734a', '#3a8a40', '#9b59b6', '#e67e22', '#1abc9c', '#e74c3c', '#3498db', '#2ecc71', '#f39c12'];
 const LANDING_URL = 'https://basketindex.stefanatanasov.dev/';
 
-let runs = [], itemOptions = [];
+let runs = [], itemOptions = [], runOptions = [];
 let selectedIds = new Set();
 let isAllItems = true;
+let selectedRunIds = new Set();
+let isAllRuns = false;
 let itemsDropdownOpen = false;
-let hitAreas = [];  // {x, y, point, series, color} in canvas coords
+let runsDropdownOpen = false;
+let hitAreas = [];
 let evidenceRows = [];
 
 document.addEventListener('DOMContentLoaded', init);
@@ -20,22 +23,26 @@ async function init() {
   runs = await loadRuns();
   if (runs.length === 0) return;
 
-  populateRunFilter();
+  runOptions = getRunOptions(runs);
+  renderRunList('');
 
   // Default to richest run
   const richest = getRichestRun(runs);
   if (richest) {
-    document.getElementById('runFilter').value = richest.runId;
-    initDateRange(richest.runId);
-    itemOptions = getItemOptions(runs, richest.runId);
-    // Default to top product within that run
-    const topId = getTopProductId(runs, richest.runId);
+    selectedRunIds = new Set([richest.runId]);
+    isAllRuns = false;
+    updateRunsToggleLabel();
+    initDateRange(selectedRunIds);
+    itemOptions = getItemOptions(runs, selectedRunIds);
+    const topId = getTopProductId(runs, selectedRunIds);
     if (topId) {
       selectedIds = new Set([topId]);
       isAllItems = false;
       updateToggleLabel();
     }
   } else {
+    isAllRuns = true;
+    selectedRunIds = new Set();
     initDateRange(null);
     itemOptions = getItemOptions(runs, null);
   }
@@ -50,16 +57,6 @@ async function init() {
   renderChart();
 }
 
-function populateRunFilter() {
-  const sel = document.getElementById('runFilter');
-  for (const opt of getRunOptions(runs)) {
-    const o = document.createElement('option');
-    o.value = opt.runId;
-    o.textContent = opt.label;
-    sel.appendChild(o);
-  }
-}
-
 function showControls() {
   document.getElementById('emptyState').style.display = 'none';
   document.getElementById('controls').style.display = '';
@@ -70,61 +67,99 @@ function showControls() {
 }
 
 function bindEvents() {
-  document.getElementById('runFilter').addEventListener('change', refreshItems);
   document.getElementById('aggregation').addEventListener('change', renderChart);
   document.getElementById('valueType').addEventListener('change', renderChart);
   document.getElementById('exportPngBtn').addEventListener('click', exportPng);
   document.getElementById('itemsToggle').addEventListener('click', toggleItemsDropdown);
   document.getElementById('itemsSearch').addEventListener('input', (e) => renderItemList(e.target.value));
+  document.getElementById('runsToggle').addEventListener('click', toggleRunsDropdown);
+  document.getElementById('runsSearch').addEventListener('input', (e) => renderRunList(e.target.value));
   document.getElementById('dateFrom').addEventListener('change', () => { validateDateRange(); renderChart(); });
   document.getElementById('dateTo').addEventListener('change', () => { validateDateRange(); renderChart(); });
   document.getElementById('chartCanvas').addEventListener('mousemove', onCanvasMove);
   document.getElementById('chartCanvas').addEventListener('mouseleave', hideTooltip);
   document.getElementById('modalClose').addEventListener('click', closeModal);
   document.getElementById('receiptModal').addEventListener('click', (e) => { if (e.target === document.getElementById('receiptModal')) closeModal(); });
-  document.addEventListener('click', (e) => { if (!e.target.closest('.multi-select')) closeItemsDropdown(); });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.multi-select')) { closeItemsDropdown(); closeRunsDropdown(); }
+  });
+}
+
+// --- Run multi-select ---
+
+function toggleRunsDropdown() {
+  runsDropdownOpen = !runsDropdownOpen;
+  document.getElementById('runsDropdown').style.display = runsDropdownOpen ? '' : 'none';
+  if (runsDropdownOpen) {
+    document.getElementById('runsSearch').focus();
+    renderRunList(document.getElementById('runsSearch').value);
+  }
+}
+
+function closeRunsDropdown() {
+  runsDropdownOpen = false;
+  document.getElementById('runsDropdown').style.display = 'none';
+}
+
+function renderRunList(search) {
+  const list = document.getElementById('runsList');
+  const q = (search || '').toLowerCase();
+  const filtered = q ? runOptions.filter(r => r.label.toLowerCase().includes(q)) : runOptions;
+
+  list.innerHTML = '';
+  for (const ro of filtered) {
+    const label = document.createElement('label');
+    label.className = 'multi-item';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.value = ro.runId;
+    cb.checked = !isAllRuns && selectedRunIds.has(ro.runId);
+    cb.addEventListener('change', () => onRunToggle(ro.runId, cb.checked));
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode(ro.label));
+    list.appendChild(label);
+  }
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="multi-empty">Няма съвпадения</div>';
+  }
+}
+
+function onRunToggle(runId, checked) {
+  if (checked) {
+    selectedRunIds.add(runId);
+    isAllRuns = false;
+  } else {
+    selectedRunIds.delete(runId);
+    if (selectedRunIds.size === 0) isAllRuns = true;
+  }
+  updateRunsToggleLabel();
+  refreshItems();
+}
+
+function updateRunsToggleLabel() {
+  const btn = document.getElementById('runsToggle');
+  if (isAllRuns) btn.textContent = 'Всички извличания';
+  else if (selectedRunIds.size === 1) {
+    const ro = runOptions.find(r => r.runId === [...selectedRunIds][0]);
+    btn.textContent = ro ? ro.label : '1 избрано';
+  } else {
+    btn.textContent = `${selectedRunIds.size} избрани`;
+  }
+}
+
+function getScopeRunIds() {
+  return isAllRuns ? null : selectedRunIds;
 }
 
 function refreshItems() {
-  const runId = getScopeRunId();
-  itemOptions = getItemOptions(runs, runId);
-  selectedIds = new Set();
-  isAllItems = true;
-  initDateRange(runId);
-  updateToggleLabel();
+  const scopeRunIds = getScopeRunIds();
+  itemOptions = getItemOptions(runs, scopeRunIds);
+  initDateRange(scopeRunIds);
   renderItemList(document.getElementById('itemsSearch').value);
   renderChart();
 }
 
-function getScopeRunId() {
-  const v = document.getElementById('runFilter').value;
-  return v === '__ALL__' ? null : v;
-}
-
-function initDateRange(scopeRunId) {
-  const { minDate, maxDate } = getAvailableDateRange(runs, scopeRunId);
-  document.getElementById('dateFrom').value = minDate || '';
-  document.getElementById('dateTo').value = maxDate || '';
-}
-
-function getDateFrom() { return document.getElementById('dateFrom').value || null; }
-function getDateTo() { return document.getElementById('dateTo').value || null; }
-
-let validatingDates = false;
-function validateDateRange() {
-  if (validatingDates) return;
-  const from = getDateFrom();
-  const to = getDateTo();
-  if (from && to && from > to) {
-    validatingDates = true;
-    document.getElementById('dateFrom').value = to;
-    document.getElementById('dateTo').value = from;
-    validatingDates = false;
-  }
-}
-
-function getValueMode() { return document.getElementById('valueType').value; }
-function getAgg() { return document.getElementById('aggregation').value || 'quarter'; }
+// --- Item multi-select ---
 
 function renderItemList(search) {
   const list = document.getElementById('itemsList');
@@ -185,8 +220,37 @@ function updateToggleLabel() {
   else btn.textContent = `${selectedIds.size} избрани`;
 }
 
+// --- Date range ---
+
+function initDateRange(scopeRunIds) {
+  const { minDate, maxDate } = getAvailableDateRange(runs, scopeRunIds);
+  document.getElementById('dateFrom').value = minDate || '';
+  document.getElementById('dateTo').value = maxDate || '';
+}
+
+function getDateFrom() { return document.getElementById('dateFrom').value || null; }
+function getDateTo() { return document.getElementById('dateTo').value || null; }
+
+let validatingDates = false;
+function validateDateRange() {
+  if (validatingDates) return;
+  const from = getDateFrom();
+  const to = getDateTo();
+  if (from && to && from > to) {
+    validatingDates = true;
+    document.getElementById('dateFrom').value = to;
+    document.getElementById('dateTo').value = from;
+    validatingDates = false;
+  }
+}
+
+function getValueMode() { return document.getElementById('valueType').value; }
+function getAgg() { return document.getElementById('aggregation').value || 'quarter'; }
+
+// --- Chart ---
+
 function renderChart() {
-  const runId = getScopeRunId();
+  const scopeRunIds = getScopeRunIds();
   const agg = getAgg();
   const mode = getValueMode();
   const dateFrom = getDateFrom();
@@ -194,14 +258,14 @@ function renderChart() {
 
   let series;
   if (isAllItems) {
-    series = buildAggregateSeries(runs, runId, agg, dateFrom, dateTo);
+    series = buildAggregateSeries(runs, scopeRunIds, agg, dateFrom, dateTo);
   } else {
     if (selectedIds.size === 0) {
       document.getElementById('chartContainer').style.display = 'none';
       document.getElementById('evidenceSection').style.display = 'none';
       return;
     }
-    series = buildSelectedSeries(runs, runId, Array.from(selectedIds), agg, dateFrom, dateTo);
+    series = buildSelectedSeries(runs, scopeRunIds, Array.from(selectedIds), agg, dateFrom, dateTo);
   }
 
   if (!series.length || series.every(s => s.points.length < 2)) {
@@ -262,7 +326,6 @@ function drawChart(series, mode) {
   }
   const range = maxV - minV;
 
-  // Grid
   ctx.strokeStyle = '#e8e8e8'; ctx.lineWidth = 0.5;
   for (let i = 0; i <= 4; i++) {
     const y = m.top + (ph / 4) * i;
@@ -273,7 +336,6 @@ function drawChart(series, mode) {
     ctx.fillText(label, m.left - 8, y + 4);
   }
 
-  // Zero / 100 baseline
   const baseline = mode === 'index' ? 100 : 0;
   if ((baseline >= minV && baseline <= maxV) || mode === 'index') {
     const by = m.top + ph - ((baseline - minV) / range) * ph;
@@ -281,7 +343,6 @@ function drawChart(series, mode) {
     ctx.beginPath(); ctx.moveTo(m.left, by); ctx.lineTo(W - m.right, by); ctx.stroke();
   }
 
-  // X-axis vertical
   const xStep = pw / (buckets.length - 1);
   ctx.save();
   for (let i = 0; i < buckets.length; i++) {
@@ -293,7 +354,6 @@ function drawChart(series, mode) {
   }
   ctx.restore();
 
-  // Lines
   hitAreas = [];
   for (let si = 0; si < series.length; si++) {
     const s = series[si]; const color = COLORS[si % COLORS.length];
@@ -309,7 +369,6 @@ function drawChart(series, mode) {
     ctx.stroke();
   }
 
-  // Legend
   ctx.textAlign = 'left'; ctx.font = '11px sans-serif'; let ly = m.top + 10;
   for (let si = 0; si < series.length; si++) {
     const s = series[si]; const x = W - m.right + 10;
@@ -430,12 +489,12 @@ function renderEvidence() {
   const table = document.getElementById('evidenceTable');
   const meta = document.getElementById('evidenceMeta');
 
-  const runId = getScopeRunId();
+  const scopeRunIds = getScopeRunIds();
   const dateFrom = getDateFrom();
   const dateTo = getDateTo();
   const selIds = isAllItems ? null : Array.from(selectedIds);
 
-  const rows = collectEvidence(runs, runId, selIds, dateFrom, dateTo);
+  const rows = collectEvidence(runs, scopeRunIds, selIds, dateFrom, dateTo);
 
   evidenceRows = rows;
 
@@ -445,7 +504,7 @@ function renderEvidence() {
   }
 
   sec.style.display = '';
-  const scopeLabel = runId ? 'едно извличане' : 'всички извличания';
+  const scopeLabel = isAllRuns ? 'всички извличания' : `${selectedRunIds.size} избрани`;
   const itemLabel = isAllItems ? 'всички артикули' : `${selectedIds.size} избрани`;
   const rangeLabel = dateFrom || dateTo ? ` (${dateFrom || 'начало'} – ${dateTo || 'край'})` : '';
   meta.textContent = `${rows.length} покупки · ${scopeLabel} · ${itemLabel}${rangeLabel}`;
