@@ -447,12 +447,12 @@ function exportAnalysisPng() {
 }
 
 function exportSocialCard() {
-  const W = 1200, H = 630;
+  const W = 1080, H = 1350;
   const c = document.createElement('canvas');
   c.width = W; c.height = H;
   const ctx = c.getContext('2d');
 
-  // Get current series data from screen
+  // Get current series data
   const mode = getValueMode();
   const scopeRunIds = getScopeRunIds();
   const agg = getAgg();
@@ -482,208 +482,155 @@ function exportSocialCard() {
     if (m1) return `${m1[2]}.${m1[1]}`;
     return label;
   }
-
   const rangeStr = buckets.length > 1
     ? `${bucketToMonthYear(buckets[0])} – ${bucketToMonthYear(buckets[buckets.length - 1])}`
     : '';
 
-  // --- Layout computation ---
-  // Header: brand + headline + range
-  // Center: stat + interpretation or multi-series visual
-  // Footer: URL + disclaimer
-
   // Background
-  ctx.fillStyle = '#0f0f1a'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#4a90d9'; ctx.fillRect(0, 0, W, 6);
+  ctx.fillStyle = '#0b0b14'; ctx.fillRect(0, 0, W, H);
 
-  // Brand
-  ctx.fillStyle = '#6b7280'; ctx.font = '14px -apple-system, sans-serif';
-  ctx.fillText('BasketIndex', 60, 60);
+  // --- Header: brand ---
+  ctx.fillStyle = '#4a90d9'; ctx.fillRect(0, 0, W, 5);
+  ctx.fillStyle = '#6b7280'; ctx.font = '16px -apple-system, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('BasketIndex', 80, 70);
 
-  // --- HEADLINE ---
+  // --- Headline ---
   let headline;
   if (isSingle) {
     const name = s0.label || s0.name || '';
-    headline = name.length > 52 ? name.slice(0, 49) + '…' : name;
+    headline = name.length > 58 ? name.slice(0, 55) + '…' : name;
   } else if (isMulti) {
     headline = `${series.length} избрани продукта`;
   } else {
     headline = 'Ценова тенденция';
   }
+  ctx.fillStyle = '#f1f5f9'; ctx.font = 'bold 40px -apple-system, sans-serif';
+  ctx.fillText(headline, 80, 160);
 
-  ctx.fillStyle = '#f1f5f9'; ctx.font = 'bold 34px -apple-system, sans-serif';
-  ctx.fillText(headline, 60, 130);
+  // --- Date range ---
+  ctx.fillStyle = '#9ca3af'; ctx.font = '18px -apple-system, sans-serif';
+  ctx.fillText(rangeStr, 80, 210);
 
-  // Date range
-  ctx.fillStyle = '#9ca3af'; ctx.font = '16px -apple-system, sans-serif';
-  ctx.fillText(rangeStr, 60, 165);
+  // --- Main stat ---
+  let statText, interp;
+  const allObs = series.reduce((s, ser) => s + ser.totalObservations, 0);
 
-  // --- MODE-SPECIFIC CONTENT ---
-
-  if (isSingle) {
-    // SINGLE ITEM: large stat + interpretation + sparkline
-    let statText, interp;
-    if (mode === 'nominal') {
-      statText = lastPt.avgPrice.toFixed(2) + ' лв';
-      interp = 'средна платена цена в последния период';
-    } else {
-      const d = mode === 'index' ? Math.round(lastPt.avgPrice - 100) : Math.round(lastPt.avgPrice);
-      statText = (d > 0 ? '+' : '') + d + '%';
-      interp = d > 0 ? 'спрямо началото на периода'
-        : d < 0 ? 'спрямо началото на периода'
-        : 'без промяна спрямо началото';
-    }
-
-    ctx.fillStyle = '#4a90d9'; ctx.font = 'bold 80px -apple-system, sans-serif';
-    ctx.fillText(statText, 60, 270);
-    ctx.fillStyle = '#6b7280'; ctx.font = '16px -apple-system, sans-serif';
-    ctx.fillText(interp, 60, 305);
-
-    // Sparkline with fill
-    if (buckets.length > 1) {
-      const plotX = 60, plotW = W - 120, plotY = 340, plotH = 220;
-      const pts = s0.points;
-      let mn = Infinity, mx = -Infinity;
-      for (const p of pts) { if (p.avgPrice < mn) mn = p.avgPrice; if (p.avgPrice > mx) mx = p.avgPrice; }
-      const vr = mx - mn || 1;
-
-      ctx.strokeStyle = '#374151'; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(plotX, plotY + plotH); ctx.lineTo(plotX + plotW, plotY + plotH); ctx.stroke();
-
-      ctx.strokeStyle = '#4a90d9'; ctx.lineWidth = 3; ctx.beginPath();
-      for (let i = 0; i < pts.length; i++) {
-        const x = plotX + (plotW / (pts.length - 1)) * i;
-        const y = plotY + plotH - ((pts[i].avgPrice - mn) / vr) * plotH;
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-      ctx.lineTo(plotX + plotW, plotY + plotH);
-      ctx.lineTo(plotX, plotY + plotH);
-      ctx.closePath();
-      ctx.fillStyle = 'rgba(74, 144, 217, 0.10)';
-      ctx.fill();
-
-      const lx = plotX + plotW;
-      const ly = plotY + plotH - ((lastPt.avgPrice - mn) / vr) * plotH;
-      ctx.fillStyle = '#4a90d9'; ctx.beginPath(); ctx.arc(lx, ly, 6, 0, Math.PI * 2); ctx.fill();
-    }
-
-  } else if (isMulti) {
-    // MULTI ITEM: ranked mini-trends with key moves
-    const top = series.slice(0, Math.min(5, series.length));
-    const numBuckets = buckets.length;
-
-    // Key stat: average change or range
+  if (isMulti) {
+    // For multi: show aggregate direction stat
     let totalD = 0;
-    for (const s of top) {
+    for (const s of series.slice(0, 5)) {
       const first = s.points[0]?.avgPrice || 1;
       const last = s.points[s.points.length - 1]?.avgPrice || first;
-      totalD += mode === 'nominal' ? ((last - first) / (first || 1) * 100) : (last - first > 0 ? 1 : last < first ? -1 : 0);
+      totalD += mode === 'nominal' ? ((last - first) / (first || 1) * 100) : last;
     }
-    const avgDir = totalD > 1 ? 'преобладаващо покачване' : totalD < -1 ? 'преобладаващо понижение' : 'смесена картина';
-    ctx.fillStyle = '#9ca3af'; ctx.font = '16px -apple-system, sans-serif';
-    ctx.fillText(avgDir, 60, 225);
+    const avgD = Math.round(totalD / Math.min(5, series.length));
+    statText = (avgD > 0 ? '+' : '') + avgD + '%';
+    interp = avgD > 0 ? 'спрямо началото на периода' : avgD < 0 ? 'спрямо началото на периода' : 'без промяна';
+  } else if (mode === 'nominal') {
+    statText = lastPt.avgPrice.toFixed(2) + ' лв';
+    interp = 'средна платена цена в последния период';
+  } else {
+    const d = mode === 'index' ? Math.round(lastPt.avgPrice - 100) : Math.round(lastPt.avgPrice);
+    statText = (d > 0 ? '+' : '') + d + '%';
+    interp = d > 0 ? 'спрямо началото на периода' : d < 0 ? 'спрямо началото на периода' : 'без промяна';
+  }
 
-    // Ranked mini-trend row
-    const rowY = 270, rowH = 42, gap = 8;
+  ctx.fillStyle = '#4a90d9'; ctx.font = 'bold 96px -apple-system, sans-serif';
+  ctx.fillText(statText, 80, 340);
+  ctx.fillStyle = '#6b7280'; ctx.font = '18px -apple-system, sans-serif';
+  ctx.fillText(`${interp}${!isMulti ? ' · ' + allObs + ' покупки' : ''}`, 80, 385);
+
+  // --- Trend visual ---
+  if (buckets.length > 1 && !isMulti) {
+    const plotX = 80, plotW = W - 160, plotY = 430, plotH = 200;
+    const pts = s0.points;
+    let mn = Infinity, mx = -Infinity;
+    for (const p of pts) { if (p.avgPrice < mn) mn = p.avgPrice; if (p.avgPrice > mx) mx = p.avgPrice; }
+    const vr = mx - mn || 1;
+    ctx.strokeStyle = '#374151'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(plotX, plotY + plotH); ctx.lineTo(plotX + plotW, plotY + plotH); ctx.stroke();
+    ctx.strokeStyle = '#4a90d9'; ctx.lineWidth = 4; ctx.beginPath();
+    for (let i = 0; i < pts.length; i++) {
+      const x = plotX + (plotW / (pts.length - 1)) * i;
+      const y = plotY + plotH - ((pts[i].avgPrice - mn) / vr) * plotH;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.lineTo(plotX + plotW, plotY + plotH);
+    ctx.lineTo(plotX, plotY + plotH);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(74, 144, 217, 0.08)';
+    ctx.fill();
+    const lx = plotX + plotW, ly = plotY + plotH - ((lastPt.avgPrice - mn) / vr) * plotH;
+    ctx.fillStyle = '#4a90d9'; ctx.beginPath(); ctx.arc(lx, ly, 8, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // --- Multi-item ranked rows ---
+  let nextY = 440;
+  if (isMulti) {
+    const top = series.slice(0, Math.min(6, series.length));
     for (let i = 0; i < top.length; i++) {
       const s = top[i];
-      const y = rowY + i * (rowH + gap);
+      const y = 440 + i * 65;
       const name = s.label || s.name || '';
-      const shortName = name.length > 24 ? name.slice(0, 21) + '…' : name;
+      const shortName = name.length > 32 ? name.slice(0, 29) + '…' : name;
       const color = COLORS[i % COLORS.length];
-
-      // Label
-      ctx.fillStyle = '#9ca3af'; ctx.font = '13px -apple-system, sans-serif';
-      ctx.fillText(shortName, 60, y + 16);
-
-      // Mini sparkline
-      const spX = 320, spW = 200;
-      if (s.points.length > 1) {
-        let mn = Infinity, mx = -Infinity;
-        for (const p of s.points) { if (p.avgPrice < mn) mn = p.avgPrice; if (p.avgPrice > mx) mx = p.avgPrice; }
-        const vr = mx - mn || 1;
-        ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath();
-        for (let j = 0; j < s.points.length; j++) {
-          const x = spX + (spW / (s.points.length - 1)) * j;
-          const py = y + rowH / 2 - ((s.points[j].avgPrice - mn) / vr) * (rowH - 6);
-          if (j === 0) ctx.moveTo(x, py); else ctx.lineTo(x, py);
-        }
-        ctx.stroke();
-        // End dot
-        const lastX = spX + spW;
-        const lastY = y + rowH / 2 - ((s.points[s.points.length - 1].avgPrice - mn) / vr) * (rowH - 6);
-        ctx.fillStyle = color; ctx.beginPath(); ctx.arc(lastX, lastY, 3, 0, Math.PI * 2); ctx.fill();
-      }
-
-      // Change indicator
       const first = s.points[0]?.avgPrice || 1;
       const last = s.points[s.points.length - 1]?.avgPrice || first;
-      let changeText = '';
+      let changeText;
       if (mode === 'nominal') {
         const pct = ((last - first) / (first || 1) * 100);
         changeText = (pct > 0 ? '+' : '') + pct.toFixed(0) + '%';
       } else {
         changeText = (last > 0 ? '+' : '') + Math.round(last) + (mode === 'index' ? '' : '%');
       }
+
+      // Color indicator bar
+      ctx.fillStyle = color;
+      ctx.fillRect(80, y, 4, 40);
+
+      // Label
+      ctx.fillStyle = '#d1d5db'; ctx.font = '18px -apple-system, sans-serif';
+      ctx.fillText(shortName, 100, y + 28);
+
+      // Change %
       ctx.fillStyle = changeText.startsWith('-') ? '#ef4444' : changeText.startsWith('+') ? '#22c55e' : '#9ca3af';
-      ctx.font = 'bold 14px -apple-system, sans-serif';
-      ctx.fillText(changeText, spX + spW + 16, y + 16);
+      ctx.font = 'bold 18px -apple-system, sans-serif';
+      ctx.fillText(changeText, W - 280, y + 28);
 
       // Obs count
-      ctx.fillStyle = '#4b5563'; ctx.font = '11px -apple-system, sans-serif';
-      ctx.fillText(`${s.totalObservations} пок.`, spX + spW + 80, y + 16);
+      ctx.fillStyle = '#4b5563'; ctx.font = '14px -apple-system, sans-serif';
+      ctx.fillText(`${s.totalObservations} пок.`, W - 150, y + 28);
     }
-
-  } else {
-    // AGGREGATE: overall stat + interpretation + sparkline
-    let statText, interp;
-    if (mode === 'nominal') {
-      statText = lastPt.avgPrice.toFixed(2) + ' лв';
-      interp = 'средна платена цена';
-    } else {
-      const d = mode === 'index' ? Math.round(lastPt.avgPrice - 100) : Math.round(lastPt.avgPrice);
-      statText = (d > 0 ? '+' : '') + d + '%';
-      interp = d !== 0 ? 'спрямо началото на периода' : 'без промяна';
-    }
-    const allObs = series.reduce((s, ser) => s + ser.totalObservations, 0);
-
-    ctx.fillStyle = '#4a90d9'; ctx.font = 'bold 80px -apple-system, sans-serif';
-    ctx.fillText(statText, 60, 270);
-    ctx.fillStyle = '#6b7280'; ctx.font = '16px -apple-system, sans-serif';
-    ctx.fillText(`${interp} · ${allObs} покупки`, 60, 305);
-
-    // Sparkline
-    if (buckets.length > 1) {
-      const plotX = 60, plotW = W - 120, plotY = 340, plotH = 220;
-      const pts = s0.points;
-      let mn = Infinity, mx = -Infinity;
-      for (const p of pts) { if (p.avgPrice < mn) mn = p.avgPrice; if (p.avgPrice > mx) mx = p.avgPrice; }
-      const vr = mx - mn || 1;
-      ctx.strokeStyle = '#374151'; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(plotX, plotY + plotH); ctx.lineTo(plotX + plotW, plotY + plotH); ctx.stroke();
-      ctx.strokeStyle = '#4a90d9'; ctx.lineWidth = 3; ctx.beginPath();
-      for (let i = 0; i < pts.length; i++) {
-        const x = plotX + (plotW / (pts.length - 1)) * i;
-        const y = plotY + plotH - ((pts[i].avgPrice - mn) / vr) * plotH;
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-      ctx.lineTo(plotX + plotW, plotY + plotH);
-      ctx.lineTo(plotX, plotY + plotH);
-      ctx.closePath();
-      ctx.fillStyle = 'rgba(74, 144, 217, 0.10)';
-      ctx.fill();
-      const lx = plotX + plotW;
-      const ly = plotY + plotH - ((lastPt.avgPrice - mn) / vr) * plotH;
-      ctx.fillStyle = '#4a90d9'; ctx.beginPath(); ctx.arc(lx, ly, 6, 0, Math.PI * 2); ctx.fill();
-    }
+    nextY = 440 + Math.min(6, series.length) * 65 + 40;
   }
 
-  // Footer
-  ctx.fillStyle = '#4b5563'; ctx.font = '12px -apple-system, sans-serif'; ctx.textAlign = 'right';
-  ctx.fillText('Базирано на реални покупки', W - 60, H - 30);
-  ctx.fillText('basketindex.stefanatanasov.dev', W - 60, H - 60);
+  // --- QR code ---
+  const qrUrl = 'https://basketindex.stefanatanasov.dev/';
+  const qrSize = 120;
+  const qrX = W - qrSize - 80;
+  const qrY = H - qrSize - 80;
+
+  // Get QR from encodeQR (render to a temp canvas)
+  const qrCanvas = document.createElement('canvas');
+  qrCanvas.width = qrSize; qrCanvas.height = qrSize;
+  encodeQR(qrCanvas.getContext('2d'), 0, 0, qrSize, qrUrl);
+
+  // Draw QR with white background
+  ctx.fillStyle = '#fff'; ctx.fillRect(qrX - 8, qrY - 8, qrSize + 16, qrSize + 16);
+  ctx.drawImage(qrCanvas, qrX, qrY);
+
+  // QR label
+  ctx.fillStyle = '#9ca3af'; ctx.font = '13px -apple-system, sans-serif';
+  ctx.fillText('Открий своята', qrX + qrSize + 16, qrY + 55);
+  ctx.fillText('покупателна история', qrX + qrSize + 16, qrY + 75);
+
+  // --- Footer ---
+  ctx.fillStyle = '#4b5563'; ctx.font = '13px -apple-system, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('Базирано на реални покупки. Не е официален инфлационен анализ.', 80, H - 40);
+  ctx.fillText('basketindex.stefanatanasov.dev', 80, H - 20);
 
   c.toBlob(b => { const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = 'basketindex-social-card.png'; a.click(); URL.revokeObjectURL(u); }, 'image/png');
 }
@@ -720,8 +667,13 @@ function onCanvasMove(e) {
     if (d < bestDist) { bestDist = d; best = h; }
   }
 
-  if (best) showTooltip(e, best);
-  else hideTooltip();
+  if (best) {
+    showTooltip(e, best);
+    drawHoverRing(best);
+  } else {
+    hideTooltip();
+    clearHoverRing();
+  }
 }
 
 function showTooltip(e, hit) {
@@ -778,6 +730,28 @@ function showTooltip(e, hit) {
 
 function hideTooltip() {
   document.getElementById('tooltip').style.display = 'none';
+  clearHoverRing();
+}
+
+function drawHoverRing(hit) {
+  const c = document.getElementById('hoverCanvas');
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, 900, 540);
+  ctx.strokeStyle = hit.color;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(hit.x, hit.y, 7, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(hit.x, hit.y, 8, 0, Math.PI * 2);
+  ctx.stroke();
+}
+
+function clearHoverRing() {
+  const c = document.getElementById('hoverCanvas');
+  c.getContext('2d').clearRect(0, 0, 900, 540);
 }
 
 function renderEvidence() {
