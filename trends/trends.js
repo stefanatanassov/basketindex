@@ -1,7 +1,7 @@
 // trends/trends.js
 // Trends page — run-scoped, searchable multi-select items, index/percent/nominal.
 
-import { loadRuns, getRunOptions, getItemOptions, buildAggregateSeries, buildSelectedSeries, convertToPercentage, convertToIndex, getAllBuckets, getTrendSummary } from '../lib/trends.js';
+import { loadRuns, getRunOptions, getItemOptions, getAvailableDateRange, buildAggregateSeries, buildSelectedSeries, convertToPercentage, convertToIndex, getAllBuckets, getTrendSummary } from '../lib/trends.js';
 import { encodeQR } from '../lib/qr.js';
 
 const COLORS = ['#4a90d9', '#e8734a', '#3a8a40', '#9b59b6', '#e67e22', '#1abc9c', '#e74c3c', '#3498db', '#2ecc71', '#f39c12'];
@@ -19,6 +19,7 @@ async function init() {
   if (runs.length === 0) return;
 
   populateRunFilter();
+  initDateRange(null);
   itemOptions = getItemOptions(runs, null);
   if (itemOptions.length === 0) {
     document.getElementById('emptyState').querySelector('p').textContent = 'Няма достатъчно повтарящи се продукти за генериране на тенденции.';
@@ -50,12 +51,14 @@ function showControls() {
 }
 
 function bindEvents() {
-  document.getElementById('runFilter').addEventListener('change', () => { refreshItems(); renderChart(); });
+  document.getElementById('runFilter').addEventListener('change', refreshItems);
   document.getElementById('aggregation').addEventListener('change', renderChart);
   document.getElementById('valueType').addEventListener('change', renderChart);
   document.getElementById('exportPngBtn').addEventListener('click', exportPng);
   document.getElementById('itemsToggle').addEventListener('click', toggleItemsDropdown);
   document.getElementById('itemsSearch').addEventListener('input', (e) => renderItemList(e.target.value));
+  document.getElementById('dateFrom').addEventListener('change', () => { validateDateRange(); renderChart(); });
+  document.getElementById('dateTo').addEventListener('change', () => { validateDateRange(); renderChart(); });
   document.addEventListener('click', (e) => { if (!e.target.closest('.multi-select')) closeItemsDropdown(); });
 }
 
@@ -64,6 +67,7 @@ function refreshItems() {
   itemOptions = getItemOptions(runs, runId);
   selectedIds = new Set();
   isAllItems = true;
+  initDateRange(runId);
   updateToggleLabel();
   renderItemList(document.getElementById('itemsSearch').value);
   renderChart();
@@ -72,6 +76,28 @@ function refreshItems() {
 function getScopeRunId() {
   const v = document.getElementById('runFilter').value;
   return v === '__ALL__' ? null : v;
+}
+
+function initDateRange(scopeRunId) {
+  const { minDate, maxDate } = getAvailableDateRange(runs, scopeRunId);
+  document.getElementById('dateFrom').value = minDate || '';
+  document.getElementById('dateTo').value = maxDate || '';
+}
+
+function getDateFrom() { return document.getElementById('dateFrom').value || null; }
+function getDateTo() { return document.getElementById('dateTo').value || null; }
+
+let validatingDates = false;
+function validateDateRange() {
+  if (validatingDates) return;
+  const from = getDateFrom();
+  const to = getDateTo();
+  if (from && to && from > to) {
+    validatingDates = true;
+    document.getElementById('dateFrom').value = to;
+    document.getElementById('dateTo').value = from;
+    validatingDates = false;
+  }
 }
 
 function getValueMode() { return document.getElementById('valueType').value; }
@@ -140,23 +166,28 @@ function renderChart() {
   const runId = getScopeRunId();
   const agg = getAgg();
   const mode = getValueMode();
+  const dateFrom = getDateFrom();
+  const dateTo = getDateTo();
 
   let series;
   if (isAllItems) {
-    series = buildAggregateSeries(runs, runId, agg);
+    series = buildAggregateSeries(runs, runId, agg, dateFrom, dateTo);
   } else {
     if (selectedIds.size === 0) {
       document.getElementById('chartContainer').style.display = 'none';
       return;
     }
-    series = buildSelectedSeries(runs, runId, Array.from(selectedIds), agg);
+    series = buildSelectedSeries(runs, runId, Array.from(selectedIds), agg, dateFrom, dateTo);
   }
 
   if (!series.length || series.every(s => s.points.length < 2)) {
     document.getElementById('chartContainer').style.display = 'none';
     document.getElementById('trendSummary').style.display = 'none';
+    showEmptyMessage('Няма достатъчно данни за избрания период.');
     return;
   }
+
+  hideEmptyMessage();
 
   document.getElementById('chartContainer').style.display = '';
   document.getElementById('trendSummary').style.display = '';
@@ -268,4 +299,22 @@ function drawChart(series, mode) {
 function exportPng() {
   const c = document.getElementById('chartCanvas');
   c.toBlob(b => { const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = 'basketindex-price-trends.png'; a.click(); URL.revokeObjectURL(u); }, 'image/png');
+}
+
+function showEmptyMessage(msg) {
+  const el = document.getElementById('chartContainer');
+  let box = document.getElementById('emptyChartMsg');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'emptyChartMsg';
+    box.className = 'empty-chart-msg';
+    el.parentNode.insertBefore(box, el.nextSibling);
+  }
+  box.textContent = msg;
+  box.style.display = '';
+}
+
+function hideEmptyMessage() {
+  const box = document.getElementById('emptyChartMsg');
+  if (box) box.style.display = 'none';
 }
