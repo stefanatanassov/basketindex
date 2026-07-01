@@ -119,7 +119,43 @@
         .card p { font-size: 0.88rem; margin-bottom: 0; }
         .card .icon { font-size: 1.4rem; margin-bottom: 0.5rem; display: block; }
 
-        /* ── How it works ── */
+        /* ── Onboarding ── */
+        .onboarding-step {
+            display: flex; gap: 1.5rem; margin-top: 2rem;
+            align-items: flex-start;
+        }
+        .onboarding-step-text {
+            padding: 1.25rem; border: 1px solid var(--border);
+            border-radius: 8px; background: var(--card);
+        }
+        .onboarding-img {
+            flex: 0 0 260px; max-width: 260px;
+        }
+        .onboarding-img img {
+            width: 100%; border: 1px solid var(--border);
+            border-radius: 6px; display: block;
+        }
+        .onboarding-text { flex: 1; }
+        .onboarding-text h3 { font-size: 1.05rem; margin-bottom: 0.5rem; }
+        .onboarding-text p { font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .step-num-sm {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 1.6rem; height: 1.6rem; border-radius: 50%;
+            background: var(--accent); color: #fff; font-weight: 700;
+            font-size: 0.75rem; margin-right: 0.5rem; vertical-align: middle;
+        }
+        .onboarding-note {
+            font-size: 0.82rem; color: var(--accent); font-style: italic;
+        }
+        .onboarding-closing {
+            margin-top: 2rem; padding: 1rem 1.25rem;
+            border-left: 3px solid var(--accent); background: var(--card);
+            border-radius: 0 6px 6px 0; font-size: 0.9rem; color: var(--muted);
+        }
+        @media (max-width: 640px) {
+            .onboarding-step { flex-direction: column; }
+            .onboarding-img { flex: none; max-width: 100%; }
+        }
         .steps { display: flex; gap: 1rem; margin-top: 1.25rem; flex-wrap: wrap; }
         .step { flex: 1; min-width: 120px; text-align: center; padding: 1rem 0.5rem; }
         .step-num {
@@ -291,6 +327,120 @@
                 <p class="lang-en">Download CSV or JSON. Export analysis charts and social share cards. Your data, your tools.</p>
             </div>
         </div>
+    </section>
+
+    <!-- ── Onboarding ── -->
+    <section>
+        <h2 class="lang-bg">Как работи BasketIndex</h2>
+        <h2 class="lang-en">How BasketIndex works</h2>
+        <p class="lang-bg">BasketIndex ти помага да извлечеш историята на покупките си, да я запазиш локално и да проследиш как се променят цените във времето. Процесът е кратък, но е добре да знаеш какво виждаш на всяка стъпка.</p>
+        <p class="lang-en">BasketIndex helps you extract your purchase history, keep it locally, and understand how prices change over time. The flow is short, but it helps to know what each screen is for.</p>
+
+        <!-- Step 1: Popup Start -->
+        <div class="onboarding-step">
+            <div class="onboarding-img">
+                <img src="/assets/screenshots/popup-main.png" alt="Popup main screen" loading="lazy" />
+            </div>
+            <div class="onboarding-text">
+                <h3><span class="step-num-sm">1</span> <span class="lang-bg">Избери търговец и стартирай от изскачащия прозорец</span><span class="lang-en">Choose a retailer and start from the popup</span></h3>
+                <p class="lang-bg">Когато отвориш разширението, първо избираш търговец. В основния екран виждаш текущото състояние на извличането, броя обработени бележки и най-важните действия: Старт, Нулиране, Експорт CSV, История, Trends, Настройки.</p>
+                <p class="lang-en">When you open the extension, the first step is choosing a retailer. The main popup shows the current extraction state, the number of processed receipts, and the key actions: Start, Reset, Export CSV, History, Trends, Settings.</p>
+                <p class="lang-bg"><strong>Какво правиш:</strong> Избираш търговец и натискаш „Старт“, когато си готов.</p>
+                <p class="lang-en"><strong>What you do:</strong> Select a retailer and click "Start" when ready to begin.</p>
+                <p class="lang-bg"><strong>Какво следва:</strong> BasketIndex използва активната ти сесия при търговеца и преминава към събиране и обработка на бележките.</p>
+                <p class="lang-en"><strong>What happens next:</strong> BasketIndex uses your active retailer session and starts collecting and processing your receipts.</p>
+                <p class="onboarding-note lang-bg">Данните не минават през акаунт на BasketIndex. Инструментът работи локално в браузъра ти.</p>
+                <p class="onboarding-note lang-en">Your data does not go through a BasketIndex account. The tool works locally in your browser.</p>
+            </div>
+        </div>
+
+        <!-- Step 2: Settings -->
+        <div class="onboarding-step">
+            <div class="onboarding-img">
+                <img src="/assets/screenshots/popup-settings.png" alt="Popup settings screen" loading="lazy" />
+            </div>
+            <div class="onboarding-text">
+                <h3><span class="step-num-sm">2</span> <span class="lang-bg">При нужда отвори настройките</span><span class="lang-en">Open settings if you need more control</span></h3>
+                <p class="lang-bg">Екранът „Настройки“ ти дава повече контрол върху извличането. Тук можеш да зададеш период, брой опити при грешка и кръгове за възстановяване. Виждаш и по-подробно състояние: фаза, страници, опашка, в процес, готови, неуспешни, възстановяване.</p>
+                <p class="lang-en">The Settings screen gives you more control over the extraction. Here you can adjust the date range, retry behavior, and recovery rounds. You also get a more detailed job status view: phase, pages, queue, in flight, complete, failed, recovery.</p>
+                <p class="lang-bg"><strong>Какво правиш:</strong> По желание настройваш периода и поведението на извличането.</p>
+                <p class="lang-en"><strong>What you do:</strong> Optionally refine the extraction range and reliability settings.</p>
+                <p class="lang-bg"><strong>Какво следва:</strong> След като запазиш или оставиш настройките както са, връщаш се към стартиране и изчакваш обработката да приключи.</p>
+                <p class="lang-en"><strong>What happens next:</strong> Once you are happy with the setup, you return to the main flow and let the extraction finish.</p>
+                <p class="onboarding-note lang-bg">За повечето потребители това е опционална стъпка. Основният поток може да започне и без допълнителни настройки.</p>
+                <p class="onboarding-note lang-en">For most users, this is optional. The default flow works without touching advanced settings.</p>
+            </div>
+        </div>
+
+        <!-- Step 3: Auth (text only) -->
+        <div class="onboarding-step onboarding-step-text">
+            <div class="onboarding-text" style="max-width:100%">
+                <h3><span class="step-num-sm">3</span> <span class="lang-bg">Влизането става при самия търговец</span><span class="lang-en">Sign-in happens on the retailer side</span></h3>
+                <p class="lang-bg">Ако нямаш активна сесия, BasketIndex може да отвори страницата на избрания търговец, за да влезеш в профила си. Това не е екран на BasketIndex, а собствената страница за вход на търговеца.</p>
+                <p class="lang-en">If you do not have an active session, BasketIndex may open the selected retailer's page so you can sign in. This is not a BasketIndex-owned screen. It is the retailer's own authentication page.</p>
+                <p class="lang-bg"><strong>Какво правиш:</strong> Влизаш по нормалния начин в профила си при съответния търговец.</p>
+                <p class="lang-en"><strong>What you do:</strong> Sign in normally using the retailer's own login flow.</p>
+                <p class="lang-bg"><strong>Какво следва:</strong> След като имаш активна сесия, BasketIndex може да използва наличния достъп, за да прочете историята на покупките ти.</p>
+                <p class="lang-en"><strong>What happens next:</strong> Once your session is active, BasketIndex can use that existing access to read your purchase history.</p>
+                <p class="onboarding-note lang-bg">Точният вид на този екран зависи от търговеца и от това дали вече си влязъл, затова тук няма фиксирана екранна снимка.</p>
+                <p class="onboarding-note lang-en">The exact appearance of this step depends on the retailer and on whether the user is already signed in, which is why there is no fixed screenshot for it.</p>
+            </div>
+        </div>
+
+        <!-- Step 4: Completion -->
+        <div class="onboarding-step">
+            <div class="onboarding-img">
+                <img src="/assets/screenshots/popup-main.png" alt="Extraction complete" loading="lazy" />
+            </div>
+            <div class="onboarding-text">
+                <h3><span class="step-num-sm">4</span> <span class="lang-bg">След успешна обработка данните са готови</span><span class="lang-en">Once processing is complete, your data is ready</span></h3>
+                <p class="lang-bg">Когато извличането приключи успешно, основният екран показва, че бележките са готови за експорт. Виждаш прогреса, броя обработени бележки и кратко съобщение, че можеш да продължиш към CSV или към Хронология.</p>
+                <p class="lang-en">When the extraction finishes successfully, the main popup shows that your receipts are ready for export. You can see the completion state, the processed receipt count, and a clear prompt to continue with CSV export or open History.</p>
+                <p class="lang-bg"><strong>Какво правиш:</strong> Ако искаш бърз резултат, можеш директно да изтеглиш CSV. Ако искаш да разгледаш запазените извличания, отвори „История“.</p>
+                <p class="lang-en"><strong>What you do:</strong> If you want a quick result, export CSV immediately. If you want to review stored runs, open History.</p>
+                <p class="lang-bg"><strong>Какво следва:</strong> Оттук нататък можеш или да експортираш данните, или да ги разглеждаш по извличания и тенденции.</p>
+                <p class="lang-en"><strong>What happens next:</strong> From here, you either export the data or move deeper into run-by-run review and trend analysis.</p>
+            </div>
+        </div>
+
+        <!-- Step 5: History -->
+        <div class="onboarding-step">
+            <div class="onboarding-img">
+                <img src="/assets/screenshots/history.png" alt="History page" loading="lazy" />
+            </div>
+            <div class="onboarding-text">
+                <h3><span class="step-num-sm">5</span> <span class="lang-bg">Хронологията пази отделните извличания и експортите</span><span class="lang-en">History keeps your extraction runs and exports organized</span></h3>
+                <p class="lang-bg">В страницата „Хронология на извличанията“ виждаш всяко запазено извличане като отделен запис. За всяко са показани: търговец, период на покритие, брой бележки, брой артикули, дата на извличане. Действия: Тенденции, Експорт CSV, Експорт JSON, Изтрий.</p>
+                <p class="lang-en">The History page shows each saved extraction as a separate run. Each card gives you: retailer, coverage period, receipt count, item count, extraction date. Actions: Trends, Export CSV, Export JSON, Delete.</p>
+                <p class="lang-bg"><strong>Какво правиш:</strong> Преглеждаш старите извличания, избираш кое искаш да анализираш и при нужда експортираш суровите данни.</p>
+                <p class="lang-en"><strong>What you do:</strong> Review past runs, choose which one to analyze, and export raw data when needed.</p>
+                <p class="lang-bg"><strong>Какво следва:</strong> Натискането на „Тенденции“ отваря анализа точно за това извличане, с предварително подбран обхват.</p>
+                <p class="lang-en"><strong>What happens next:</strong> Clicking "Trends" opens analysis for that run with a preselected scope.</p>
+                <p class="onboarding-note lang-bg">Това е най-доброто място, ако искаш да се върнеш към по-старо извличане, вместо да започваш отначало.</p>
+                <p class="onboarding-note lang-en">This is the best place to revisit older extractions instead of starting over.</p>
+            </div>
+        </div>
+
+        <!-- Step 6: Trends -->
+        <div class="onboarding-step">
+            <div class="onboarding-img">
+                <img src="/assets/screenshots/trends.png" alt="Trends page" loading="lazy" />
+            </div>
+            <div class="onboarding-text">
+                <h3><span class="step-num-sm">6</span> <span class="lang-bg">Тенденциите показват как се променят цените</span><span class="lang-en">Trends help you understand how prices changed</span></h3>
+                <p class="lang-bg">Страницата „Ценови тенденции“ е аналитичният изглед на BasketIndex. Тук можеш да филтрираш по извличания, артикули, период от/до, тип стойност и честота на периода. Екранът показва обобщение, графика, таблица с данни зад графиката, източник и оригинална валута за проследимост, и бутони за изтегляне на графика и карта.</p>
+                <p class="lang-en">The Trends page is BasketIndex's analysis view. Here you can filter by extraction runs, products, date range, value type, and time aggregation. The screen includes a summary, a chart, the evidence table behind the chart, source links and original currency for traceability, and export actions for the chart and share card.</p>
+                <p class="lang-bg"><strong>Какво правиш:</strong> Избираш извличане или продукт и разглеждаш как реално са се променяли платените цени във времето.</p>
+                <p class="lang-en"><strong>What you do:</strong> Choose a run or a product and inspect how paid prices changed over time.</p>
+                <p class="lang-bg"><strong>Какво следва:</strong> Можеш да изтеглиш графиката, да провериш конкретните редове под нея и да използваш резултата за личен анализ.</p>
+                <p class="lang-en"><strong>What happens next:</strong> You can export the visual, inspect the underlying rows, and use the result for your own personal analysis.</p>
+                <p class="onboarding-note lang-bg">Този екран не е статичен. Видимите продукти, диапазони и резултати зависят от това какво извличане и какви филтри са избрани.</p>
+                <p class="onboarding-note lang-en">This screen is not fixed. The products, ranges, and chart output depend on the currently selected extraction and filters.</p>
+            </div>
+        </div>
+
+        <p class="onboarding-closing lang-bg">BasketIndex не се опитва да бъде официален инфлационен индекс. Това е личен инструмент за разбиране на собствените ти покупки на база реални касови бележки.</p>
+        <p class="onboarding-closing lang-en">BasketIndex is not trying to be an official inflation index. It is a personal price intelligence tool built on top of your real receipts.</p>
     </section>
 
     <!-- ── Privacy section ── -->
