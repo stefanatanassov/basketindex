@@ -1,41 +1,43 @@
 # BasketIndex — Public Architecture Diagram
 
-## Architecture Assessment (short)
+## Architecture
 
-BasketIndex is a Chrome MV3 browser extension with three runtime layers:
+BasketIndex is a Chrome MV3 browser extension with four runtime layers:
 
-1. **Popup UI** — user configures page range and starts the export.
-2. **Service Worker** — orchestrates the job: opens browser tabs on the user's already-authenticated retailer pages, dispatches content scripts, manages a receipt queue with retry/recovery, and persists state to `chrome.storage.local`.
-3. **Adapter layer** (`adapters/lidl/`) — content scripts that read the retailer's receipt page DOM and extract structured data. Lidl is the first adapter; the architecture supports adding more retailers by creating new adapter directories without changing the core engine.
+1. **Popup UI** — user selects retailer, configures extraction, and starts jobs.
+2. **Service Worker** — orchestrates extraction: manages browser tabs, dispatches adapters, handles retry/recovery, and persists state to `chrome.storage.local`.
+3. **Adapter layer** (`adapters/lidl/`, `adapters/metro/`) — retailer-specific extraction logic. Lidl uses DOM scraping on receipt pages; Metro uses API calls (token-based). Both produce BasketIndex's normalized receipt schema.
+4. **Analysis UI** — History page (run archive, follow-up extraction, export), Trends page (price trend charts, tooltips, evidence table, social card export).
 
 The privacy-first design comes from what is **absent**: no server, no credential collection, no analytics, no cloud storage. All data stays in the user's browser. Export is user-initiated via the Chrome downloads API.
 
-### Data flow (simplified)
+### Data flow
 
 ```
 User's browser (already logged in to retailer)
     │
     ▼
-Purchase-history pages → listing extractor → receipt URLs
+Popup UI              → config + start extraction
     │
     ▼
-Receipt detail pages   → detail extractor   → structured receipt data
+Service Worker        → orchestrates discovery + extraction
+    │
+    ├── Lidl adapter  → DOM scraping on purchase pages
+    └── Metro adapter → token-based API extraction
     │
     ▼
-chrome.storage.local   → job state, receipt queue, completed data
+chrome.storage.local  → run history, normalized receipts
+    │
+    ├── History page  → export CSV / JSON / follow-up runs
+    └── Trends page   → price trends, evidence table, social card
     │
     ▼
-Downloads API          → JSON / CSV files on user's disk
-    │
-    ▼
-User's own tools       → spreadsheet, Python, ChatGPT, Claude (optional)
+User's own tools      → spreadsheet, Python, AI chat (optional)
 ```
 
 ---
 
 ## Diagram: PlantUML source
-
-Copy this into any PlantUML renderer (plantuml.com, VS Code plugin, etc.)
 
 ```plantuml
 @startuml
@@ -49,44 +51,53 @@ title BasketIndex — How your receipts become your data
 
 actor User
 
-rectangle "Your browser\n(already logged in to Lidl)" as Browser #E8F0FE {
-  rectangle "BasketIndex\nExtension" as Extension #FFFFFF {
-    component "Popup UI\n(config & controls)" as Popup
+rectangle "Your Browser" as Browser #E8F0FE {
+  rectangle "BasketIndex Extension" as Extension #FFFFFF {
+    component "Popup UI\n(config & start)" as Popup
     component "Service Worker\n(orchestrator)" as SW
-    component "Lidl Adapter\n(content scripts)" as Adapter
+    component "Lidl Adapter\n(DOM scraping)" as LidlA
+    component "Metro Adapter\n(token API)" as MetroA
+    component "History Page\n(run archive)" as History
+    component "Trends Page\n(price analysis)" as Trends
   }
   database "Local Storage\n(chrome.storage.local)" as Storage #F0F0F0
 }
 
-cloud "Lidl Purchase\nHistory & Receipt\nPages" as Lidl #FFF3CD
+cloud "Retailer Sites\n(Lidl, Metro)" as Retailer #FFF3CD
 
 rectangle "Your Computer" as Computer #F8F9FA {
-  file "JSON Export" as JSON #D4EDDA
-  file "CSV Export" as CSV #D4EDDA
+  file "JSON / CSV\nExport" as Export #D4EDDA
+  file "Trends PNG\n& Social Card" as Img #D4EDDA
 }
 
-rectangle "Your Analysis Tools\n(optional, your choice)" as Analysis #E2E3E5 {
+rectangle "Your Analysis Tools\n(optional)" as Analysis #E2E3E5 {
   component "Spreadsheet" as Sheet
-  component "AI Chat\n(ChatGPT, Claude)" as AI
-  component "Python / R\nScripts" as Python
+  component "AI Chat" as AI
+  component "Python / R" as Python
 }
 
-User --> Popup : "Start export\n(choose page range)"
+User --> Popup : "Choose retailer\nStart extraction"
 Popup --> SW : "config + listing URL"
-SW --> Lidl : "navigates tabs\n(uses your existing\nlogin session)"
-Lidl --> Adapter : "reads receipt\npage DOM"
-Adapter --> SW : "structured\nreceipt data"
-SW --> Storage : "saves progress\nsurvives restarts"
-Storage --> JSON : "Export JSON"
-Storage --> CSV : "Export CSV"
-JSON --> Sheet : "import"
-CSV --> Python : "import"
-JSON --> AI : "paste + prompt"
+SW --> Retailer : "navigates tabs\n(uses your existing\nlogin session)"
+Retailer --> LidlA : "reads receipt\npage DOM"
+Retailer --> MetroA : "fetches invoices\nvia API"
+LidlA --> SW : "structured receipt data"
+MetroA --> SW : "structured receipt data"
+SW --> Storage : "persists run history\nsurvives restarts"
+Storage --> History : "export CSV/JSON\nfollow-up runs"
+Storage --> Trends : "price trends\nmulti-series charts"
+History --> Export : "download"
+Trends --> Img : "export"
 
-note right of Lidl
+Export --> Sheet : "import"
+Export --> Python : "import"
+Export --> AI : "paste + prompt"
+
+note right of Retailer
   **No separate login needed**
   You're already signed in
-  to Lidl in your browser
+  to the retailer in your
+  browser
 end note
 
 note bottom of Storage
@@ -97,8 +108,8 @@ end note
 
 note bottom of Analysis
   **Not built into BasketIndex.**
-  You choose your own tools.
-  BasketIndex just gives you
+  You choose your tools.
+  BasketIndex gives you
   clean, structured data.
 end note
 
@@ -109,15 +120,13 @@ end note
 
 **"BasketIndex — How your receipts become your data"**
 
-### Explanatory copy for a public post
+### Explanatory copy
 
-> BasketIndex runs entirely in your browser. It reads your Lidl purchase history pages using your existing login session — no separate accounts, no password sharing. The extension extracts your receipts into structured JSON and CSV, storing everything locally. When you click Export, the files save to your computer. From there, you can analyze them with any tool you choose — a spreadsheet, a Python script, or an AI chat tool like ChatGPT or Claude.
+> BasketIndex runs entirely in your browser. It reads your purchase history from Lidl and Metro using your existing login — no separate accounts, no password sharing. The extension extracts your receipts into structured JSON and CSV, storing everything locally. History keeps your runs organized with follow-up extraction support. Trends visualizes price changes over time, and you can export analysis graphics or social share cards. From there, you can analyze your data with any tool you choose — a spreadsheet, Python, or an AI assistant.
 >
 > No server. No analytics. Your data, your tools.
 
-### Lighter version recommendation
-
-For a social post where vertical space is tight (e.g., Twitter/X, LinkedIn), use this simplified 4-box version:
+### Simplified version
 
 ```plantuml
 @startuml
@@ -129,22 +138,22 @@ title BasketIndex — Local-first receipt export
 
 actor User
 rectangle "Your Browser" as Browser #E8F0FE {
-  rectangle "BasketIndex\nExtension" as Ext
-  database "Local\nStorage" as Db
+  rectangle "BasketIndex Extension" as Ext
+  database "Local Storage" as Db
 }
-cloud "Lidl Receipt\nPages" as Lidl
+cloud "Lidl & Metro\nReceipt Pages" as Retailer
 file "JSON / CSV\nExport" as Export
+file "Trends PNG\nSocial Card" as Img
 rectangle "Your Tools\n(spreadsheet, AI, etc.)" as Tools #E2E3E5
 
 User --> Ext : Start
-Ext --> Lidl : reads pages
-Lidl --> Ext : receipt data
+Ext --> Retailer : reads pages (DOM + API)
+Retailer --> Ext : receipt data
 Ext --> Db : saves locally
-Db --> Export : you click Export
+Db --> Export : export CSV/JSON
+Db --> Img : export trends
 Export --> Tools : you analyze
 
 note bottom of Browser : No server. No cloud. No analytics.
 @enduml
 ```
-
-The lighter version fits in a single tweet or as a GitHub social preview image while still communicating the core privacy message.
