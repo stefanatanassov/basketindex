@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BasketIndex — Local-first receipt export for Chrome</title>
+    <meta name="description" content="BasketIndex is an open-source Chrome extension that exports your Lidl and Metro receipts locally. No server, no analytics, your data stays yours." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://basketindex.stefanatanasov.dev/" />
+
+    <meta property="og:title" content="BasketIndex — Local-first receipt export" />
+    <meta property="og:description" content="Open-source Chrome extension. Local-first. No tracking. Export your purchase history from Lidl and Metro." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://basketindex.stefanatanasov.dev/" />
+    <meta name="twitter:card" content="summary" />
+
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧺</text></svg>" />
+
+    <style>
+        :root {
+            --bg: #FBF9F6;
+            --card: #F4F1EC;
+            --text: #1E1C1A;
+            --muted: #6B6560;
+            --accent: #4A7C59;
+            --accent-hover: #3A6548;
+            --border: #E8E3DB;
+            --code: #F0EDE8;
+            --max: 720px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 1rem;
+            line-height: 1.65;
+            padding: 0 1.25rem;
+        }
+
+        .page {
+            max-width: var(--max);
+            margin: 0 auto;
+            padding: 5rem 0;
+        }
+
+        /* ── Typography ── */
+        h1 { font-size: 2.8rem; font-weight: 700; line-height: 1.12; letter-spacing: -0.02em; margin-bottom: 0.75rem; }
+        h2 { font-size: 1.7rem; font-weight: 600; line-height: 1.22; margin: 3rem 0 0.75rem; }
+        h3 { font-size: 1.15rem; font-weight: 600; margin-bottom: 0.4rem; }
+        p, li { color: var(--muted); margin-bottom: 0.8rem; }
+        .hero p { font-size: 1.15rem; }
+
+        a { color: var(--accent); text-decoration: none; font-weight: 500; }
+        a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+        /* ── Hero ── */
+        .hero { margin-bottom: 2.5rem; }
+        .hero h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); }
+        .product-id {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.2rem 0.65rem;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            background: var(--card);
+            color: var(--muted);
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+        }
+        .badge::before { content: "●"; color: var(--accent); font-size: 0.5rem; }
+
+        /* ── Buttons ── */
+        .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.7rem 1.3rem; border-radius: 6px;
+            font-weight: 600; font-size: 0.9rem; letter-spacing: 0.01em;
+            text-decoration: none; transition: background 180ms ease;
+        }
+        .btn-primary { background: var(--accent); color: #fff; }
+        .btn-primary:hover { background: var(--accent-hover); color: #fff; text-decoration: none; }
+        .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--border); text-decoration: none; }
+        .btn-pending { background: var(--card); color: var(--muted); border: 1px dashed var(--border); cursor: default; pointer-events: none; }
+
+        /* ── Card grid ── */
+        .grid-2, .grid-3 { display: grid; gap: 1rem; margin-top: 1.25rem; }
+        .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+        .card {
+            padding: 1.3rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card);
+        }
+        .card h3 { font-size: 0.95rem; margin-bottom: 0.3rem; }
+        .card p { font-size: 0.88rem; margin-bottom: 0; }
+
+        .card .icon { font-size: 1.4rem; margin-bottom: 0.5rem; display: block; }
+
+        /* ── How it works ── */
+        .steps { display: flex; gap: 1rem; margin-top: 1.25rem; flex-wrap: wrap; }
+        .step { flex: 1; min-width: 120px; text-align: center; padding: 1rem 0.5rem; }
+        .step-num {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 2.2rem; height: 2.2rem; border-radius: 50%;
+            background: var(--accent); color: #fff; font-weight: 700;
+            font-size: 0.85rem; margin-bottom: 0.6rem;
+        }
+        .step p { font-size: 0.85rem; }
+
+        /* ── Disclaimer box ── */
+        .disclaimer, .callout {
+            margin-top: 2.5rem;
+            padding: 1rem 1.25rem;
+            border-left: 3px solid var(--accent);
+            background: var(--card);
+            border-radius: 0 6px 6px 0;
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        /* ── FAQ ── */
+        .faq-item { margin-bottom: 1.25rem; }
+        .faq-item h3 { font-size: 0.95rem; }
+        .faq-item p { font-size: 0.9rem; }
+
+        /* ── Code block ── */
+        code {
+            background: var(--code);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, monospace;
+        }
+
+        /* ── Footer ── */
+        footer {
+            margin-top: 4rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+        footer a { font-weight: 400; }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .steps { flex-direction: column; gap: 0.25rem; }
+            .page { padding: 3rem 0; }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <!-- ── Hero ── -->
+    <section class="hero">
+        <p class="product-id">Chrome Extension · Open Source</p>
+        <h1>BasketIndex</h1>
+        <p>Export your purchase history from Lidl and Metro. Understand your spending with price trends. No servers, no tracking, your data stays yours.</p>
+        <div class="badge">Stable Beta · July 2026</div>
+        <div class="actions">
+            <a class="btn btn-primary" href="https://github.com/stefanatanassov/basketindex/releases/download/v0.1.0/basketindex-extension.zip">
+                Download ZIP
+            </a>
+            <a class="btn btn-secondary" href="https://github.com/stefanatanassov/basketindex" target="_blank" rel="noopener">
+                View on GitHub
+            </a>
+            <span class="btn btn-pending">
+                Chrome Web Store — Pending review
+            </span>
+        </div>
+    </section>
+
+    <!-- ── What it is ── -->
+    <section>
+        <h2>What is BasketIndex?</h2>
+        <p>BasketIndex is a Chrome extension that extracts your online shopping receipts from <strong>Lidl</strong> and <strong>Metro</strong>, stores them locally, and helps you understand your spending patterns over time.</p>
+        <p>It does three things well:</p>
+        <ul>
+            <li><strong>Extract</strong> — Capture your purchase history using your existing retailer login. No separate accounts, no passwords.</li>
+            <li><strong>Understand</strong> — See price trends for the products you buy. Nominal prices, index values, percentage changes. Every data point traceable to a real receipt.</li>
+            <li><strong>Export</strong> — Download as structured CSV or JSON. Export analysis charts and social share cards. Take your data anywhere.</li>
+        </ul>
+        <p>All processing happens in your browser. Nothing leaves your machine unless you explicitly export it.</p>
+    </section>
+
+    <!-- ── Key benefits ── -->
+    <section>
+        <h2>Why BasketIndex?</h2>
+        <div class="grid-3">
+            <div class="card">
+                <span class="icon">📈</span>
+                <h3>Price trends</h3>
+                <p>See how prices change over time for the products you actually buy. Compare products, explore date ranges, and trace every point to a real receipt.</p>
+            </div>
+            <div class="card">
+                <span class="icon">🔒</span>
+                <h3>Local-first</h3>
+                <p>All data stays in your browser. No server ever sees your receipts. Export CSV or JSON when you choose.</p>
+            </div>
+            <div class="card">
+                <span class="icon">🔓</span>
+                <h3>Open source</h3>
+                <p>Every line of code is public. Zero runtime dependencies. Audit it yourself. No hidden telemetry, no dark patterns.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── How it works ── -->
+    <section>
+        <h2>How it works</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <h3>Install</h3>
+                <p>Download the ZIP, unzip, and load as an unpacked extension in Chrome.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <h3>Extract</h3>
+                <p>Choose Lidl or Metro, configure your extraction, and start. Uses your existing login — no passwords.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <h3>Review</h3>
+                <p>Open History to see all your extraction runs. Start follow-up runs to add newer receipts without duplicates.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <h3>Track trends</h3>
+                <p>Watch price changes over time for your most-bought products. Compare across products, date ranges, and extractions.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">5</div>
+                <h3>Export</h3>
+                <p>Download CSV or JSON. Export analysis charts and social share cards. Your data, your tools.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Privacy section ── -->
+    <section>
+        <h2>Privacy, for real</h2>
+        <p>BasketIndex was built with a simple rule: if it can work without a server, it should.</p>
+        <div class="grid-2">
+            <div class="card">
+                <h3>No server</h3>
+                <p>There is no backend. The extension runs entirely in your browser. We have nothing to hack, leak, or subpoena.</p>
+            </div>
+            <div class="card">
+                <h3>No credentials</h3>
+                <p>You never create an account. No login. No email collection. The extension never asks who you are.</p>
+            </div>
+            <div class="card">
+                <h3>No analytics</h3>
+                <p>Zero tracking. No Google Analytics, no telemetry, no usage pings. We cannot see what you do with the tool.</p>
+            </div>
+            <div class="card">
+                <h3>Your data, portable</h3>
+                <p>Export your history as CSV or JSON anytime. Export analysis charts and social share cards. Take it to another tool. Delete it. It's yours.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Current support ── -->
+    <section>
+        <h2>Current support</h2>
+        <p>BasketIndex works with two retailers today:</p>
+        <div class="grid-2" style="margin-bottom:1rem">
+            <div class="card">
+                <span class="icon">🛒</span>
+                <h3>Lidl</h3>
+                <p>DOM-based extraction from purchase history and receipt detail pages. Tested on Lidl Bulgaria.</p>
+            </div>
+            <div class="card">
+                <span class="icon">🏢</span>
+                <h3>Metro</h3>
+                <p>Token-based API extraction from invoices and articles. Works with Metro Bulgaria.</p>
+            </div>
+        </div>
+        <p>The architecture supports adding new retailers as self-contained adapter modules. Kaufland is planned.</p>
+    </section>
+
+    <!-- ── Price analysis ── -->
+    <section>
+        <h2>Understand your prices</h2>
+        <p>BasketIndex's <strong>Trends page</strong> shows how the prices of your most-bought products change over time. Compare products side by side, filter by date range, and see the data behind every chart point in the evidence table.</p>
+        <p>Three viewing modes help you understand your spending:</p>
+        <ul>
+            <li><strong>Nominal (€)</strong> — actual average price per period in euros</li>
+            <li><strong>Index</strong> — relative to the start of your selected date range (100 = beginning)</li>
+            <li><strong>Percentage</strong> — how much higher or lower prices are compared to the start</li>
+        </ul>
+        <p>For deeper analysis, export your data and use any tool you choose — ChatGPT, Claude, a spreadsheet, or your own scripts. We provide a downloadable prompt template to get you started with AI analysis.</p>
+        <div class="callout">
+            <p><strong>Important:</strong> BasketIndex does not include AI. It does not calculate official inflation. It does not give financial advice. The Trends page shows price changes based on your actual paid prices. The downloadable prompt is just a template.</p>
+        </div>
+        <div class="actions">
+            <a class="btn btn-secondary" href="/assets/personal-inflation-analysis.md" download>
+                Download Analysis Prompt
+            </a>
+        </div>
+    </section>
+
+    <!-- ── Maturity ── -->
+    <section>
+        <h2>Release maturity</h2>
+        <p>BasketIndex is in <strong>Stable Beta</strong> as of July 2026. This means:</p>
+        <ul>
+            <li>Core extraction works reliably for Lidl and Metro</li>
+            <li>All major features are implemented: extraction, history, trends, exports</li>
+            <li>Follow-up runs let you refresh with newer receipts without duplicates</li>
+            <li>The code is tested, documented, and open source</li>
+            <li>Manual installation works today (download ZIP, load unpacked)</li>
+        </ul>
+        <p>The Chrome Web Store listing is currently <strong>pending review</strong>. You can install it manually right now.</p>
+    </section>
+
+    <!-- ── Open source ── -->
+    <section>
+        <h2>Open source</h2>
+        <p>BasketIndex is fully open source under the MIT license. The entire codebase is available on GitHub.</p>
+        <p>Manual installation is possible right now — clone the repo, load the unpacked extension in Chrome's developer mode, and you're running. No waiting for store approval.</p>
+        <div class="actions">
+            <a class="btn btn-primary" href="https://github.com/stefanatanassov/basketindex" target="_blank" rel="noopener">
+                GitHub Repository
+            </a>
+            <a class="btn btn-secondary" href="https://github.com/stefanatanassov/basketindex#readme" target="_blank" rel="noopener">
+                Installation Guide
+            </a>
+        </div>
+    </section>
+
+    <!-- ── FAQ ── -->
+    <section>
+        <h2>FAQ</h2>
+        <div class="faq-item">
+            <h3>Which retailers are supported?</h3>
+            <p>Lidl and Metro. Kaufland is planned. The adapter architecture makes adding new retailers straightforward.</p>
+        </div>
+        <div class="faq-item">
+            <h3>Where is my data stored?</h3>
+            <p>Entirely in your browser's local storage. BasketIndex uses the Chrome Storage API. Nothing is sent anywhere.</p>
+        </div>
+        <div class="faq-item">
+            <h3>Can I export my data?</h3>
+            <p>Yes — CSV and JSON export are built in. You can also export analysis charts and social share cards from the Trends page.</p>
+        </div>
+        <div class="faq-item">
+            <h3>Is this affiliated with Lidl or Metro?</h3>
+            <p>No. BasketIndex is an independent open-source project. It is not affiliated with, endorsed by, or connected to any retailer.</p>
+        </div>
+        <div class="faq-item">
+            <h3>Does BasketIndex include AI or calculate inflation?</h3>
+            <p>No. BasketIndex exports your receipt data in a structured format and shows price trends based on your actual paid prices. It does not calculate official inflation or include AI features. You choose how to analyze your data.</p>
+        </div>
+        <div class="faq-item">
+            <h3>How do I install it?</h3>
+            <p>Download the <a href="https://github.com/stefanatanassov/basketindex/releases/download/v0.1.0/basketindex-extension.zip">basketindex-extension.zip</a>, unzip it, open <code>chrome://extensions</code>, enable Developer Mode, click <strong>Load unpacked</strong>, and select the unzipped folder.</p>
+        </div>
+        <div class="faq-item">
+            <h3>Does this work on Firefox or other browsers?</h3>
+            <p>Currently Chrome only. Cross-browser support is on the roadmap.</p>
+        </div>
+    </section>
+
+    <!-- ── Disclaimer ── -->
+    <div class="disclaimer">
+        <strong>Disclaimer:</strong> BasketIndex is an independent open-source project and is not affiliated with, sponsored by, or endorsed by Lidl, Metro, Google, or any other retailer or browser vendor. All retailer names and logos are trademarks of their respective owners.
+    </div>
+
+    <!-- ── Footer ── -->
+    <footer>
+        <p>BasketIndex · Open-source Chrome extension · <a href="https://github.com/stefanatanassov/basketindex">GitHub</a> · <a href="https://stefanatanasov.dev">Stefan Atanasov</a></p>
+    </footer>
+
+</div>
+</body>
+</html>
