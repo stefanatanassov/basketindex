@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bg">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BasketIndex — Local-first receipt export for Chrome</title>
-    <meta name="description" content="BasketIndex is an open-source Chrome extension that exports your Lidl and Metro receipts locally. No server, no analytics, your data stays yours." />
+    <title>BasketIndex — Локален експорт на касови бележки</title>
+    <meta name="description" content="BasketIndex е Chrome разширение с отворен код, което експортира касови бележки от Lidl и Metro локално. Без сървър, без проследяване, данните остават при теб." />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://basketindex.stefanatanasov.dev/" />
 
-    <meta property="og:title" content="BasketIndex — Local-first receipt export" />
-    <meta property="og:description" content="Open-source Chrome extension. Local-first. No tracking. Export your purchase history from Lidl and Metro." />
+    <meta property="og:title" content="BasketIndex — Локален експорт на касови бележки" />
+    <meta property="og:description" content="Chrome разширение с отворен код. Локално. Без проследяване. Експортирай историята на покупките си от Lidl и Metro." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://basketindex.stefanatanasov.dev/" />
     <meta name="twitter:card" content="summary" />
@@ -48,6 +48,24 @@
             padding: 5rem 0;
         }
 
+        /* ── Language switcher ── */
+        .lang-switch {
+            display: flex; justify-content: flex-end; gap: 0.25rem;
+            padding-bottom: 1rem;
+        }
+        .lang-switch button {
+            background: none; border: 1px solid var(--border); border-radius: 4px;
+            padding: 0.25rem 0.6rem; font-size: 0.78rem; cursor: pointer;
+            color: var(--muted); font-family: inherit; font-weight: 500;
+        }
+        .lang-switch button.active {
+            background: var(--accent); color: #fff; border-color: var(--accent);
+        }
+
+        /* ── Language visibility ── */
+        html[lang="bg"] .lang-en { display: none; }
+        html[lang="en"] .lang-bg { display: none; }
+
         /* ── Typography ── */
         h1 { font-size: 2.8rem; font-weight: 700; line-height: 1.12; letter-spacing: -0.02em; margin-bottom: 0.75rem; }
         h2 { font-size: 1.7rem; font-weight: 600; line-height: 1.22; margin: 3rem 0 0.75rem; }
@@ -63,25 +81,14 @@
         .hero h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); }
         .product-id {
             display: inline-block;
-            font-size: 0.72rem;
-            font-weight: 600;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: var(--accent);
-            margin-bottom: 0.5rem;
+            font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em;
+            text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem;
         }
         .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.2rem 0.65rem;
-            border-radius: 20px;
-            font-size: 0.72rem;
-            font-weight: 600;
-            background: var(--card);
-            color: var(--muted);
-            margin-bottom: 1rem;
-            border: 1px solid var(--border);
+            display: inline-flex; align-items: center; gap: 0.35rem;
+            padding: 0.2rem 0.65rem; border-radius: 20px;
+            font-size: 0.72rem; font-weight: 600; background: var(--card);
+            color: var(--muted); margin-bottom: 1rem; border: 1px solid var(--border);
         }
         .badge::before { content: "●"; color: var(--accent); font-size: 0.5rem; }
 
@@ -105,14 +112,11 @@
         .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
         .card {
-            padding: 1.3rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--card);
+            padding: 1.3rem; border: 1px solid var(--border);
+            border-radius: 8px; background: var(--card);
         }
         .card h3 { font-size: 0.95rem; margin-bottom: 0.3rem; }
         .card p { font-size: 0.88rem; margin-bottom: 0; }
-
         .card .icon { font-size: 1.4rem; margin-bottom: 0.5rem; display: block; }
 
         /* ── How it works ── */
@@ -126,15 +130,11 @@
         }
         .step p { font-size: 0.85rem; }
 
-        /* ── Disclaimer box ── */
+        /* ── Disclaimer / Callout ── */
         .disclaimer, .callout {
-            margin-top: 2.5rem;
-            padding: 1rem 1.25rem;
-            border-left: 3px solid var(--accent);
-            background: var(--card);
-            border-radius: 0 6px 6px 0;
-            font-size: 0.85rem;
-            color: var(--muted);
+            margin-top: 2.5rem; padding: 1rem 1.25rem;
+            border-left: 3px solid var(--accent); background: var(--card);
+            border-radius: 0 6px 6px 0; font-size: 0.85rem; color: var(--muted);
         }
 
         /* ── FAQ ── */
@@ -144,20 +144,15 @@
 
         /* ── Code block ── */
         code {
-            background: var(--code);
-            padding: 0.15rem 0.4rem;
-            border-radius: 4px;
-            font-size: 0.85rem;
+            background: var(--code); padding: 0.15rem 0.4rem;
+            border-radius: 4px; font-size: 0.85rem;
             font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, monospace;
         }
 
         /* ── Footer ── */
         footer {
-            margin-top: 4rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--border);
-            font-size: 0.8rem;
-            color: var(--muted);
+            margin-top: 4rem; padding-top: 1.5rem;
+            border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--muted);
         }
         footer a { font-weight: 400; }
 
@@ -172,181 +167,258 @@
 <body>
 <div class="page">
 
+    <!-- ── Language switcher ── -->
+    <div class="lang-switch">
+        <button id="btn-bg" class="active" onclick="setLang('bg')">BG</button>
+        <button id="btn-en" class="" onclick="setLang('en')">EN</button>
+    </div>
+
     <!-- ── Hero ── -->
     <section class="hero">
         <p class="product-id">Chrome Extension · Open Source</p>
         <h1>BasketIndex</h1>
-        <p>Export your purchase history from Lidl and Metro. Understand your spending with price trends. No servers, no tracking, your data stays yours.</p>
-        <div class="badge">Stable Beta · July 2026</div>
+        <p class="lang-bg">Експортирай историята на покупките си от Lidl и Metro. Разбери тенденциите в разходите си. Без сървъри, без проследяване — данните са твои.</p>
+        <p class="lang-en">Export your purchase history from Lidl and Metro. Understand your spending with price trends. No servers, no tracking — your data stays yours.</p>
+        <div class="badge">
+            <span class="lang-bg">Стабилна бета · Юли 2026</span>
+            <span class="lang-en">Stable Beta · July 2026</span>
+        </div>
         <div class="actions">
             <a class="btn btn-primary" href="https://github.com/stefanatanassov/basketindex/releases/download/v0.1.0/basketindex-extension.zip">
-                Download ZIP
+                <span class="lang-bg">Изтегли ZIP</span>
+                <span class="lang-en">Download ZIP</span>
             </a>
             <a class="btn btn-secondary" href="https://github.com/stefanatanassov/basketindex" target="_blank" rel="noopener">
-                View on GitHub
+                <span class="lang-bg">Код в GitHub</span>
+                <span class="lang-en">View on GitHub</span>
             </a>
             <span class="btn btn-pending">
-                Chrome Web Store — Pending review
+                <span class="lang-bg">Chrome Web Store — предстои</span>
+                <span class="lang-en">Chrome Web Store — Pending review</span>
             </span>
         </div>
     </section>
 
     <!-- ── What it is ── -->
     <section>
-        <h2>What is BasketIndex?</h2>
-        <p>BasketIndex is a Chrome extension that extracts your online shopping receipts from <strong>Lidl</strong> and <strong>Metro</strong>, stores them locally, and helps you understand your spending patterns over time.</p>
-        <p>It does three things well:</p>
+        <h2 class="lang-bg">Какво е BasketIndex?</h2>
+        <h2 class="lang-en">What is BasketIndex?</h2>
+        <p class="lang-bg">BasketIndex е Chrome разширение, което извлича онлайн касовите ти бележки от <strong>Lidl</strong> и <strong>Metro</strong>, съхранява ги локално и ти помага да разбереш моделите си на харчене във времето.</p>
+        <p class="lang-en">BasketIndex is a Chrome extension that extracts your online shopping receipts from <strong>Lidl</strong> and <strong>Metro</strong>, stores them locally, and helps you understand your spending patterns over time.</p>
+        <p class="lang-bg">Прави три неща добре:</p>
+        <p class="lang-en">It does three things well:</p>
         <ul>
-            <li><strong>Extract</strong> — Capture your purchase history using your existing retailer login. No separate accounts, no passwords.</li>
-            <li><strong>Understand</strong> — See price trends for the products you buy. Nominal prices, index values, percentage changes. Every data point traceable to a real receipt.</li>
-            <li><strong>Export</strong> — Download as structured CSV or JSON. Export analysis charts and social share cards. Take your data anywhere.</li>
+            <li class="lang-bg"><strong>Извличане</strong> — Запази историята на покупките си през съществуващия си вход в търговеца. Без отделни акаунти, без пароли.</li>
+            <li class="lang-en"><strong>Extract</strong> — Capture your purchase history using your existing retailer login. No separate accounts, no passwords.</li>
+
+            <li class="lang-bg"><strong>Анализ</strong> — Виж ценовите тенденции за продуктите, които купуваш. Номинални цени, индекс, проценти. Всяка точка от графиката води до реална бележка.</li>
+            <li class="lang-en"><strong>Understand</strong> — See price trends for the products you buy. Nominal prices, index values, percentage changes. Every data point traceable to a real receipt.</li>
+
+            <li class="lang-bg"><strong>Експорт</strong> — Изтегли като структуриран CSV или JSON. Експортирай аналитични графики и social карти. Вземи данните си навсякъде.</li>
+            <li class="lang-en"><strong>Export</strong> — Download as structured CSV or JSON. Export analysis charts and social share cards. Take your data anywhere.</li>
         </ul>
-        <p>All processing happens in your browser. Nothing leaves your machine unless you explicitly export it.</p>
+        <p class="lang-bg">Цялата обработка се случва в браузъра ти. Нищо не напуска машината ти, освен ако ти не го експортираш изрично.</p>
+        <p class="lang-en">All processing happens in your browser. Nothing leaves your machine unless you explicitly export it.</p>
     </section>
 
     <!-- ── Key benefits ── -->
     <section>
-        <h2>Why BasketIndex?</h2>
+        <h2 class="lang-bg">Защо BasketIndex?</h2>
+        <h2 class="lang-en">Why BasketIndex?</h2>
         <div class="grid-3">
             <div class="card">
                 <span class="icon">📈</span>
-                <h3>Price trends</h3>
-                <p>See how prices change over time for the products you actually buy. Compare products, explore date ranges, and trace every point to a real receipt.</p>
+                <h3 class="lang-bg">Ценови тенденции</h3>
+                <h3 class="lang-en">Price trends</h3>
+                <p class="lang-bg">Виж как се променят цените във времето за продуктите, които реално купуваш. Сравнявай продукти, филтрирай по период и проследи всяка точка до реална бележка.</p>
+                <p class="lang-en">See how prices change over time for the products you actually buy. Compare products, explore date ranges, and trace every point to a real receipt.</p>
             </div>
             <div class="card">
                 <span class="icon">🔒</span>
-                <h3>Local-first</h3>
-                <p>All data stays in your browser. No server ever sees your receipts. Export CSV or JSON when you choose.</p>
+                <h3 class="lang-bg">Локално</h3>
+                <h3 class="lang-en">Local-first</h3>
+                <p class="lang-bg">Всички данни остават в браузъра ти. Никой сървър не вижда бележките ти. Експортирай CSV или JSON, когато решиш.</p>
+                <p class="lang-en">All data stays in your browser. No server ever sees your receipts. Export CSV or JSON when you choose.</p>
             </div>
             <div class="card">
                 <span class="icon">🔓</span>
-                <h3>Open source</h3>
-                <p>Every line of code is public. Zero runtime dependencies. Audit it yourself. No hidden telemetry, no dark patterns.</p>
+                <h3 class="lang-bg">Отворен код</h3>
+                <h3 class="lang-en">Open source</h3>
+                <p class="lang-bg">Всеки ред код е публичен. Нула външни зависимости. Провери го сам. Без скрита телеметрия, без тъмни практики.</p>
+                <p class="lang-en">Every line of code is public. Zero runtime dependencies. Audit it yourself. No hidden telemetry, no dark patterns.</p>
             </div>
         </div>
     </section>
 
     <!-- ── How it works ── -->
     <section>
-        <h2>How it works</h2>
+        <h2 class="lang-bg">Как работи</h2>
+        <h2 class="lang-en">How it works</h2>
         <div class="steps">
             <div class="step">
                 <div class="step-num">1</div>
-                <h3>Install</h3>
-                <p>Download the ZIP, unzip, and load as an unpacked extension in Chrome.</p>
+                <h3 class="lang-bg">Инсталирай</h3>
+                <h3 class="lang-en">Install</h3>
+                <p class="lang-bg">Изтегли ZIP-а, разархивирай и зареди като разширение в Chrome.</p>
+                <p class="lang-en">Download the ZIP, unzip, and load as an unpacked extension in Chrome.</p>
             </div>
             <div class="step">
                 <div class="step-num">2</div>
-                <h3>Extract</h3>
-                <p>Choose Lidl or Metro, configure your extraction, and start. Uses your existing login — no passwords.</p>
+                <h3 class="lang-bg">Извлечи</h3>
+                <h3 class="lang-en">Extract</h3>
+                <p class="lang-bg">Избери Lidl или Metro, конфигурирай и стартирай. Ползва съществуващия ти вход — без пароли.</p>
+                <p class="lang-en">Choose Lidl or Metro, configure your extraction, and start. Uses your existing login — no passwords.</p>
             </div>
             <div class="step">
                 <div class="step-num">3</div>
-                <h3>Review</h3>
-                <p>Open History to see all your extraction runs. Start follow-up runs to add newer receipts without duplicates.</p>
+                <h3 class="lang-bg">Прегледай</h3>
+                <h3 class="lang-en">Review</h3>
+                <p class="lang-bg">Отвори Хронология, за да видиш всички извличания. Стартирай последващи, за да добавиш нови бележки без дубликати.</p>
+                <p class="lang-en">Open History to see all your extraction runs. Start follow-up runs to add newer receipts without duplicates.</p>
             </div>
             <div class="step">
                 <div class="step-num">4</div>
-                <h3>Track trends</h3>
-                <p>Watch price changes over time for your most-bought products. Compare across products, date ranges, and extractions.</p>
+                <h3 class="lang-bg">Проследи</h3>
+                <h3 class="lang-en">Track trends</h3>
+                <p class="lang-bg">Наблюдавай промените в цените за най-купуваните си продукти. Сравнявай през продукти, периоди и извличания.</p>
+                <p class="lang-en">Watch price changes over time for your most-bought products. Compare across products, date ranges, and extractions.</p>
             </div>
             <div class="step">
                 <div class="step-num">5</div>
-                <h3>Export</h3>
-                <p>Download CSV or JSON. Export analysis charts and social share cards. Your data, your tools.</p>
+                <h3 class="lang-bg">Експортирай</h3>
+                <h3 class="lang-en">Export</h3>
+                <p class="lang-bg">Изтегли CSV или JSON. Експортирай аналитични графики и social карти. Твоите данни, твоите инструменти.</p>
+                <p class="lang-en">Download CSV or JSON. Export analysis charts and social share cards. Your data, your tools.</p>
             </div>
         </div>
     </section>
 
     <!-- ── Privacy section ── -->
     <section>
-        <h2>Privacy, for real</h2>
-        <p>BasketIndex was built with a simple rule: if it can work without a server, it should.</p>
+        <h2 class="lang-bg">Поверителност, наистина</h2>
+        <h2 class="lang-en">Privacy, for real</h2>
+        <p class="lang-bg">BasketIndex е създаден с проста идея: ако може да работи без сървър, така трябва да бъде.</p>
+        <p class="lang-en">BasketIndex was built with a simple rule: if it can work without a server, it should.</p>
         <div class="grid-2">
             <div class="card">
-                <h3>No server</h3>
-                <p>There is no backend. The extension runs entirely in your browser. We have nothing to hack, leak, or subpoena.</p>
+                <h3 class="lang-bg">Без сървър</h3>
+                <h3 class="lang-en">No server</h3>
+                <p class="lang-bg">Няма бекенд. Разширението работи изцяло в браузъра ти. Няма какво да бъде хакнато, изтекло или призовано.</p>
+                <p class="lang-en">There is no backend. The extension runs entirely in your browser. We have nothing to hack, leak, or subpoena.</p>
             </div>
             <div class="card">
-                <h3>No credentials</h3>
-                <p>You never create an account. No login. No email collection. The extension never asks who you are.</p>
+                <h3 class="lang-bg">Без акаунти</h3>
+                <h3 class="lang-en">No credentials</h3>
+                <p class="lang-bg">Никога не създаваш акаунт. Без вход. Без събиране на имейли. Разширението никога не пита кой си.</p>
+                <p class="lang-en">You never create an account. No login. No email collection. The extension never asks who you are.</p>
             </div>
             <div class="card">
-                <h3>No analytics</h3>
-                <p>Zero tracking. No Google Analytics, no telemetry, no usage pings. We cannot see what you do with the tool.</p>
+                <h3 class="lang-bg">Без анализи</h3>
+                <h3 class="lang-en">No analytics</h3>
+                <p class="lang-bg">Нула проследяване. Без Google Analytics, без телеметрия, без сигнали за използване. Не можем да видим какво правиш с инструмента.</p>
+                <p class="lang-en">Zero tracking. No Google Analytics, no telemetry, no usage pings. We cannot see what you do with the tool.</p>
             </div>
             <div class="card">
-                <h3>Your data, portable</h3>
-                <p>Export your history as CSV or JSON anytime. Export analysis charts and social share cards. Take it to another tool. Delete it. It's yours.</p>
+                <h3 class="lang-bg">Твоите данни, преносими</h3>
+                <h3 class="lang-en">Your data, portable</h3>
+                <p class="lang-bg">Експортирай историята си като CSV или JSON по всяко време. Експортирай аналитични графики и social карти. Премести ги в друг инструмент. Изтрий ги. Те са твои.</p>
+                <p class="lang-en">Export your history as CSV or JSON anytime. Export analysis charts and social share cards. Take it to another tool. Delete it. It's yours.</p>
             </div>
         </div>
     </section>
 
     <!-- ── Current support ── -->
     <section>
-        <h2>Current support</h2>
-        <p>BasketIndex works with two retailers today:</p>
+        <h2 class="lang-bg">Поддържани търговци</h2>
+        <h2 class="lang-en">Current support</h2>
+        <p class="lang-bg">BasketIndex работи с два търговеца в момента:</p>
+        <p class="lang-en">BasketIndex works with two retailers today:</p>
         <div class="grid-2" style="margin-bottom:1rem">
             <div class="card">
                 <span class="icon">🛒</span>
                 <h3>Lidl</h3>
-                <p>DOM-based extraction from purchase history and receipt detail pages. Tested on Lidl Bulgaria.</p>
+                <p class="lang-bg">DOM-базирано извличане от страниците с история на покупките и детайли на бележките. Тествано с Lidl България.</p>
+                <p class="lang-en">DOM-based extraction from purchase history and receipt detail pages. Tested on Lidl Bulgaria.</p>
             </div>
             <div class="card">
                 <span class="icon">🏢</span>
                 <h3>Metro</h3>
-                <p>Token-based API extraction from invoices and articles. Works with Metro Bulgaria.</p>
+                <p class="lang-bg">Токен-базирано API извличане от фактури и артикули. Работи с Metro България.</p>
+                <p class="lang-en">Token-based API extraction from invoices and articles. Works with Metro Bulgaria.</p>
             </div>
         </div>
-        <p>The architecture supports adding new retailers as self-contained adapter modules. Kaufland is planned.</p>
+        <p class="lang-bg">Архитектурата позволява добавяне на нови търговци като самостоятелни адаптерни модули. Kaufland е планиран.</p>
+        <p class="lang-en">The architecture supports adding new retailers as self-contained adapter modules. Kaufland is planned.</p>
     </section>
 
     <!-- ── Price analysis ── -->
     <section>
-        <h2>Understand your prices</h2>
-        <p>BasketIndex's <strong>Trends page</strong> shows how the prices of your most-bought products change over time. Compare products side by side, filter by date range, and see the data behind every chart point in the evidence table.</p>
-        <p>Three viewing modes help you understand your spending:</p>
+        <h2 class="lang-bg">Разбери цените си</h2>
+        <h2 class="lang-en">Understand your prices</h2>
+        <p class="lang-bg"><strong>Страницата Тенденции</strong> на BasketIndex показва как се променят цените на най-купуваните ти продукти във времето. Сравнявай продукти един до друг, филтрирай по период и виж данните зад всяка точка в доказателствената таблица.</p>
+        <p class="lang-en">BasketIndex's <strong>Trends page</strong> shows how the prices of your most-bought products change over time. Compare products side by side, filter by date range, and see the data behind every chart point in the evidence table.</p>
+        <p class="lang-bg">Три режима на визуализация ти помагат да разбереш разходите си:</p>
+        <p class="lang-en">Three viewing modes help you understand your spending:</p>
         <ul>
-            <li><strong>Nominal (€)</strong> — actual average price per period in euros</li>
-            <li><strong>Index</strong> — relative to the start of your selected date range (100 = beginning)</li>
-            <li><strong>Percentage</strong> — how much higher or lower prices are compared to the start</li>
+            <li class="lang-bg"><strong>Номинална (€)</strong> — реална средна цена за периода в евро</li>
+            <li class="lang-en"><strong>Nominal (€)</strong> — actual average price per period in euros</li>
+            <li class="lang-bg"><strong>Индекс</strong> — спрямо началото на избрания период (100 = начало)</li>
+            <li class="lang-en"><strong>Index</strong> — relative to the start of your selected date range (100 = beginning)</li>
+            <li class="lang-bg"><strong>Проценти</strong> — колко по-висока или по-ниска е цената спрямо началото</li>
+            <li class="lang-en"><strong>Percentage</strong> — how much higher or lower prices are compared to the start</li>
         </ul>
-        <p>For deeper analysis, export your data and use any tool you choose — ChatGPT, Claude, a spreadsheet, or your own scripts. We provide a downloadable prompt template to get you started with AI analysis.</p>
+        <p class="lang-bg">За по-задълбочен анализ експортирай данните си и използвай избран от теб инструмент — ChatGPT, Claude, електронна таблица или собствени скриптове. Предоставяме шаблон с инструкции за AI анализ.</p>
+        <p class="lang-en">For deeper analysis, export your data and use any tool you choose — ChatGPT, Claude, a spreadsheet, or your own scripts. We provide a downloadable prompt template to get you started with AI analysis.</p>
         <div class="callout">
-            <p><strong>Important:</strong> BasketIndex does not include AI. It does not calculate official inflation. It does not give financial advice. The Trends page shows price changes based on your actual paid prices. The downloadable prompt is just a template.</p>
+            <p class="lang-bg"><strong>Важно:</strong> BasketIndex не включва изкуствен интелект. Не изчислява официална инфлация. Не дава финансови съвети. Страницата Тенденции показва ценови промени на база реално платени цени. Шаблонът с инструкции е само отправна точка.</p>
+            <p class="lang-en"><strong>Important:</strong> BasketIndex does not include AI. It does not calculate official inflation. It does not give financial advice. The Trends page shows price changes based on your actual paid prices. The downloadable prompt is just a template.</p>
         </div>
         <div class="actions">
             <a class="btn btn-secondary" href="/assets/personal-inflation-analysis.md" download>
-                Download Analysis Prompt
+                <span class="lang-bg">Изтегли инструкции за анализ</span>
+                <span class="lang-en">Download Analysis Prompt</span>
             </a>
         </div>
     </section>
 
     <!-- ── Maturity ── -->
     <section>
-        <h2>Release maturity</h2>
-        <p>BasketIndex is in <strong>Stable Beta</strong> as of July 2026. This means:</p>
+        <h2 class="lang-bg">Зрялост на продукта</h2>
+        <h2 class="lang-en">Release maturity</h2>
+        <p class="lang-bg">BasketIndex е в <strong>Стабилна бета</strong> от юли 2026. Това означава:</p>
+        <p class="lang-en">BasketIndex is in <strong>Stable Beta</strong> as of July 2026. This means:</p>
         <ul>
-            <li>Core extraction works reliably for Lidl and Metro</li>
-            <li>All major features are implemented: extraction, history, trends, exports</li>
-            <li>Follow-up runs let you refresh with newer receipts without duplicates</li>
-            <li>The code is tested, documented, and open source</li>
-            <li>Manual installation works today (download ZIP, load unpacked)</li>
+            <li class="lang-bg">Основното извличане работи надеждно за Lidl и Metro</li>
+            <li class="lang-en">Core extraction works reliably for Lidl and Metro</li>
+            <li class="lang-bg">Всички основни функции са внедрени: извличане, хронология, тенденции, експорт</li>
+            <li class="lang-en">All major features are implemented: extraction, history, trends, exports</li>
+            <li class="lang-bg">Последващи извличания за обновяване с нови бележки без дубликати</li>
+            <li class="lang-en">Follow-up runs let you refresh with newer receipts without duplicates</li>
+            <li class="lang-bg">Кодът е тестван, документиран и с отворен код</li>
+            <li class="lang-en">The code is tested, documented, and open source</li>
+            <li class="lang-bg">Ръчната инсталация работи веднага (изтегли ZIP, зареди разширение)</li>
+            <li class="lang-en">Manual installation works today (download ZIP, load unpacked)</li>
         </ul>
-        <p>The Chrome Web Store listing is currently <strong>pending review</strong>. You can install it manually right now.</p>
+        <p class="lang-bg">Публикуването в Chrome Web Store <strong>се очаква</strong>. Можеш да го инсталираш ръчно още сега.</p>
+        <p class="lang-en">The Chrome Web Store listing is currently <strong>pending review</strong>. You can install it manually right now.</p>
     </section>
 
     <!-- ── Open source ── -->
     <section>
-        <h2>Open source</h2>
-        <p>BasketIndex is fully open source under the MIT license. The entire codebase is available on GitHub.</p>
-        <p>Manual installation is possible right now — clone the repo, load the unpacked extension in Chrome's developer mode, and you're running. No waiting for store approval.</p>
+        <h2 class="lang-bg">Отворен код</h2>
+        <h2 class="lang-en">Open source</h2>
+        <p class="lang-bg">BasketIndex е напълно с отворен код под MIT лиценз. Целият код е наличен в GitHub.</p>
+        <p class="lang-en">BasketIndex is fully open source under the MIT license. The entire codebase is available on GitHub.</p>
+        <p class="lang-bg">Ръчната инсталация е възможна веднага — клонирай хранилището, зареди разширението в режим за разработчици в Chrome и си готов. Без да чакаш одобрение в магазина.</p>
+        <p class="lang-en">Manual installation is possible right now — clone the repo, load the unpacked extension in Chrome's developer mode, and you're running. No waiting for store approval.</p>
         <div class="actions">
             <a class="btn btn-primary" href="https://github.com/stefanatanassov/basketindex" target="_blank" rel="noopener">
-                GitHub Repository
+                <span class="lang-bg">GitHub хранилище</span>
+                <span class="lang-en">GitHub Repository</span>
             </a>
             <a class="btn btn-secondary" href="https://github.com/stefanatanassov/basketindex#readme" target="_blank" rel="noopener">
-                Installation Guide
+                <span class="lang-bg">Инструкции за инсталация</span>
+                <span class="lang-en">Installation Guide</span>
             </a>
         </div>
     </section>
@@ -355,38 +427,54 @@
     <section>
         <h2>FAQ</h2>
         <div class="faq-item">
-            <h3>Which retailers are supported?</h3>
-            <p>Lidl and Metro. Kaufland is planned. The adapter architecture makes adding new retailers straightforward.</p>
+            <h3 class="lang-bg">Кои търговци се поддържат?</h3>
+            <h3 class="lang-en">Which retailers are supported?</h3>
+            <p class="lang-bg">Lidl и Metro. Kaufland е планиран. Адаптерната архитектура прави добавянето на нови търговци лесно.</p>
+            <p class="lang-en">Lidl and Metro. Kaufland is planned. The adapter architecture makes adding new retailers straightforward.</p>
         </div>
         <div class="faq-item">
-            <h3>Where is my data stored?</h3>
-            <p>Entirely in your browser's local storage. BasketIndex uses the Chrome Storage API. Nothing is sent anywhere.</p>
+            <h3 class="lang-bg">Къде се съхраняват данните ми?</h3>
+            <h3 class="lang-en">Where is my data stored?</h3>
+            <p class="lang-bg">Изцяло в локалното хранилище на браузъра ти. BasketIndex използва Chrome Storage API. Нищо не се изпраща никъде.</p>
+            <p class="lang-en">Entirely in your browser's local storage. BasketIndex uses the Chrome Storage API. Nothing is sent anywhere.</p>
         </div>
         <div class="faq-item">
-            <h3>Can I export my data?</h3>
-            <p>Yes — CSV and JSON export are built in. You can also export analysis charts and social share cards from the Trends page.</p>
+            <h3 class="lang-bg">Мога ли да експортирам данните си?</h3>
+            <h3 class="lang-en">Can I export my data?</h3>
+            <p class="lang-bg">Да — вграден е експорт в CSV и JSON. Можеш също да експортираш аналитични графики и social карти от страницата Тенденции.</p>
+            <p class="lang-en">Yes — CSV and JSON export are built in. You can also export analysis charts and social share cards from the Trends page.</p>
         </div>
         <div class="faq-item">
-            <h3>Is this affiliated with Lidl or Metro?</h3>
-            <p>No. BasketIndex is an independent open-source project. It is not affiliated with, endorsed by, or connected to any retailer.</p>
+            <h3 class="lang-bg">Свързан ли е проектът с Lidl или Metro?</h3>
+            <h3 class="lang-en">Is this affiliated with Lidl or Metro?</h3>
+            <p class="lang-bg">Не. BasketIndex е независим проект с отворен код. Не е свързан, спонсориран или подкрепян от никой търговец.</p>
+            <p class="lang-en">No. BasketIndex is an independent open-source project. It is not affiliated with, endorsed by, or connected to any retailer.</p>
         </div>
         <div class="faq-item">
-            <h3>Does BasketIndex include AI or calculate inflation?</h3>
-            <p>No. BasketIndex exports your receipt data in a structured format and shows price trends based on your actual paid prices. It does not calculate official inflation or include AI features. You choose how to analyze your data.</p>
+            <h3 class="lang-bg">Включва ли BasketIndex изкуствен интелект или изчислява инфлация?</h3>
+            <h3 class="lang-en">Does BasketIndex include AI or calculate inflation?</h3>
+            <p class="lang-bg">Не. BasketIndex експортира данните от бележките ти в структуриран формат и показва ценови тенденции на база реално платени цени. Не изчислява официална инфлация и не включва AI функции. Ти избираш как да анализираш данните си.</p>
+            <p class="lang-en">No. BasketIndex exports your receipt data in a structured format and shows price trends based on your actual paid prices. It does not calculate official inflation or include AI features. You choose how to analyze your data.</p>
         </div>
         <div class="faq-item">
-            <h3>How do I install it?</h3>
-            <p>Download the <a href="https://github.com/stefanatanassov/basketindex/releases/download/v0.1.0/basketindex-extension.zip">basketindex-extension.zip</a>, unzip it, open <code>chrome://extensions</code>, enable Developer Mode, click <strong>Load unpacked</strong>, and select the unzipped folder.</p>
+            <h3 class="lang-bg">Как да го инсталирам?</h3>
+            <h3 class="lang-en">How do I install it?</h3>
+            <p class="lang-bg">Изтегли <a href="https://github.com/stefanatanassov/basketindex/releases/download/v0.1.0/basketindex-extension.zip">basketindex-extension.zip</a>, разархивирай го, отвори <code>chrome://extensions</code>, включи режим за разработчици, натисни <strong>Зареди разширение</strong> и избери разархивираната папка.</p>
+            <p class="lang-en">Download the <a href="https://github.com/stefanatanassov/basketindex/releases/download/v0.1.0/basketindex-extension.zip">basketindex-extension.zip</a>, unzip it, open <code>chrome://extensions</code>, enable Developer Mode, click <strong>Load unpacked</strong>, and select the unzipped folder.</p>
         </div>
         <div class="faq-item">
-            <h3>Does this work on Firefox or other browsers?</h3>
-            <p>Currently Chrome only. Cross-browser support is on the roadmap.</p>
+            <h3 class="lang-bg">Работи ли на Firefox или други браузъри?</h3>
+            <h3 class="lang-en">Does this work on Firefox or other browsers?</h3>
+            <p class="lang-bg">Засега само Chrome. Поддръжка за други браузъри е планирана.</p>
+            <p class="lang-en">Currently Chrome only. Cross-browser support is on the roadmap.</p>
         </div>
     </section>
 
     <!-- ── Disclaimer ── -->
     <div class="disclaimer">
-        <strong>Disclaimer:</strong> BasketIndex is an independent open-source project and is not affiliated with, sponsored by, or endorsed by Lidl, Metro, Google, or any other retailer or browser vendor. All retailer names and logos are trademarks of their respective owners.
+        <strong>Disclaimer:</strong>
+        <span class="lang-bg">BasketIndex е независим проект с отворен код и не е свързан, спонсориран или подкрепян от Lidl, Metro, Google или друг търговец или доставчик на браузър. Всички имена и лога на търговци са търговски марки на съответните им собственици.</span>
+        <span class="lang-en">BasketIndex is an independent open-source project and is not affiliated with, sponsored by, or endorsed by Lidl, Metro, Google, or any other retailer or browser vendor. All retailer names and logos are trademarks of their respective owners.</span>
     </div>
 
     <!-- ── Footer ── -->
@@ -395,5 +483,29 @@
     </footer>
 
 </div>
+
+<script>
+(function() {
+    const LANG_KEY = 'basketindex-lang';
+    function setLang(lang) {
+        document.documentElement.lang = lang;
+        document.getElementById('btn-bg').className = lang === 'bg' ? 'active' : '';
+        document.getElementById('btn-en').className = lang === 'en' ? 'active' : '';
+        try { localStorage.setItem(LANG_KEY, lang); } catch(_) {}
+        // Update og:locale meta
+        var ogLocale = document.querySelector('meta[property="og:locale"]');
+        if (!ogLocale) {
+            ogLocale = document.createElement('meta');
+            ogLocale.setAttribute('property', 'og:locale');
+            document.head.appendChild(ogLocale);
+        }
+        ogLocale.setAttribute('content', lang === 'bg' ? 'bg_BG' : 'en_US');
+    }
+    var saved = null;
+    try { saved = localStorage.getItem(LANG_KEY); } catch(_) {}
+    setLang(saved === 'en' ? 'en' : 'bg');
+    window.setLang = setLang;
+})();
+</script>
 </body>
 </html>
