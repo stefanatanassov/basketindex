@@ -173,6 +173,23 @@
             border-radius: 0 6px 6px 0; font-size: 0.85rem; color: var(--muted);
         }
 
+        /* ── Worklog ── */
+        .worklog-list { margin-top: 1.25rem; }
+        .worklog-entry {
+            padding: 1.25rem 0; border-bottom: 1px solid var(--border);
+        }
+        .worklog-entry:last-child { border-bottom: none; }
+        .worklog-date {
+            font-size: 0.78rem; font-weight: 600; color: var(--accent);
+            text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.25rem;
+        }
+        .worklog-entry h3 { font-size: 1.05rem; margin-bottom: 0.3rem; }
+        .worklog-entry p { font-size: 0.9rem; }
+        .worklog-tags {
+            margin-top: 0.4rem; font-size: 0.75rem; color: var(--muted);
+            font-weight: 500;
+        }
+
         /* ── FAQ ── */
         .faq-item { margin-bottom: 1.25rem; }
         .faq-item h3 { font-size: 0.95rem; }
@@ -210,7 +227,7 @@
     </div>
 
     <!-- ── Hero ── -->
-    <section class="hero">
+    <section id="hero" class="hero">
         <p class="product-id">Chrome Extension · Open Source</p>
         <h1>BasketIndex</h1>
         <p class="lang-bg">Експортирай историята на покупките си от Lidl и Metro. Разбери тенденциите в разходите си. Без сървъри, без проследяване - данните са твои.</p>
@@ -236,7 +253,7 @@
     </section>
 
     <!-- ── What it is ── -->
-    <section>
+    <section id="idea">
         <h2 class="lang-bg">Какво е BasketIndex?</h2>
         <h2 class="lang-en">What is BasketIndex?</h2>
         <p class="lang-bg">BasketIndex е Chrome разширение, което извлича онлайн касовите ти бележки от <strong>Lidl</strong> и <strong>Metro</strong>, съхранява ги локално и ти помага да разбереш моделите си на харчене във времето.</p>
@@ -258,7 +275,7 @@
     </section>
 
     <!-- ── Key benefits ── -->
-    <section>
+    <section id="why">
         <h2 class="lang-bg">Защо BasketIndex?</h2>
         <h2 class="lang-en">Why BasketIndex?</h2>
         <div class="grid-3">
@@ -287,7 +304,7 @@
     </section>
 
     <!-- ── How it works ── -->
-    <section>
+    <section id="how-it-works">
         <h2 class="lang-bg">Как работи</h2>
         <h2 class="lang-en">How it works</h2>
         <div class="steps">
@@ -330,7 +347,7 @@
     </section>
 
     <!-- ── Onboarding ── -->
-    <section>
+    <section id="onboarding">
         <h2 class="lang-bg">Как работи BasketIndex</h2>
         <h2 class="lang-en">How BasketIndex works</h2>
         <p class="lang-bg">BasketIndex ти помага да извлечеш историята на покупките си, да я запазиш локално и да проследиш как се променят цените във времето. Процесът е кратък, но е добре да знаеш какво виждаш на всяка стъпка.</p>
@@ -443,8 +460,7 @@
         <p class="onboarding-closing lang-en">BasketIndex is not trying to be an official inflation index. It is a personal price intelligence tool built on top of your real receipts.</p>
     </section>
 
-    <!-- ── Privacy section ── -->
-    <section>
+    <section id="privacy">
         <h2 class="lang-bg">Поверителност, наистина</h2>
         <h2 class="lang-en">Privacy, for real</h2>
         <p class="lang-bg">BasketIndex е създаден с проста идея: ако може да работи без сървър, така трябва да бъде.</p>
@@ -478,7 +494,7 @@
     </section>
 
     <!-- ── Current support ── -->
-    <section>
+    <section id="retailers">
         <h2 class="lang-bg">Поддържани търговци</h2>
         <h2 class="lang-en">Current support</h2>
         <p class="lang-bg">BasketIndex работи с два търговеца в момента:</p>
@@ -502,7 +518,7 @@
     </section>
 
     <!-- ── Price analysis ── -->
-    <section>
+    <section id="trends">
         <h2 class="lang-bg">Разбери цените си</h2>
         <h2 class="lang-en">Understand your prices</h2>
         <p class="lang-bg"><strong>Страницата Тенденции</strong> на BasketIndex показва как се променят цените на най-купуваните ти продукти във времето. Сравнявай продукти един до друг, филтрирай по период и виж данните зад всяка точка в доказателствената таблица.</p>
@@ -532,7 +548,7 @@
     </section>
 
     <!-- ── Maturity ── -->
-    <section>
+    <section id="maturity">
         <h2 class="lang-bg">Зрялост на продукта</h2>
         <h2 class="lang-en">Release maturity</h2>
         <p class="lang-bg">BasketIndex е в <strong>Стабилна бета</strong> от юли 2026. Това означава:</p>
@@ -554,7 +570,7 @@
     </section>
 
     <!-- ── Open source ── -->
-    <section>
+    <section id="opensource">
         <h2 class="lang-bg">Отворен код</h2>
         <h2 class="lang-en">Open source</h2>
         <p class="lang-bg">BasketIndex е напълно с отворен код под MIT лиценз. Целият код е наличен в GitHub.</p>
@@ -573,8 +589,62 @@
         </div>
     </section>
 
+    <!-- ── Worklog ── -->
+    <section id="worklog">
+        <h2 class="lang-bg">История на продукта</h2>
+        <h2 class="lang-en">Product timeline</h2>
+        <div class="worklog-list">
+
+            <div class="worklog-entry">
+                <div class="worklog-date"><span class="lang-bg">1 юли 2026</span><span class="lang-en">July 1, 2026</span></div>
+                <h3 class="lang-bg">v0.2.0 · Стабилна бета · Публична страница</h3>
+                <h3 class="lang-en">v0.2.0 · Stable Beta · Public launch</h3>
+                <p class="lang-bg">Двуезична лендинг страница (BG/EN) с онбординг, реални екранни снимки и GA4 анализи. Подобрени експорти: аналитична графика и social карта за споделяне. Коригирани връзки за изтегляне, директна дистрибуция на ZIP от GitHub Releases.</p>
+                <p class="lang-en">Bilingual landing page (BG/EN) with onboarding, real screenshots, and GA4 analytics. Improved exports: analysis chart and social share card. Fixed download links, direct ZIP distribution from GitHub Releases.</p>
+                <div class="worklog-tags"><span class="lang-bg">Лендинг</span><span class="lang-en">Landing</span> · <span class="lang-bg">Експорти</span><span class="lang-en">Exports</span> · UX</div>
+            </div>
+
+            <div class="worklog-entry">
+                <div class="worklog-date"><span class="lang-bg">27-30 юни 2026</span><span class="lang-en">June 27-30, 2026</span></div>
+                <h3 class="lang-bg">Тенденции и хронология · Основен анализ</h3>
+                <h3 class="lang-en">Trends & History · Core analysis</h3>
+                <p class="lang-bg">Страница „Ценови тенденции“: множество продуктови серии, три режима (номинален €, индекс, проценти), филтриране по период, интерактивни tooltip-ове, таблица с доказателства, чистене на шум в заглавията. История: последващи извличания, дедупликация на бележки, обратна връзка за нула нови бележки, опростени карти. Номинален режим с единна валута (EUR с BGN→EUR конвертиране).</p>
+                <p class="lang-en">Trends page: multi-series charts, three modes (nominal €, index, percentage), date range filtering, interactive tooltips, evidence table, title noise cleanup. History: follow-up extraction, receipt deduplication, zero-new-receipts feedback, simplified cards. Nominal mode with unified currency (EUR with BGN→EUR conversion).</p>
+                <div class="worklog-tags">Trends · History · <span class="lang-bg">Данни</span><span class="lang-en">Data quality</span> · <span class="lang-bg">Извличане</span><span class="lang-en">Extraction</span></div>
+            </div>
+
+            <div class="worklog-entry">
+                <div class="worklog-date"><span class="lang-bg">29 юни 2026</span><span class="lang-en">June 29, 2026</span></div>
+                <h3 class="lang-bg">METRO адаптер · Втори търговец</h3>
+                <h3 class="lang-en">Metro adapter · Second retailer</h3>
+                <p class="lang-bg">API-базирано извличане от Metro България: фактури и артикули през токен-базиран достъп. Преработен Lidl адаптер към API-first архитектура със споделени скриптове. Подобрени CSV/JSON експорти с експлицитни EUR/BGN колони.</p>
+                <p class="lang-en">API-based extraction from Metro Bulgaria: invoices and articles via token-based access. Refactored Lidl adapter to API-first architecture with shared scripts. Improved CSV/JSON exports with explicit EUR/BGN columns.</p>
+                <div class="worklog-tags">Metro · Lidl · <span class="lang-bg">Извличане</span><span class="lang-en">Extraction</span> · <span class="lang-bg">Експорти</span><span class="lang-en">Exports</span></div>
+            </div>
+
+            <div class="worklog-entry">
+                <div class="worklog-date"><span class="lang-bg">27-29 юни 2026</span><span class="lang-en">June 27-29, 2026</span></div>
+                <h3 class="lang-bg">Локализация и UX · Български интерфейс</h3>
+                <h3 class="lang-en">Localization & UX · Bulgarian interface</h3>
+                <p class="lang-bg">Пълен български превод на интерфейса. Хронология на извличанията с неизменяеми записи. Подобрен изскачащ прозорец с прост и разширен изглед. Панел с обратна връзка за потребителя и съобщения за грешки. Полски визуален дизайн.</p>
+                <p class="lang-en">Full Bulgarian translation. Extraction history with immutable records. Improved popup with simple and advanced views. User feedback panel with error messages. Polished visual design.</p>
+                <div class="worklog-tags">i18n · UX · History · <span class="lang-bg">Поверителност</span><span class="lang-en">Privacy</span></div>
+            </div>
+
+            <div class="worklog-entry">
+                <div class="worklog-date"><span class="lang-bg">27 юни 2026</span><span class="lang-en">June 27, 2026</span></div>
+                <h3 class="lang-bg">v0.1.0 · Първа версия · Lidl експорт на бележки</h3>
+                <h3 class="lang-en">v0.1.0 · Initial release · Lidl receipt export</h3>
+                <p class="lang-bg">Първоначална работеща версия: Lidl адаптер за извличане на касови бележки, JSON и CSV експорт, локално съхранение, нула сървъри, нула анализи, нула телеметрия. Публикувано на GitHub с MIT лиценз.</p>
+                <p class="lang-en">First working version: Lidl receipt extraction adapter, JSON and CSV export, local storage, zero servers, zero analytics, zero telemetry. Published on GitHub under MIT license.</p>
+                <div class="worklog-tags">Lidl · <span class="lang-bg">Извличане</span><span class="lang-en">Extraction</span> · <span class="lang-bg">Експорти</span><span class="lang-en">Exports</span> · <span class="lang-bg">Поверителност</span><span class="lang-en">Privacy</span></div>
+            </div>
+
+        </div>
+    </section>
+
     <!-- ── FAQ ── -->
-    <section>
+    <section id="faq">
         <h2>FAQ</h2>
         <div class="faq-item">
             <h3 class="lang-bg">Кои търговци се поддържат?</h3>
