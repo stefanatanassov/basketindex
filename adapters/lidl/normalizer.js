@@ -84,7 +84,13 @@ function normalizeReceipt(raw) {
       type: item.tax_type || '',
       rate: null
     },
-    discounts: [],
+    discounts: (item.discounts || []).map(d => ({
+      description: d.description || '',
+      promotion_id: d.promotion_id || null,
+      amount_primary: isEur ? d.amount : null,
+      amount_secondary: isEur ? convertToBgn(d.amount, er) : d.amount,
+      applied_to_lines: [item.line_no]
+    })),
     raw: {
       text: item.raw_text || '',
       adapter_parse_method: item.parse_method || 'unknown'
@@ -109,12 +115,14 @@ function normalizeReceipt(raw) {
   const discounts = [];
   if (raw.discounts && Array.isArray(raw.discounts)) {
     for (const d of raw.discounts) {
+      // Use applied_to_lines from parser (adjacency-based), default to empty
+      const appliedLines = d.applied_to_lines || [];
       discounts.push({
         description: d.description || '',
         promotion_id: d.promotion_id || null,
         amount_primary: isEur ? d.amount : null,
         amount_secondary: isEur ? convertToBgn(d.amount, er) : d.amount,
-        applied_to_lines: []
+        applied_to_lines: appliedLines
       });
     }
   }

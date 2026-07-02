@@ -92,44 +92,108 @@ function buildItem(lineNo, artId, name, rawText, taxType, unitPriceRaw, quantity
 
 function extractItemsFromDom(currencyInfo, doc) {
   const d = doc || document;
-  const articleSpans = d.querySelectorAll('.purchase_list .article');
-  if (articleSpans.length === 0) return null;
+  const purchaseList = d.querySelector('.purchase_list');
+  if (!purchaseList) return null;
+
+  // Scan all children in DOM order — both .article and .discount
+  const children = purchaseList.querySelectorAll('.article, .discount');
+  if (children.length === 0) return null;
 
   const items = [];
+  const pendingDiscounts = [];
   let lineNo = 0;
-  let i = 0;
 
-  while (i < articleSpans.length) {
-    const row = articleSpans[i];
-    const artId = row.getAttribute('data-art-id') || '';
-    const unitPrice = parseFloatBg(row.getAttribute('data-unit-price') || '');
-    const taxType = row.getAttribute('data-tax-type') || '';
-    const description = row.getAttribute('data-art-description') || '';
-    const rowText = extractText(row);
-    const nextRow = i + 1 < articleSpans.length ? articleSpans[i + 1] : null;
-    const nextArtId = nextRow ? nextRow.getAttribute('data-art-id') || '' : '';
-    const isPaired = artId && nextArtId === artId;
+  function flushDiscounts() {
+    const result = [...pendingDiscounts];
+    pendingDiscounts.length = 0;
+    return result;
+  }
 
-    if (isPaired) {
-      const name = nextRow.getAttribute('data-art-description') || description;
-      const quantity = parseQtyFromLine(rowText);
-      const lineTotal = parseLastNumber(extractText(nextRow));
-      const qtyUnit = guessUnit(description || name, rowText);
-      items.push(buildItem(++lineNo, artId, name, extractText(nextRow), taxType,
-        !isNaN(unitPrice) ? unitPrice : (quantity > 0 ? Math.round(lineTotal / quantity * 100) / 100 : lineTotal),
-        quantity, lineTotal, qtyUnit, 'dom_paired', currencyInfo));
-      i += 2;
-    } else {
-      const name = description || rowText.split(/\s{2,}/)[0] || rowText;
-      const lineTotal = parseLastNumber(rowText);
-      const qtyUnit = guessUnit(description || name, '');
-      items.push(buildItem(++lineNo, artId, name, rowText, taxType,
-        (!isNaN(unitPrice) && unitPrice > 0) ? unitPrice : lineTotal,
-        1, lineTotal, qtyUnit, 'dom_single', currencyInfo));
-      i++;
+  for (const child of children) {
+    const isArticle = child.classList.contains('article');
+    const isDiscount = child.classList.contains('discount');
+
+    if (isDiscount) {
+      const promoId = child.getAttribute('data-promotion-id') || '';
+      const text = child.textContent.trim();
+      let description = '';
+      let amount = 0;
+
+      if (text.includes('промоция') || text.includes('Lidl Plus') || text.includes('Акция') || text.includes('акция')) {
+        description = text.replace(/^#/, '').replace(/#$/, '').trim();
+      } else if (text.includes('ОТСТЪПКИ') || text.includes('отстъпки')) {
+        const m = text.match(/(\d+[.,]\d{2})/);
+        if (m) amount = parseFloatBg(m[1]);
+      }
+
+      // Only keep discounts with at least a promo ID or a description
+      if (promoId || description) {
+        pendingDiscounts.push({ promotion_id: promoId, description, amount, raw_text: text });
+        // If this line has an amount, update the latest matching discount
+        if (amount > 0 && promoId) {
+          const prev = pendingDiscounts.filter(d => d.promotion_id === promoId && d.amount === 0);
+          if (prev.length) prev[0].amount = amount;
+        }
+      }
+
+      continue;
+    }
+
+    if (isArticle) {
+      // Check if this article is paired with the next article (same artId)
+      const artId = child.getAttribute('data-art-id') || '';
+      const unitPrice = parseFloatBg(child.getAttribute('data-unit-price') || '');
+      const taxType = child.getAttribute('data-tax-type') || '';
+      const description = child.getAttribute('data-art-description') || '';
+      const rowText = extractText(child);
+
+      // Lookahead for paired row: find next .article sibling with same artId
+      const nextArticle = findNextArticleSibling(child);
+      const isPaired = nextArticle && nextArticle.getAttribute('data-art-id') === artId;
+
+      if (isPaired) {
+        const name = nextArticle.getAttribute('data-art-description') || description;
+        const quantity = parseQtyFromLine(rowText);
+        const lineTotal = parseLastNumber(extractText(nextArticle));
+        const qtyUnit = guessUnit(description || name, rowText);
+        ++lineNo;
+        const item = buildItem(lineNo, artId, name, extractText(nextArticle), taxType,
+          !isNaN(unitPrice) ? unitPrice : (quantity > 0 ? Math.round(lineTotal / quantity * 100) / 100 : lineTotal),
+          quantity, lineTotal, qtyUnit, 'dom_paired', currencyInfo);
+        item.discounts = flushDiscounts();
+        items.push(item);
+      } else {
+        ++lineNo;
+        const name = description || rowText.split(/\s{2,}/)[0] || rowText;
+        const lineTotal = parseLastNumber(rowText);
+        const qtyUnit = guessUnit(description || name, '');
+        const item = buildItem(lineNo, artId, name, rowText, taxType,
+          (!isNaN(unitPrice) && unitPrice > 0) ? unitPrice : lineTotal,
+          1, lineTotal, qtyUnit, 'dom_single', currencyInfo);
+        item.discounts = flushDiscounts();
+        items.push(item);
+      }
     }
   }
+
+  // Any remaining discounts (unattributable at item level) → return as receipt-level
+  const leftoverDiscounts = flushDiscounts();
+  if (leftoverDiscounts.length) {
+    if (!items.length) return null;
+    // Attach trailing discounts to last item as a best-effort fallback
+    items[items.length - 1].discounts = items[items.length - 1].discounts.concat(leftoverDiscounts);
+  }
+
   return items;
+}
+
+// Helper: find the next .article sibling (skipping .discount rows)
+function findNextArticleSibling(el) {
+  let next = el.nextElementSibling;
+  while (next && !next.classList.contains('article')) {
+    next = next.nextElementSibling;
+  }
+  return next;
 }
 
 function extractSummaryRows(doc) {
@@ -278,17 +342,55 @@ function parseReceipt(doc, receiptId) {
   const currencyInfo = detectCurrency(doc);
   const items = extractItemsFromDom(currencyInfo, doc);
   const itemsResult = items || [];
+
+  // Build receipt-level discounts from item-level discount data
+  const receiptDiscounts = [];
+  const seenPromos = new Set();
+  for (const item of itemsResult) {
+    for (const d of (item.discounts || [])) {
+      const key = d.promotion_id || d.description;
+      if (!key) continue;
+      if (seenPromos.has(key)) {
+        // Merge amount into existing entry
+        const existing = receiptDiscounts.find(r => (r.promotion_id || r.description) === key);
+        if (existing) {
+          existing.amount += d.amount;
+          existing.applied_to_lines.push(item.line_no);
+        }
+      } else {
+        seenPromos.add(key);
+        receiptDiscounts.push({
+          promotion_id: d.promotion_id || null,
+          description: d.description,
+          amount: d.amount,
+          applied_to_lines: [item.line_no]
+        });
+      }
+    }
+  }
+
+  // Also scan standalone discounts (not attributable to any item — basket-level or trailing)
+  const standaloneDiscounts = extractDiscounts(doc);
+  for (const sd of standaloneDiscounts) {
+    const alreadyIncluded = receiptDiscounts.some(r =>
+      (sd.promotion_id && r.promotion_id === sd.promotion_id) ||
+      (!sd.promotion_id && r.description === sd.description)
+    );
+    if (!alreadyIncluded && sd.amount > 0) {
+      receiptDiscounts.push({ ...sd, applied_to_lines: [] });
+    }
+  }
+
   const dateTime = extractDateTime(doc);
   const store = extractStoreInfo(doc);
   const totals = extractTotals(currencyInfo, doc);
   const meta = extractReceiptMeta(doc);
-  const discounts = extractDiscounts(doc);
 
   return {
     success: true,
     receipt_id: receiptId || '',
     date: dateTime.date, time: dateTime.time, datetime_local: dateTime.datetime_local,
-    store, receipt_meta: meta, totals, items: itemsResult, discounts,
+    store, receipt_meta: meta, totals, items: itemsResult, discounts: receiptDiscounts,
     currency_item: currencyInfo.currency_item,
     currency_total: currencyInfo.currency_total,
     exchange_rate: currencyInfo.exchange_rate,
