@@ -1,4 +1,4 @@
-import { loadRuns, runLabel } from '../lib/run-history.js';
+import { loadRuns } from '../lib/run-history.js';
 import { buildAiPack, getAnalysisTypes } from '../lib/ai-pack.js';
 
 let runs = [];
