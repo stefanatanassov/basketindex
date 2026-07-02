@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BasketIndex — AI Анализ</title>
+  <link rel="stylesheet" href="ai.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>BasketIndex</h1>
+      <span class="subtitle">AI Analysis Export</span>
+    </header>
+
+    <div id="emptyState" class="empty-state">
+      <p>Няма налични извличания.</p>
+      <p>Стартирай извличане, за да генерираш AI пакет.</p>
+    </div>
+
+    <div id="main" class="ai-main" style="display:none">
+      <p class="ai-intro">Избери извличания и тип анализ. BasketIndex ще създаде локален пакет с твоите данни и висококачествен prompt — готов за качване в избрания от теб AI модел.</p>
+
+      <div class="form-group">
+        <label>Извличания</label>
+        <div id="runCheckboxes" class="checkbox-list"></div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Тип анализ</label>
+          <select id="analysisType"></select>
+        </div>
+        <div class="form-group">
+          <label>Език</label>
+          <select id="language">
+            <option value="bg">Български</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+      </div>
+
+      <p class="ai-note">Пакетът се генерира локално в браузъра ти. Никакви данни не се изпращат към сървър. Ти решаваш кога и къде да го използваш.</p>
+
+      <button id="generateBtn" class="btn btn-primary" disabled>Генерирай AI пакет</button>
+      <span id="status" class="ai-status"></span>
+    </div>
+  </div>
+
+  <script src="ai.js" type="module"></script>
+</body>
+</html>

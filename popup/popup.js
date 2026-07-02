@@ -1,6 +1,7 @@
 import { listAdapters, resolveAdapter } from '../core/adapter-registry.js';
 import { classifyFromJobStatus } from '../lib/user-feedback.js';
 import { t } from '../lib/i18n-helper.js';
+import { initBusyUi } from '../lib/ui-busy.js';
 
 const MESSAGE_TYPES = {
   JOB_REQUEST: 'LIDL_JOB_REQUEST',
@@ -29,13 +30,19 @@ let currentStatus = 'idle';
 let isAdvanced = false;
 let listingTabId = null;
 let adapterId = null;
+let busyUi = null;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  busyUi = initBusyUi({
+    defaultTitle: t('uiLoadingTitle'),
+    defaultBody: t('popupLoadingBody')
+  });
   applyPopupI18n();
   populateAdapterOptions();
   bindEvents();
   loadSavedConfig();
-  refreshJobState();
+  await refreshJobState();
+  busyUi.markReady();
   pollTimer = setInterval(refreshJobState, 1500);
 });
 
@@ -52,7 +59,8 @@ function applyPopupI18n() {
   setText('exportCsvBtn', 'popupExportCsv'); setText('exportCsvBtnAdv', 'popupExportCsv');
   setText('pauseBtn', 'advancedPause'); setText('resumeBtn', 'advancedResume');
   setText('exportBtn', 'popupExportJson'); setText('snapshotBtn', 'popupSnapshotJson');
-  setText('historyLink', 'popupHistory'); setText('advancedLink', 'popupAdvanced');
+  setText('historyLink', 'popupHistory'); setText('advancedLink', 'popupSettings'); setText('trendsLink', 'popupTrends');
+  setText('backToSimpleBtn', 'popupBack');
   setText('footerDisclaimer', 'footerDisclaimer');
 }
 
@@ -67,10 +75,11 @@ function bindEvents() {
   document.getElementById('snapshotBtn').addEventListener('click', handleSnapshot);
   document.getElementById('exportCsvBtn').addEventListener('click', handleExportCsv);
   document.getElementById('exportCsvBtnAdv').addEventListener('click', handleExportCsv);
+  document.getElementById('backToSimpleBtn').addEventListener('click', toggleMode);
   document.getElementById('detectUrlBtn').addEventListener('click', handleDetectUrl);
-  document.getElementById('toggleModeBtn').addEventListener('click', toggleMode);
   document.getElementById('historyLink').addEventListener('click', (e) => {
     e.preventDefault();
+    busyUi?.setBusy(true, { title: t('uiOpeningTitle'), body: t('popupOpenHistoryBody') });
     chrome.tabs.create({ url: chrome.runtime.getURL('history/history.html') });
   });
   document.getElementById('advancedLink').addEventListener('click', (e) => {
@@ -79,7 +88,12 @@ function bindEvents() {
   });
   document.getElementById('trendsLink').addEventListener('click', (e) => {
     e.preventDefault();
+    busyUi?.setBusy(true, { title: t('uiOpeningTitle'), body: t('popupOpenTrendsBody') });
     chrome.tabs.create({ url: chrome.runtime.getURL('trends/trends.html') });
+  });
+  document.getElementById('aiLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    chrome.tabs.create({ url: chrome.runtime.getURL('ai/ai.html') });
   });
   document.getElementById('feedbackCta').addEventListener('click', handleFocusRetailerTab);
 
@@ -104,7 +118,6 @@ function toggleMode() {
   isAdvanced = !isAdvanced;
   document.getElementById('simpleView').style.display = isAdvanced ? 'none' : '';
   document.getElementById('advancedView').style.display = isAdvanced ? '' : 'none';
-  document.getElementById('toggleModeBtn').textContent = isAdvanced ? '←' : '⚙';
 }
 
 function applyRetailerDefaults() {
@@ -204,21 +217,28 @@ function getListingUrl() {
 }
 
 async function handleStart() {
-  const config = getConfig();
-  applyRetailerDefaults();
-  const listingUrl = getListingUrl();
-  if (!listingUrl && config.adapterId !== 'metro') {
-    showMessage('Enter a purchase history URL or click Detect', 'error');
-    return;
-  }
-  saveConfig();
-  const response = await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.START, config, listingBaseUrl: listingUrl });
-  if (!response || !response.success) showMessage(friendlyError(response), 'error');
-  refreshJobState();
+  await busyUi.withBusy(async () => {
+    const config = getConfig();
+    applyRetailerDefaults();
+    const listingUrl = getListingUrl();
+    if (!listingUrl && config.adapterId !== 'metro') {
+      showMessage('Enter a purchase history URL or click Detect', 'error');
+      return;
+    }
+    saveConfig();
+    const response = await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.START, config, listingBaseUrl: listingUrl });
+    if (!response || !response.success) showMessage(friendlyError(response), 'error');
+    await refreshJobState();
+  }, {
+    title: t('uiWorkingTitle'),
+    body: t('popupStartingBody')
+  });
 }
 
 async function handleFocusRetailerTab() {
+  busyUi?.setBusy(true, { title: t('uiOpeningTitle'), body: t('popupOpenRetailerBody') });
   if (!listingTabId) {
+    busyUi?.setBusy(false);
     showMessage(t('feedbackTabUnavailable'), 'error');
     return;
   }
@@ -230,6 +250,8 @@ async function handleFocusRetailerTab() {
     }
   } catch (_) {
     showMessage(t('feedbackTabUnavailable'), 'error');
+  } finally {
+    busyUi?.setBusy(false);
   }
 }
 
@@ -245,56 +267,68 @@ function resetPopupUI() {
 }
 
 async function handlePause() {
-  const resp = await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.PAUSE });
-  if (!resp || !resp.success) showMessage(friendlyError(resp), 'error');
-  refreshJobState();
+  await busyUi.withBusy(async () => {
+    const resp = await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.PAUSE });
+    if (!resp || !resp.success) showMessage(friendlyError(resp), 'error');
+    await refreshJobState();
+  }, { title: t('uiWorkingTitle'), body: t('popupPausingBody') });
 }
 
 async function handleResume() {
-  const resp = await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.RESUME });
-  if (!resp || !resp.success) showMessage(friendlyError(resp), 'error');
-  refreshJobState();
+  await busyUi.withBusy(async () => {
+    const resp = await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.RESUME });
+    if (!resp || !resp.success) showMessage(friendlyError(resp), 'error');
+    await refreshJobState();
+  }, { title: t('uiWorkingTitle'), body: t('popupResumingBody') });
 }
 
 async function handleReset() {
-  applyRetailerDefaults();
-  // Clear active job state via SW (does NOT delete run history)
-  await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.RESET });
-  // Immediately reset UI to clean ready state
-  resetPopupUI();
+  await busyUi.withBusy(async () => {
+    applyRetailerDefaults();
+    await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.RESET });
+    resetPopupUI();
+  }, { title: t('uiWorkingTitle'), body: t('popupResettingBody') });
 }
 
 async function handleExport() {
-  const resp = await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.EXPORT });
-  if (resp && resp.success) showMessage('JSON export started', 'success');
-  else showMessage(friendlyError(resp), 'error');
+  await busyUi.withBusy(async () => {
+    const resp = await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.EXPORT });
+    if (resp && resp.success) showMessage('JSON export started', 'success');
+    else showMessage(friendlyError(resp), 'error');
+  }, { title: t('uiWorkingTitle'), body: t('popupExportingJsonBody') });
 }
 
 async function handleSnapshot() {
-  const resp = await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.SNAPSHOT });
-  if (resp && resp.success) showMessage('Snapshot export started', 'success');
-  else showMessage(friendlyError(resp), 'error');
+  await busyUi.withBusy(async () => {
+    const resp = await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.SNAPSHOT });
+    if (resp && resp.success) showMessage('Snapshot export started', 'success');
+    else showMessage(friendlyError(resp), 'error');
+  }, { title: t('uiWorkingTitle'), body: t('popupExportingSnapshotBody') });
 }
 
 async function handleExportCsv() {
-  const resp = await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.EXPORT_CSV });
-  if (resp && resp.success) showMessage('CSV export started', 'success');
-  else showMessage(friendlyError(resp), 'error');
+  await busyUi.withBusy(async () => {
+    const resp = await chrome.runtime.sendMessage({ type: MESSAGE_TYPES.JOB_CONTROL, action: CONTROL_ACTIONS.EXPORT_CSV });
+    if (resp && resp.success) showMessage('CSV export started', 'success');
+    else showMessage(friendlyError(resp), 'error');
+  }, { title: t('uiWorkingTitle'), body: t('popupExportingCsvBody') });
 }
 
 async function handleDetectUrl() {
   showMessage('Detecting Lidl tab...', 'info');
-  try {
-    const tabs = await chrome.tabs.query({});
-    let lidlTab = null;
-    for (const tab of tabs) { if (tab.url && tab.url.includes('lidl.') && tab.url.includes('purchase-history')) { lidlTab = tab; break; } }
-    if (lidlTab) {
-      let url = lidlTab.url; url = url.replace(/[?&]page=\d+/g, '').replace(/[?&]p=\d+/g, '');
-      if (url.endsWith('?') || url.endsWith('&')) url = url.slice(0, -1);
-      document.getElementById('listingUrl').value = url; saveConfig();
-      showMessage(`Detected: ${url}`, 'info');
-    } else { showMessage('No Lidl purchase-history tab found.', 'error'); }
-  } catch (err) { showMessage('Detection failed: ' + err.message, 'error'); }
+  await busyUi.withBusy(async () => {
+    try {
+      const tabs = await chrome.tabs.query({});
+      let lidlTab = null;
+      for (const tab of tabs) { if (tab.url && tab.url.includes('lidl.') && tab.url.includes('purchase-history')) { lidlTab = tab; break; } }
+      if (lidlTab) {
+        let url = lidlTab.url; url = url.replace(/[?&]page=\d+/g, '').replace(/[?&]p=\d+/g, '');
+        if (url.endsWith('?') || url.endsWith('&')) url = url.slice(0, -1);
+        document.getElementById('listingUrl').value = url; saveConfig();
+        showMessage(`Detected: ${url}`, 'info');
+      } else { showMessage('No Lidl purchase-history tab found.', 'error'); }
+    } catch (err) { showMessage('Detection failed: ' + err.message, 'error'); }
+  }, { title: t('uiWorkingTitle'), body: t('popupDetectingBody') });
 }
 
 async function refreshJobState() {
