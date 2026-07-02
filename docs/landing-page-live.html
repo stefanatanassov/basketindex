@@ -136,8 +136,10 @@
         }
         .onboarding-img img {
             width: 100%; border: 1px solid var(--border);
-            border-radius: 6px; display: block;
+            border-radius: 6px; display: block; cursor: zoom-in;
+            transition: opacity 120ms ease;
         }
+        .onboarding-img img:hover { opacity: 0.85; }
         .onboarding-text { flex: 1; }
         .onboarding-text h3 { font-size: 1.05rem; margin-bottom: 0.5rem; }
         .onboarding-text p { font-size: 0.9rem; margin-bottom: 0.5rem; }
@@ -155,6 +157,18 @@
             border-left: 3px solid var(--accent); background: var(--card);
             border-radius: 0 6px 6px 0; font-size: 0.9rem; color: var(--muted);
         }
+
+        /* ── Lightbox ── */
+        .lightbox { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.88); z-index: 1000; align-items: center; justify-content: center; cursor: zoom-out; }
+        .lightbox.open { display: flex; }
+        .lightbox img { max-width: 92vw; max-height: 88vh; border-radius: 8px; box-shadow: 0 8px 40px rgba(0,0,0,0.4); cursor: default; }
+        .lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.12); border: none; color: #fff; font-size: 2rem; padding: 0.5rem 0.8rem; cursor: pointer; border-radius: 4px; transition: background 120ms; }
+        .lightbox-nav:hover { background: rgba(255,255,255,0.22); }
+        .lightbox-prev { left: 1rem; }
+        .lightbox-next { right: 1rem; }
+        .lightbox-close { position: absolute; top: 1rem; right: 1.5rem; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; opacity: 0.6; }
+        .lightbox-close:hover { opacity: 1; }
+        .lightbox-counter { position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.5); font-size: 0.85rem; }
         @media (max-width: 640px) {
             .onboarding-step { flex-direction: column; }
             .onboarding-img { flex: none; max-width: 100%; }
@@ -729,6 +743,67 @@
     setLang(saved === 'en' ? 'en' : 'bg');
     window.setLang = setLang;
 })();
+</script>
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+    <button class="lightbox-nav lightbox-prev" onclick="navLightbox(-1, event)">&#8249;</button>
+    <img id="lightbox-img" src="" alt="" onclick="event.stopPropagation()" />
+    <button class="lightbox-nav lightbox-next" onclick="navLightbox(1, event)">&#8250;</button>
+    <div class="lightbox-counter" id="lightbox-counter"></div>
+</div>
+
+<script>
+var lightboxImages = [];
+var lightboxIdx = 0;
+
+(function() {
+    var imgs = document.querySelectorAll('.onboarding-img img');
+    lightboxImages = Array.from(imgs);
+    var lb = document.getElementById('lightbox');
+    var img = document.getElementById('lightbox-img');
+    var counter = document.getElementById('lightbox-counter');
+
+    imgs.forEach(function(el, i) {
+        el.addEventListener('click', function(e) {
+            e.preventDefault();
+            openLightbox(i);
+        });
+    });
+
+    function openLightbox(idx) {
+        lightboxIdx = idx;
+        var src = lightboxImages[idx].getAttribute('src');
+        img.src = src;
+        counter.textContent = (idx + 1) + ' / ' + lightboxImages.length;
+        lb.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    window.openLightbox = openLightbox;
+})();
+
+function closeLightbox(e) {
+    if (e && e.target !== document.getElementById('lightbox')) return;
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function navLightbox(dir, e) {
+    if (e) e.stopPropagation();
+    lightboxIdx = (lightboxIdx + dir + lightboxImages.length) % lightboxImages.length;
+    var src = lightboxImages[lightboxIdx].getAttribute('src');
+    var img = document.getElementById('lightbox-img');
+    img.src = src;
+    document.getElementById('lightbox-counter').textContent = (lightboxIdx + 1) + ' / ' + lightboxImages.length;
+}
+
+document.addEventListener('keydown', function(e) {
+    var lb = document.getElementById('lightbox');
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); navLightbox(-1); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); navLightbox(1); }
+    if (e.key === 'Escape') { e.preventDefault(); closeLightbox(); }
+});
 </script>
 <script src="js/ga4.js"></script>
 </body>
