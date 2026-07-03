@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extensionName__",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "__MSG_extensionDescription__",
   "default_locale": "bg",
   "homepage_url": "https://basketindex.stefanatanasov.dev/",
@@ -94,7 +94,10 @@
         "https://*.lidl.dk/*/purchase-history*",
         "https://*.lidl.no/*/purchase-history*"
       ],
-      "js": ["adapters/lidl/shared.js", "adapters/lidl/listing-extractor.js"],
+      "js": [
+        "adapters/lidl/shared.js",
+        "adapters/lidl/listing-extractor.js"
+      ],
       "run_at": "document_idle"
     },
     {
@@ -127,12 +130,19 @@
         "https://*.lidl.dk/*/purchase-detail*",
         "https://*.lidl.no/*/purchase-detail*"
       ],
-      "js": ["adapters/lidl/shared.js", "adapters/lidl/detail-extractor.js"],
+      "js": [
+        "adapters/lidl/shared.js",
+        "adapters/lidl/detail-extractor.js"
+      ],
       "run_at": "document_idle"
     },
     {
-      "matches": ["https://docs.metro.bg/*"],
-      "js": ["adapters/metro/shared.js"],
+      "matches": [
+        "https://docs.metro.bg/*"
+      ],
+      "js": [
+        "adapters/metro/shared.js"
+      ],
       "run_at": "document_idle"
     }
   ]
