@@ -55,8 +55,7 @@ At no point does data leave your machine through any BasketIndex-controlled chan
 | `storage` | Save job progress and extracted receipts locally | Do not sync to cloud; Chrome manages this locally |
 | `downloads` | Trigger JSON/CSV file downloads when you click Export | Do not download anything automatically |
 | `tabs` | Open and manage browser tabs for receipt pages | Do not read your other tabs or browsing history |
-| `scripting` | Inject content scripts into retailer pages to read receipt data | Do not inject scripts on other websites |
-| Host permissions (Lidl domains) | Read Lidl receipt pages when you navigate to them | Do not access any other part of lidl.com |
+| Host permissions | Read retailer receipt pages when you navigate to them | Do not access any other part of the retailer's website |
 
 ## EU / GDPR considerations
 

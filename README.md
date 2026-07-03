@@ -217,8 +217,7 @@ Full roadmap: [`docs/roadmap.md`](docs/roadmap.md)
 | `storage` + `unlimitedStorage` | Save job progress and receipts locally |
 | `downloads` | Trigger JSON/CSV file downloads when you click Export |
 | `tabs` | Open and manage browser tabs for receipt pages |
-| `scripting` | Inject content scripts into retailer receipt pages |
-| Host permissions (Lidl domains) | Access receipt pages on Lidl websites |
+| Host permissions | Access receipt pages on Lidl and Metro websites |
 
 No `cookies`. No `webRequest`. No `identity`. No remote code. No analytics.
 

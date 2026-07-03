@@ -1,10 +1,9 @@
 import { loadJob, saveJob } from './core/storage.js';
-// TODO(BasketIndex Phase 4): Full adapter-driven extraction.
 // The SW resolves the adapter on START and passes adapterId to the job.
-// The job-manager now uses adapter.getPurchaseHistoryUrl(), adapter.getListingAction(),
+// The job-manager uses adapter.getPurchaseHistoryUrl(), adapter.getListingAction(),
 // and adapter.getDetailAction() for all listing/discovery/extraction message dispatching.
-// Remaining: move content script injection from static manifest declarations to
-// dynamic adapter-driven injection via chrome.scripting.executeScript.
+// Content scripts are injected via manifest-declared content_scripts — no dynamic
+// injection required. Metro uses API-based extraction through token relay.
 import { startJob, pauseJob, resumeJob, resetJob, tryResumeInterruptedJob } from './core/job-manager.js';
 import { MESSAGE_TYPES, CONTROL_ACTIONS } from './core/messaging.js';
 import { triggerJsonDownload, triggerSnapshotDownload, triggerCsvDownload } from './core/download.js';

@@ -29,8 +29,7 @@ export const retailerAdapter = {
 
   /**
    * Return the host patterns that should trigger content script injection
-   * for this retailer. Used to build the manifest's content_scripts matches
-   * and for dynamic injection via scripting.executeScript.
+   * for this retailer. Used to build the manifest's content_scripts matches.
    */
   hostPatterns() { return string[]; },
 
@@ -200,9 +199,9 @@ export function listAdapters() {
 Content scripts are declared in two tiers:
 
 1. **Core content scripts** (always injected): lightweight helper for adapter-agnostic tasks like readiness checks.
-2. **Adapter content scripts** (conditionally injected): injected programmatically via `chrome.scripting.executeScript` when an adapter is activated, scoped to the current tab.
+2. **Adapter content scripts**: injected via manifest-declared `content_scripts` matches, scoped to the retailer's listing and detail pages.
 
-The core engine injects the adapter's `extractReceipt` function into worker tabs dynamically, rather than declaring all adapters' content scripts in the manifest. This keeps the manifest small and avoids unnecessary injection on non-matching pages.
+The manifest includes adapter-specific `matches` patterns in the `content_scripts` declaration. This keeps injection targets explicit and avoids unnecessary injection on non-matching pages.
 
 ## Error handling
 

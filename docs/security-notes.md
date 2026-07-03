@@ -26,7 +26,7 @@
 ### What to watch for
 
 - Only install BasketIndex from the official Chrome Web Store listing or by loading the unpacked extension from the official GitHub repository.
-- Review the permissions prompt when installing. It should only request `storage`, `downloads`, `tabs`, `scripting`, and retailer-specific host permissions.
+- Review the permissions prompt when installing. It should only request `storage`, `downloads`, `tabs`, and retailer-specific host permissions.
 - The extension should never request permissions like `cookies`, `webRequest`, `identity`, or broad `<all_urls>` host access.
 
 ## For contributors and developers
