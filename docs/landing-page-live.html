@@ -533,6 +533,28 @@
         <p class="lang-en">The architecture supports adding new retailers as self-contained adapter modules. Kaufland is planned.</p>
     </section>
 
+    <!-- ── AI Analysis ── -->
+    <section id="ai-analysis">
+        <h2 class="lang-bg"><a href="#ai-analysis" class="anchor-link">AI анализ на твоите покупки</a></h2>
+        <h2 class="lang-en">AI analysis of your purchases</h2>
+        <p class="lang-bg">BasketIndex ти помага да подготвиш данните си за анализ с изкуствен интелект — без самата програма да прави AI обработката. Ти избираш извличанията и типа анализ, а BasketIndex създава локален ZIP пакет с:</p>
+        <p class="lang-en">BasketIndex helps you prepare your data for AI analysis — without the extension itself doing any AI processing. You choose the extracts and analysis type, and BasketIndex creates a local ZIP pack containing:</p>
+        <ul>
+            <li class="lang-bg"><strong>data.json</strong> — нормализирани бележки с предварително изчислени помощни обобщения (топ продукти, повтарящи се покупки, разходи по месеци, отстъпки, сравнение между търговци)</li>
+            <li class="lang-en"><strong>data.json</strong> — normalized receipts with precomputed helper summaries (top products, recurring purchases, monthly spend, discounts, retailer comparison)</li>
+            <li class="lang-bg"><strong>prompt-bg.md</strong> и <strong>prompt-en.md</strong> — висококачествени инструкции за анализ на български и английски</li>
+            <li class="lang-en"><strong>prompt-bg.md</strong> and <strong>prompt-en.md</strong> — high-quality analysis prompts in Bulgarian and English</li>
+            <li class="lang-bg"><strong>README.md</strong> — кратки инструкции как да използваш пакета</li>
+            <li class="lang-en"><strong>README.md</strong> — short instructions on how to use the pack</li>
+        </ul>
+        <p class="lang-bg"><strong>Как работи:</strong> Избираш едно или повече извличания → избираш тип анализ (лична инфлация, спестявания от промоции, сравнение между търговци, основна кошница) → избираш език → BasketIndex генерира ZIP пакет локално в браузъра ти → качваш ZIP-а в избрания от теб AI модел (ChatGPT, Claude, Gemini и др.) и поставяш prompt-а.</p>
+        <p class="lang-en"><strong>How it works:</strong> Select one or more extracts → choose analysis type (personal inflation, discount savings, retailer comparison, core basket) → choose language → BasketIndex generates a ZIP pack locally in your browser → upload the ZIP to your AI model of choice (ChatGPT, Claude, Gemini, etc.) and paste the prompt.</p>
+        <div class="callout">
+            <p class="lang-bg"><strong>Важно:</strong> BasketIndex НЕ извършва AI анализ. Той само подготвя и пакетира данните ти. Ти решаваш кой AI модел да използваш и как да интерпретираш резултатите. Цялата обработка е локална — никакви данни не се изпращат към сървър.</p>
+            <p class="lang-en"><strong>Important:</strong> BasketIndex does NOT perform AI analysis. It only prepares and packages your data. You choose which AI model to use and how to interpret the results. All processing is local — no data is sent to any server.</p>
+        </div>
+    </section>
+
     <!-- ── Price analysis ── -->
     <section id="trends">
         <h2 class="lang-bg"><a href="#trends" class="anchor-link">Разбери цените си</a></h2>
@@ -612,11 +634,20 @@
         <div class="worklog-list">
 
             <div class="worklog-entry">
+                <div class="worklog-date"><span class="lang-bg">3 юли 2026</span><span class="lang-en">July 3, 2026</span></div>
+                <h3 class="lang-bg">AI Analysis Export Pack · Отстъпки по артикули</h3>
+                <h3 class="lang-en">AI Analysis Export Pack · Item-level discounts</h3>
+                <p class="lang-bg"><strong>AI пакет за анализ:</strong> нова страница в разширението за генериране на локален ZIP пакет с данни и висококачествени prompts за анализ с изкуствен интелект. Потребителят избира извличания и тип анализ; BasketIndex пакетира данните локално. Четири типа анализ: лична инфлация, спестявания от промоции, сравнение между търговци, основна кошница. <strong>Отстъпки по артикули:</strong> Lidl вече приписва редове с отстъпки към съответните продукти чрез анализ на позицията в касовата бележка. Подобрен CSV експорт с колони за отстъпки по артикул.</p>
+                <p class="lang-en"><strong>AI Analysis Export Pack:</strong> new extension page for generating local ZIP packs with data and high-quality AI analysis prompts. User selects extracts and analysis type; BasketIndex packages data locally. Four analysis types: personal inflation, discount savings, retailer comparison, core basket. <strong>Item-level discounts:</strong> Lidl now attributes discount rows to the correct products via receipt-position analysis. Improved CSV export with per-item discount columns.</p>
+                <div class="worklog-tags">AI · <span class="lang-bg">Отстъпки</span><span class="lang-en">Discounts</span> · <span class="lang-bg">Експорти</span><span class="lang-en">Exports</span> · Lidl</div>
+            </div>
+
+            <div class="worklog-entry">
                 <div class="worklog-date"><span class="lang-bg">1 юли 2026</span><span class="lang-en">July 1, 2026</span></div>
-                <h3 class="lang-bg">v0.2.0 · Стабилна бета · Публична страница</h3>
-                <h3 class="lang-en">v0.2.0 · Stable Beta · Public launch</h3>
-                <p class="lang-bg">Двуезична лендинг страница (BG/EN) с онбординг, реални екранни снимки и GA4 анализи. Подобрени експорти: аналитична графика и social карта за споделяне. Коригирани връзки за изтегляне, директна дистрибуция на ZIP от GitHub Releases.</p>
-                <p class="lang-en">Bilingual landing page (BG/EN) with onboarding, real screenshots, and GA4 analytics. Improved exports: analysis chart and social share card. Fixed download links, direct ZIP distribution from GitHub Releases.</p>
+                <h3 class="lang-bg">v0.2.0 · Стабилна бета · Публична страница и landing</h3>
+                <h3 class="lang-en">v0.2.0 · Stable Beta · Landing + public launch</h3>
+                <p class="lang-bg">Двуезична лендинг страница (BG/EN) с онбординг, реални екранни снимки, GA4 анализи и секция с продуктовия път. Котвени връзки към всички секции. Подобрени експорти: аналитична графика и social карта за споделяне. Директна дистрибуция на ZIP от GitHub Releases. ЕUR-консистентен номинален режим, подобрено разстояние в графиката.</p>
+                <p class="lang-en">Bilingual landing page (BG/EN) with onboarding, real screenshots, GA4 analytics, and product timeline. Section anchor links throughout. Improved exports: analysis chart and social share card. Direct ZIP distribution from GitHub Releases. EUR-consistent nominal mode, improved chart spacing.</p>
                 <div class="worklog-tags"><span class="lang-bg">Лендинг</span><span class="lang-en">Landing</span> · <span class="lang-bg">Експорти</span><span class="lang-en">Exports</span> · UX</div>
             </div>
 
