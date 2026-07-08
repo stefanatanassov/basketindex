@@ -20,20 +20,28 @@ zip -r "$OUT" \
   content/ \
   popup/ \
   pages/ \
+  history/ \
+  trends/ \
+  ai/ \
   icons/ \
+  _locales/ \
   -x "*.git*" \
   -x "*node_modules*" \
   -x "*.playwright*" \
   -x "scripts/*" \
   -x "docs/*" \
   -x "fixtures/*" \
+  -x ".codex/*" \
+  -x ".opencode/*" \
   -x "package.json" \
   -x "package-lock.json" \
   -x "CONTRIBUTING.md" \
   -x "SECURITY.md" \
   -x "README.md" \
   -x "*.log" \
-  -x "*.tmp"
+  -x "*.tmp" \
+  -x "*.yml" \
+  -x "*.zip"
 
 echo ""
 echo "Created: $OUT ($(ls -lh "$OUT" | awk '{print $5}'))"
