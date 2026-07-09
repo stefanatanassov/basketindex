@@ -240,7 +240,8 @@
         .visual-row { display: flex; gap: 2rem; align-items: center; margin: 2rem 0; }
         .visual-row.reverse { flex-direction: row-reverse; }
         .visual-img { flex: 1; max-width: 50%; }
-        .visual-img img { width: 100%; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .visual-img img { width: 100%; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.06); cursor: zoom-in; transition: opacity 120ms ease; }
+        .visual-img img:hover { opacity: 0.85; }
         .visual-copy { flex: 1; }
         .visual-copy h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
         .visual-copy p { font-size: 0.9rem; }
@@ -882,7 +883,7 @@ var lightboxImages = [];
 var lightboxIdx = 0;
 
 (function() {
-    var imgs = document.querySelectorAll('.onboarding-img img');
+    var imgs = document.querySelectorAll('.onboarding-img img, .visual-img img, .hero-visual img');
     lightboxImages = Array.from(imgs);
     var lb = document.getElementById('lightbox');
     var img = document.getElementById('lightbox-img');
