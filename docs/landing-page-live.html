@@ -229,8 +229,25 @@
         @media (max-width: 640px) {
             .grid-2, .grid-3 { grid-template-columns: 1fr; }
             .steps { flex-direction: column; gap: 0.25rem; }
+            .onboarding-step { flex-direction: column; }
+            .onboarding-img { flex: none; max-width: 100%; }
             .page { padding: 3rem 0; }
+            .visual-row { flex-direction: column-reverse !important; }
+            .visual-img { max-width: 100% !important; }
         }
+
+        /* ── Marketing visuals ── */
+        .visual-row { display: flex; gap: 2rem; align-items: center; margin: 2rem 0; }
+        .visual-row.reverse { flex-direction: row-reverse; }
+        .visual-img { flex: 1; max-width: 50%; }
+        .visual-img img { width: 100%; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .visual-copy { flex: 1; }
+        .visual-copy h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+        .visual-copy p { font-size: 0.9rem; }
+        .hero-visual { margin: 1.5rem 0; }
+        .hero-visual img { width: 100%; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+        .feature-strip { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+        .feature-tag { font-size: 0.75rem; padding: 0.2rem 0.6rem; background: var(--card); border-radius: 4px; color: var(--muted); font-weight: 500; }
     </style>
 </head>
 <body>
@@ -265,6 +282,9 @@
                 <span class="lang-bg">Chrome Web Store - предстои</span>
                 <span class="lang-en">Chrome Web Store - Pending review</span>
             </span>
+        </div>
+        <div class="hero-visual">
+            <img src="/assets/marketing/hero-main.png" alt="BasketIndex — extraction, trends, history, AI analysis overview" loading="eager" />
         </div>
     </section>
 
@@ -553,6 +573,24 @@
             <p class="lang-bg"><strong>Важно:</strong> BasketIndex НЕ извършва AI анализ. Той само подготвя и пакетира данните ти. Ти решаваш кой AI модел да използваш и как да интерпретираш резултатите. Цялата обработка е локална — никакви данни не се изпращат към сървър.</p>
             <p class="lang-en"><strong>Important:</strong> BasketIndex does NOT perform AI analysis. It only prepares and packages your data. You choose which AI model to use and how to interpret the results. All processing is local — no data is sent to any server.</p>
         </div>
+        <div class="visual-row">
+            <div class="visual-img">
+                <img src="/assets/marketing/ai-pack.png" alt="AI Analysis Export Pack — select extracts, generate local ZIP, upload to your AI tool" loading="lazy" />
+            </div>
+            <div class="visual-copy">
+                <h3 class="lang-bg">Готов за AI анализ</h3>
+                <h3 class="lang-en">Ready for AI analysis</h3>
+                <p class="lang-bg">Избери извличания и тип анализ. BasketIndex създава локален ZIP с твоите данни, предварително изчислени обобщения и висококачествени prompts. Качи пакета в ChatGPT, Claude или Gemini — без данните ти да напускат браузъра, докато не решиш.</p>
+                <p class="lang-en">Choose extracts and analysis type. BasketIndex creates a local ZIP with your data, precomputed summaries, and high-quality prompts. Upload the pack to ChatGPT, Claude, or Gemini — without your data ever leaving your browser until you decide.</p>
+                <div class="feature-strip">
+                    <span class="feature-tag">💬 ChatGPT</span>
+                    <span class="feature-tag">🧠 Claude</span>
+                    <span class="feature-tag">🔮 Gemini</span>
+                    <span class="feature-tag lang-bg">📦 Локален ZIP</span>
+                    <span class="feature-tag lang-en">📦 Local ZIP</span>
+                </div>
+            </div>
+        </div>
     </section>
 
     <!-- ── Price analysis ── -->
@@ -582,6 +620,22 @@
                 <span class="lang-bg">Изтегли инструкции за анализ</span>
                 <span class="lang-en">Download Analysis Prompt</span>
             </a>
+        </div>
+        <div class="visual-row">
+            <div class="visual-copy">
+                <h3 class="lang-bg">Виж какво се случва с цените ти</h3>
+                <h3 class="lang-en">See what's happening to your prices</h3>
+                <p class="lang-bg">Множество продуктови линии върху една графика. Филтрирай по период, избери конкретни извличания и продукти, задръж върху точка за детайли. Всяка стойност е проследима до реална касова бележка.</p>
+                <p class="lang-en">Multiple product lines on one chart. Filter by date range, pick specific extracts and products, hover for details. Every value is traceable to a real receipt.</p>
+                <div class="feature-strip">
+                    <span class="feature-tag">📈 <span class="lang-bg">Графика</span><span class="lang-en">Chart</span></span>
+                    <span class="feature-tag">🔍 <span class="lang-bg">Доказателства</span><span class="lang-en">Evidence</span></span>
+                    <span class="feature-tag">💾 <span class="lang-bg">Експорт</span><span class="lang-en">Export</span></span>
+                </div>
+            </div>
+            <div class="visual-img">
+                <img src="/assets/marketing/trends.png" alt="Trends page — multi-series price charts with evidence table" loading="lazy" />
+            </div>
         </div>
     </section>
 
